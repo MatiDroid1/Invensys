@@ -113,6 +113,23 @@
                         Kardex
                     </x-nav-link>
 
+                    <!-- Mensajes -->
+                    <div class="relative inline-flex items-center">
+                        <x-nav-link
+                            :href="route('mensajes.index')"
+                            :active="request()->routeIs('mensajes.*')"
+                        >
+                            Mensajes
+                        </x-nav-link>
+
+                        <span
+                            data-contador-mensajes
+                            class="absolute -top-1 -end-2 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-red-600 text-white text-xs font-bold {{ $mensajesNoLeidos === 0 ? 'hidden' : '' }}"
+                        >
+                            {{ $mensajesNoLeidos }}
+                        </span>
+                    </div>
+
                     <!-- Reportes -->
                     <div
                         x-data="{ openReportes: {{ request()->routeIs('reportes.*') ? 'true' : 'false' }} }"
@@ -406,6 +423,23 @@
                 :active="request()->routeIs('kardex.*')"
             >
                 Kardex
+            </x-responsive-nav-link>
+
+            <!-- Mensajes -->
+            <x-responsive-nav-link
+                :href="route('mensajes.index')"
+                :active="request()->routeIs('mensajes.*')"
+            >
+                <span class="flex justify-between items-center w-full">
+                    <span>Mensajes</span>
+
+                    <span
+                        data-contador-mensajes
+                        class="inline-flex items-center justify-center min-w-5 h-5 px-1 ml-2 rounded-full bg-red-600 text-white text-xs font-bold {{ $mensajesNoLeidos === 0 ? 'hidden' : '' }}"
+                    >
+                        {{ $mensajesNoLeidos }}
+                    </span>
+                </span>
             </x-responsive-nav-link>
 
             <!-- Reportes -->

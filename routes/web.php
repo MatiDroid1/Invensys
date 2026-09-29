@@ -4,8 +4,10 @@ use App\Http\Controllers\ArticuloController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ContactoController;
+use App\Http\Controllers\ConversacionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KardexController;
+use App\Http\Controllers\MensajeController;
 use App\Http\Controllers\MovimientoController;
 use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\ProfileController;
@@ -81,6 +83,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/auditoria', [AuditoriaController::class, 'index'])
         ->middleware('admin')
         ->name('auditoria.index');
+
+    // Debe declararse antes de /mensajes/{conversacion} para que "nueva" no
+    // se interprete como el identificador de una conversación.
+    Route::get('/mensajes/nueva', [ConversacionController::class, 'create'])
+        ->name('mensajes.create');
+
+    Route::get('/mensajes', [ConversacionController::class, 'index'])
+        ->name('mensajes.index');
+
+    Route::post('/mensajes', [ConversacionController::class, 'store'])
+        ->name('mensajes.store');
+
+    Route::get('/mensajes/{conversacion}', [ConversacionController::class, 'show'])
+        ->name('mensajes.show');
+
+    Route::get('/mensajes/{conversacion}/listado', [MensajeController::class, 'index'])
+        ->name('mensajes.listado');
+
+    Route::post('/mensajes/{conversacion}/listado', [MensajeController::class, 'store'])
+        ->name('mensajes.enviar');
 });
 
 require __DIR__.'/auth.php';
