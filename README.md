@@ -56,7 +56,7 @@ operaciones realizadas por los usuarios.
 
 | Capa | Tecnología |
 |---|---|
-| Framework | Laravel 12.69 |
+| Framework | Laravel 12.69.2 |
 | Lenguaje | PHP ^8.2 |
 | Frontend | Blade + Alpine.js 3 |
 | Estilos | Tailwind CSS 3 + `@tailwindcss/forms` |
@@ -73,7 +73,7 @@ operaciones realizadas por los usuarios.
 
 - **PHP 8.2** o superior
 - **Composer 2**
-- **Node.js 18+** y **npm**
+- **Node.js 20.19+ o 22.12+** y **npm** — Vite 7 no funciona con Node 18
 - **MySQL 5.7+ / 8** (o MariaDB 10.4+)
 - Extensiones de PHP requeridas: `ctype`, `filter`, `hash`, `mbstring`, `openssl`, `session`, `tokenizer`, `pdo`
 - Extensiones para este proyecto: `pdo_mysql` (o `pdo_sqlite` si usas SQLite) y `fileinfo`
@@ -88,8 +88,8 @@ operaciones realizadas por los usuarios.
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/TU_USUARIO/invensys.git
-cd invensys
+git clone https://github.com/MatiDroid1/Invensys.git
+cd Invensys
 ```
 
 ### 2. Instalar las dependencias de PHP
@@ -245,7 +245,7 @@ Consecuencias prácticas:
 | Módulo | Ruta | Descripción |
 |---|---|---|
 | Portada | `/` | Página pública de presentación. |
-| Dashboard | `/dashboard` | KPIs, alertas de stock bajo y últimos movimientos. |
+| Panel | `/dashboard` | KPIs, alertas de stock bajo y últimos movimientos. |
 | Artículos | `/articulos` | CRUD con búsqueda, filtros y ficha de detalle. |
 | Movimientos | `/movimientos` | Historial, entrada, salida y ajuste de inventario. |
 | Personas | `/personas` | Destinatarios de entregas. |

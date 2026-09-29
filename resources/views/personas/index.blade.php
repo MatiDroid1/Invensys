@@ -35,7 +35,7 @@
                                     <tr class="border-b border-gray-200 dark:border-gray-700">
                                         <th class="px-4 py-3 text-left">Nombre</th>
                                         <th class="px-4 py-3 text-left">Identificador</th>
-                                        <th class="px-4 py-3 text-left">Email</th>
+                                        <th class="px-4 py-3 text-left">Correo</th>
                                         <th class="px-4 py-3 text-left">Área</th>
                                         <th class="px-4 py-3 text-left">Cargo</th>
                                         <th class="px-4 py-3 text-left">Estado</th>

@@ -76,7 +76,7 @@
 
                             <div>
                                 <label for="email" class="block font-medium text-sm">
-                                    Email
+                                    Correo electrónico
                                 </label>
 
                                 <input

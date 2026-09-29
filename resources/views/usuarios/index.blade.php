@@ -40,7 +40,7 @@
                                 <thead>
                                     <tr class="border-b border-gray-200 dark:border-gray-700">
                                         <th class="px-4 py-3 text-left">Nombre</th>
-                                        <th class="px-4 py-3 text-left">Email</th>
+                                        <th class="px-4 py-3 text-left">Correo</th>
                                         <th class="px-4 py-3 text-left">Rol</th>
                                         <th class="px-4 py-3 text-left">Estado</th>
                                         <th class="px-4 py-3 text-left">Acciones</th>
