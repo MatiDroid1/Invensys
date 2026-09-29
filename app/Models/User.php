@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -53,5 +54,38 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->rol === 'admin';
+    }
+
+    public function conversacionesEnviadas(): HasMany
+    {
+        return $this->hasMany(Conversacion::class, 'usuario_emisor_id');
+    }
+
+    public function conversacionesRecibidas(): HasMany
+    {
+        return $this->hasMany(Conversacion::class, 'usuario_receptor_id');
+    }
+
+    public function mensajes(): HasMany
+    {
+        return $this->hasMany(Mensaje::class);
+    }
+
+    /**
+     * Mensajes recibidos que el usuario aún no ha leído. Alimenta el contador
+     * de la barra de navegación.
+     */
+    public function mensajesNoLeidos(): int
+    {
+        return Mensaje::query()
+            ->whereNull('leido_en')
+            ->where('usuario_id', '!=', $this->id)
+            ->whereIn('conversacion_id', function ($query) {
+                $query->select('id')
+                    ->from('conversaciones')
+                    ->where('usuario_emisor_id', $this->id)
+                    ->orWhere('usuario_receptor_id', $this->id);
+            })
+            ->count();
     }
 }
