@@ -1,0 +1,38 @@
+*.log
+.DS_Store
+Thumbs.db
+
+# Entorno: nunca subir credenciales reales
+.env
+.env.backup
+.env.production
+.env.*.local
+
+# Dependencias
+/node_modules
+/vendor
+
+# Assets compilados por Vite (se regeneran con "npm run build")
+/public/build
+/public/hot
+/public/storage
+
+# Claves y caché de Laravel
+/storage/*.key
+/storage/pail
+/bootstrap/cache/*.php
+
+# Herramientas y editores
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/.phpactor.json
+/.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
