@@ -260,8 +260,107 @@
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <!-- Avisos de mensajes: funciona en cualquier pantalla -->
+            <div class="-me-2 flex items-center gap-2 ms-3 sm:ms-0">
+
+                <div x-data="{ bandeja: false }" class="relative">
+                    <button
+                        type="button"
+                        @click="bandeja = !bandeja; if (bandeja) marcarLeidas()"
+                        class="relative inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition ease-in-out duration-150"
+                        aria-label="Notificaciones de mensajes"
+                        title="Notificaciones de mensajes"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                        </svg>
+
+                        <span
+                            x-show="sinResponder > 0"
+                            x-cloak
+                            x-text="sinResponder"
+                            class="absolute -top-0.5 -end-0.5 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-red-600 text-white text-[10px] font-bold"
+                        ></span>
+                    </button>
+
+                    <div
+                        x-show="bandeja"
+                        @click.outside="bandeja = false"
+                        x-transition
+                        style="display: none;"
+                        class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50"
+                    >
+                        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                            <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Mensajes</p>
+                        </div>
+
+                        <div class="max-h-96 overflow-y-auto">
+                            <template x-if="!conversaciones.length">
+                                <p class="px-4 py-6 text-sm text-center text-gray-500 dark:text-gray-400">
+                                    Todavía no tienes conversaciones.
+                                </p>
+                            </template>
+
+                            <template x-for="conversacion in conversaciones" :key="conversacion.id">
+                                <a
+                                    :href="conversacion.url"
+                                    @click="bandeja = false"
+                                    class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0"
+                                >
+                                    <span class="inline-flex items-center justify-center shrink-0 w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold uppercase">
+                                        <span x-text="conversacion.interlocutor.charAt(0)"></span>
+                                    </span>
+
+                                    <span class="flex-1 min-w-0">
+                                        <span class="flex items-center justify-between gap-2">
+                                            <span
+                                                class="text-sm truncate"
+                                                :class="conversacion.no_leidos > 0
+                                                    ? 'font-semibold text-gray-900 dark:text-gray-100'
+                                                    : 'text-gray-700 dark:text-gray-300'"
+                                                x-text="conversacion.interlocutor"
+                                            ></span>
+
+                                            <span
+                                                x-show="conversacion.no_leidos > 0"
+                                                class="inline-flex items-center justify-center min-w-5 h-5 px-1 shrink-0 rounded-full bg-red-600 text-white text-xs font-bold"
+                                                x-text="conversacion.no_leidos"
+                                            ></span>
+                                        </span>
+
+                                        <span class="block mt-0.5 text-xs text-gray-500 dark:text-gray-400 truncate" x-text="conversacion.resumen"></span>
+                                    </span>
+                                </a>
+                            </template>
+                        </div>
+
+                        <div class="border-t border-gray-200 dark:border-gray-700">
+                            <label class="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    x-model="sonido"
+                                    @change="alternarSonido()"
+                                    class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
+                                >
+
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Sonido al recibir mensajes</span>
+                            </label>
+
+                            <template x-if="permiso === 'default'">
+                                <button
+                                    type="button"
+                                    @click="pedirPermiso()"
+                                    class="w-full px-4 py-3 text-left text-sm text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors border-t border-gray-100 dark:border-gray-700"
+                                >
+                                    Activar avisos cuando la pestaña esté en segundo plano
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Dropdown -->
+                <div class="hidden sm:flex sm:items-center">
 
                 <x-dropdown align="right" width="48">
 
@@ -307,6 +406,8 @@
                     </x-slot>
 
                 </x-dropdown>
+
+                </div>
 
             </div>
 

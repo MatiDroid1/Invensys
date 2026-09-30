@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Evita que los elementos con x-show=x-cloak parpadeen antes de que Alpine
+   los oculte. Necesario para el aviso de mensajes y la bandeja desplegable. */
+[x-cloak] {
+    display: none !important;
+}

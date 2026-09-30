@@ -150,6 +150,7 @@ class ConversacionController extends Controller
         return view('mensajes.show', [
             'conversacion' => $conversacion,
             'interlocutor' => $conversacion->interlocutor($request->user()),
+            'sonidoActivado' => (bool) $request->user()->sonido_mensajes,
         ]);
     }
 }

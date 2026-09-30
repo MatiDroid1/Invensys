@@ -25,6 +25,7 @@ class User extends Authenticatable
         'password',
         'rol',
         'activo',
+        'sonido_mensajes',
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'activo' => 'boolean',
+            'sonido_mensajes' => 'boolean',
         ];
     }
 

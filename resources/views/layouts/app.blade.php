@@ -15,7 +15,23 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+        {{-- El notificador vive en el layout para que funcione en artículos,
+             movimientos, kardex, reportes y cualquier otra pantalla.
+             En el chat no se monta porque el hilo ya se encarga de pintarlo. --}}
+        @php($esChat = request()->routeIs('mensajes.show'))
+
+        <div
+            @if (! $esChat)
+                x-data="notificadorMensajes({
+                    urlEstado: '{{ route('mensajes.estado') }}',
+                    urlSonido: '{{ route('mensajes.sonido') }}',
+                    sonido: {{ auth()->user()->sonido_mensajes ? 'true' : 'false' }},
+                    sinResponder: {{ $mensajesNoLeidos }}
+                })"
+                x-init="iniciar()"
+            @endif
+            class="min-h-screen bg-gray-100 dark:bg-gray-900"
+        >
             @include('layouts.navigation')
 
             <!-- Page Heading -->
@@ -31,6 +47,10 @@
             <main>
                 {{ $slot }}
             </main>
+
+            @unless ($esChat)
+                @include('layouts.aviso-mensajes')
+            @endunless
         </div>
     </body>
 </html>
