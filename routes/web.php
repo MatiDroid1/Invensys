@@ -89,6 +89,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/mensajes/nueva', [ConversacionController::class, 'create'])
         ->name('mensajes.create');
 
+    // Sondeo global: disponible en cualquier pantalla para detectar mensajes
+    // entrantes sin necesidad de abrir el chat. Va antes de
+    // /mensajes/{conversacion} para que "estado" no se tome como conversación.
+    Route::get('/mensajes/estado', [MensajeController::class, 'estado'])
+        ->name('mensajes.estado');
+
+    Route::patch('/mensajes/sonido', [MensajeController::class, 'sonido'])
+        ->name('mensajes.sonido');
+
     Route::get('/mensajes', [ConversacionController::class, 'index'])
         ->name('mensajes.index');
 
