@@ -308,10 +308,17 @@ test('el sondeo global informa los mensajes pendientes', function () {
 
     iniciarConversacion($ana, $beto, '¿Tienes los insumos listos?');
 
+    // El sondeo cada 3 segundos es ligero: no arrastra el resumen de
+    // conversaciones, que recién se pide al abrir la bandeja.
     $this->actingAs($beto)
         ->getJson(route('mensajes.estado'))
         ->assertOk()
         ->assertJsonPath('sin_responder', 1)
+        ->assertJsonMissingPath('conversaciones');
+
+    $this->actingAs($beto)
+        ->getJson(route('mensajes.estado', ['bandeja' => 1]))
+        ->assertOk()
         ->assertJsonPath('conversaciones.0.interlocutor', 'Ana')
         ->assertJsonPath('conversaciones.0.no_leidos', 1)
         ->assertJsonPath('conversaciones.0.resumen', '¿Tienes los insumos listos?');
@@ -405,8 +412,12 @@ test('el sondeo global no expone conversaciones ajenas', function () {
     $this->actingAs($beto)
         ->getJson(route('mensajes.estado'))
         ->assertOk()
-        ->assertJsonCount(0, 'conversaciones')
         ->assertJsonPath('sin_responder', 0);
+
+    $this->actingAs($beto)
+        ->getJson(route('mensajes.estado', ['bandeja' => 1]))
+        ->assertOk()
+        ->assertJsonCount(0, 'conversaciones');
 });
 
 test('el sondeo global exige sesión iniciada', function () {
