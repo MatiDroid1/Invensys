@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
  *
  * A diferencia del correo, esto no queda expuesto en la web y por lo tanto
  * tampoco se puede usar para forzar un cambio de contraseña ajeno.
- *   php artisan usuario:clave matias.soporte@crfleming.cl
+ *   php artisan usuario:clave PERSONA@gmail.com
  *   php artisan usuario:clave admin@invensys.cl --clave=AlgoMuySeguro123
  */
 class RestablecerClave extends Command
