@@ -5,7 +5,7 @@
         quedar más ancha que la pantalla, este contenedor recorta el desborde
         en vez de dejar que la página entera se desplace de lado a lado.
     --}}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
 
         <!-- Primary Navigation Menu -->
         <div class="flex justify-between h-16 gap-3">
@@ -75,11 +75,12 @@
                             </svg>
                         </button>
 
-                        <div
+<div
                             x-show="openMovimientos"
                             @click.outside="openMovimientos = false"
                             x-transition
-                            class="absolute left-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50"
+                            x-cloak
+                            class="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[1000]"
                             style="display: none;"
                         >
                             <a
@@ -178,7 +179,8 @@
                             x-show="openReportes"
                             @click.outside="openReportes = false"
                             x-transition
-                            class="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50"
+                            x-cloak
+                            class="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[1000]"
                             style="display: none;"
                         >
                             <a
@@ -242,13 +244,14 @@
                                 </svg>
                             </button>
 
-                            <div
-                                x-show="openAdmin"
-                                @click.outside="openAdmin = false"
-                                x-transition
-                                class="absolute left-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50"
-                                style="display: none;"
-                            >
+<div
+                            x-show="openAdmin"
+                            @click.outside="openAdmin = false"
+                            x-transition
+                            x-cloak
+                            class="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[1000]"
+                            style="display: none;"
+                        >
                                 <a
                                     href="{{ route('usuarios.index') }}"
                                     class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -339,8 +342,9 @@
                         x-show="bandeja"
                         @click.outside="bandeja = false"
                         x-transition
+                        x-cloak
                         style="display: none;"
-                        class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50"
+                        class="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[1000]"
                     >
                         <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                             <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Mensajes</p>
@@ -414,7 +418,7 @@
                 <!-- Settings Dropdown -->
                 <div class="hidden xl:flex xl:items-center">
 
-                <x-dropdown align="right" width="48">
+                <x-dropdown align="right" width="48" :content-classes="'z-[100]'">
 
                     <x-slot name="trigger">
                         <button
