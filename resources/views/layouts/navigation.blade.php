@@ -1,8 +1,14 @@
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
 
+    {{--
+        Red de seguridad: si algún día se agrega un enlace y la fila vuelve a
+        quedar más ancha que la pantalla, este contenedor recorta el desborde
+        en vez de dejar que la página entera se desplace de lado a lado.
+    --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
+
+        <!-- Primary Navigation Menu -->
+        <div class="flex justify-between h-16 gap-3">
             <div class="flex">
 
                 <!-- Logo -->
@@ -13,7 +19,16 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex items-center">
+                {{--
+                    La barra completa no cabe en pantallas angostas. Con ocho
+                    entradas más los espacios entre ellas se necesitan cerca de
+                    1150px, así que antes de ese ancho (xl = 1280px) se usa el
+                    menú desplegable en vez de mostrar una fila que se desborda.
+
+                    El espaciado se aprieta en el primer breakpoint y se
+                    afloja cuando ya hay ancho de sobra.
+                --}}
+                <div class="hidden space-x-5 xl:space-x-7 xl:-my-px xl:ms-10 xl:flex items-center">
 
                     <!-- Panel -->
                     <x-nav-link
@@ -60,11 +75,12 @@
                             </svg>
                         </button>
 
-                        <div
+<div
                             x-show="openMovimientos"
                             @click.outside="openMovimientos = false"
                             x-transition
-                            class="absolute left-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50"
+                            x-cloak
+                            class="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[1000]"
                             style="display: none;"
                         >
                             <a
@@ -163,7 +179,8 @@
                             x-show="openReportes"
                             @click.outside="openReportes = false"
                             x-transition
-                            class="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50"
+                            x-cloak
+                            class="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[1000]"
                             style="display: none;"
                         >
                             <a
@@ -188,6 +205,14 @@
                             </a>
                         </div>
                     </div>
+
+                    <!-- Acerca del proyecto -->
+                    <x-nav-link
+                        :href="route('acerca')"
+                        :active="request()->routeIs('acerca')"
+                    >
+                        Acerca de
+                    </x-nav-link>
 
                     <!-- Administración -->
                     @if (Auth::user()->isAdmin())
@@ -219,13 +244,14 @@
                                 </svg>
                             </button>
 
-                            <div
-                                x-show="openAdmin"
-                                @click.outside="openAdmin = false"
-                                x-transition
-                                class="absolute left-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50"
-                                style="display: none;"
-                            >
+<div
+                            x-show="openAdmin"
+                            @click.outside="openAdmin = false"
+                            x-transition
+                            x-cloak
+                            class="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[1000]"
+                            style="display: none;"
+                        >
                                 <a
                                     href="{{ route('usuarios.index') }}"
                                     class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -263,6 +289,35 @@
             <!-- Avisos de mensajes: funciona en cualquier pantalla -->
             <div class="-me-2 flex items-center gap-2 ms-3 sm:ms-0">
 
+                {{-- Tema claro / oscuro --}}
+                <div x-data="temaOscuro">
+                    <button
+                        type="button"
+                        @click="alternar()"
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition ease-in-out duration-150"
+                        :aria-label="oscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+                        :title="oscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+                    >
+                        {{-- Luna: se muestra en modo claro para InvitAR a oscurecer --}}
+                        <svg
+                            x-show="!oscuro"
+                            x-cloak
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                        </svg>
+
+                        {{-- Sol: se muestra en modo oscuro para volver al claro --}}
+                        <svg
+                            x-show="oscuro"
+                            x-cloak
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                        </svg>
+                    </button>
+                </div>
+
                 <div x-data="{ bandeja: false }" class="relative">
                     <button
                         type="button"
@@ -287,8 +342,9 @@
                         x-show="bandeja"
                         @click.outside="bandeja = false"
                         x-transition
+                        x-cloak
                         style="display: none;"
-                        class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50"
+                        class="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[1000]"
                     >
                         <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                             <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Mensajes</p>
@@ -360,15 +416,23 @@
                 </div>
 
                 <!-- Settings Dropdown -->
-                <div class="hidden sm:flex sm:items-center">
+                <div class="hidden xl:flex xl:items-center">
 
-                <x-dropdown align="right" width="48">
+                <x-dropdown align="right" width="48" :content-classes="'z-[100]'">
 
                     <x-slot name="trigger">
                         <button
+                            type="button"
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150"
                         >
-                            <div>{{ Auth::user()->name }}</div>
+                            {{--
+                                El nombre se recorta en vez de empujar el resto
+                                de la barra. Sin esto, un nombre largo
+                                desbordaba la fila en pantallas medianas.
+                            --}}
+                            <div class="max-w-[9rem] truncate xl:max-w-[12rem]">
+                                {{ Auth::user()->name }}
+                            </div>
 
                             <div class="ms-1">
                                 <svg
@@ -412,7 +476,7 @@
             </div>
 
             <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
+            <div class="-me-2 flex items-center xl:hidden">
 
                 <button
                     @click="open = !open"
@@ -452,7 +516,7 @@
     <!-- Responsive Navigation Menu -->
     <div
         :class="{ 'block': open, 'hidden': !open }"
-        class="hidden sm:hidden"
+        class="hidden"
     >
 
         <div class="pt-2 pb-3 space-y-1">
@@ -541,6 +605,14 @@
                         {{ $mensajesNoLeidos }}
                     </span>
                 </span>
+            </x-responsive-nav-link>
+
+            <!-- Acerca del proyecto -->
+            <x-responsive-nav-link
+                :href="route('acerca')"
+                :active="request()->routeIs('acerca')"
+            >
+                Acerca de
             </x-responsive-nav-link>
 
             <!-- Reportes -->

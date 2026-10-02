@@ -1,0 +1,34 @@
+# Invensys se sirve desde /public, pero la raíz web de XAMPP es C:\xampp\htdocs.
+#
+# Eso deja accesibles desde el navegador el .env (con APP_KEY y la contraseña de
+# la base de datos), el código fuente, las migraciones y el log de la aplicación.
+# Este archivo cierra esa puerta: lo único que se puede pedir por web es /public.
+
+# ----------------------------------------------------------------------
+# Archivos sensibles en la raíz
+# ----------------------------------------------------------------------
+<FilesMatch "^\.?env|^\.env\..*|^composer\.(json|lock)$|^package(-lock)?\.json$|^vite\.config\.(js|ts)$|^phpunit\.xml$|^artisan$|^\.gitignore$|^\.editorconfig$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# ----------------------------------------------------------------------
+# Carpetas que no deben servirse nunca
+# ----------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # El patrón es relativo a esta carpeta, así que "app/" cubre
+    # /invensys/app/... sin tocar /invensys/public/app/.
+    RewriteRule ^(app|bootstrap|database|routes|storage|tests|vendor|node_modules)/ - [F,L]
+</IfModule>
+
+# Recurso de respaldo: si mod_rewrite no está disponible, se niegan igual.
+<IfModule !mod_rewrite.c>
+    RedirectMatch 404 ^(app|bootstrap|database|routes|storage|tests|vendor|node_modules)/
+</IfModule>

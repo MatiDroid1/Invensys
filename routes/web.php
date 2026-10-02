@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AcercaController;
 use App\Http\Controllers\ArticuloController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\CategoriaController;
@@ -25,6 +26,9 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/acerca', AcercaController::class)
+        ->name('acerca');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -102,6 +106,7 @@ Route::middleware('auth')->group(function () {
         ->name('mensajes.index');
 
     Route::post('/mensajes', [ConversacionController::class, 'store'])
+        ->middleware('throttle:10,1')
         ->name('mensajes.store');
 
     Route::get('/mensajes/{conversacion}', [ConversacionController::class, 'show'])
@@ -111,6 +116,7 @@ Route::middleware('auth')->group(function () {
         ->name('mensajes.listado');
 
     Route::post('/mensajes/{conversacion}/listado', [MensajeController::class, 'store'])
+        ->middleware('throttle:30,1')
         ->name('mensajes.enviar');
 });
 

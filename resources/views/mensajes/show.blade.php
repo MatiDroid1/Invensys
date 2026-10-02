@@ -34,6 +34,8 @@
                     timerAviso: null,
                     aviso: '',
                     sonido: {{ $sonidoActivado ? 'true' : 'false' }},
+                    audioBloqueado: true,
+                    soltarDesbloqueo: null,
                     urlListado: '{{ route('mensajes.listado', $conversacion) }}',
                     urlEnviar: '{{ route('mensajes.enviar', $conversacion) }}',
                     urlSonido: '{{ route('mensajes.sonido') }}',
@@ -43,15 +45,20 @@
                         this.intervalo = setInterval(() => this.sondear(), 5000);
 
                         // El navegador exige una interacción del usuario antes de
-                        // dejar sonar audio. Aprovechamos el primer clic o tecla,
-                        // pero sin emitir sonido: solo se reanuda el contexto.
-                        const desbloquear = () => {
-                            this.pista.desbloquear();
-                            window.removeEventListener('pointerdown', desbloquear);
-                            window.removeEventListener('keydown', desbloquear);
+                        // dejar sonar audio. La escucha se retira solo cuando el
+                        // AudioContext queda realmente en marcha: si se
+                        // retirara en el primer toque y el navegador lo
+                        // rechazara, el sonido ya no volvería a activarse
+                        // durante el resto de la sesión en esta pantalla.
+                        this.soltarDesbloqueo = async () => {
+                            if (await this.pista.desbloquear()) {
+                                window.removeEventListener('pointerdown', this.soltarDesbloqueo);
+                                window.removeEventListener('keydown', this.soltarDesbloqueo);
+                                this.audioBloqueado = false;
+                            }
                         };
-                        window.addEventListener('pointerdown', desbloquear);
-                        window.addEventListener('keydown', desbloquear);
+                        window.addEventListener('pointerdown', this.soltarDesbloqueo);
+                        window.addEventListener('keydown', this.soltarDesbloqueo);
 
                         this.$nextTick(() => {
                             this.irAlFinal();
@@ -145,7 +152,9 @@
                         }
 
                         // Un pitido por mensaje recibido, como pide el cliente.
-                        this.pista.pitirVarios(cantidad);
+                        this.pista.pitirVarios(cantidad).then((sono) => {
+                            this.audioBloqueado = !sono;
+                        });
                     },
 
                     alternarSonido() {
@@ -156,7 +165,9 @@
                         // Al activar, se confirma con un pitido para que el
                         // usuario sepa que quedó funcionando.
                         if (this.sonido) {
-                            this.pista.pitir();
+                            this.pista.pitir().then((sono) => {
+                                this.audioBloqueado = !sono;
+                            });
                         }
                     },
 
@@ -336,6 +347,24 @@
                         style="display: none;"
                         class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-2 bg-indigo-600 text-white text-xs rounded-full shadow-lg"
                     ></div>
+
+                    {{--
+                        El navegador no deja reproducir audio hasta que el
+                        usuario interactúa con la página. Antes el pitido fallaba
+                        en silencio; ahora se explica qué hacer.
+                    --}}
+                    <div
+                        x-show="sonido && audioBloqueado"
+                        x-cloak
+                        style="display: none;"
+                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 flex items-center gap-2 px-3 py-2 bg-amber-100 dark:bg-amber-950 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs rounded-full shadow-lg"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-3.5 h-3.5 shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M21.485 12a9 9 0 01-2.831 6.364M4.393 4.393A9.99 9.99 0 002.25 12c0 2.72.86 5.22 2.28 7.28m0-15.06A9.99 9.99 0 0121.75 12c0 2.72-.86 5.22-2.28 7.28M12 15v.007" />
+                        </svg>
+
+                        <span>Haz clic en cualquier parte para activar el sonido</span>
+                    </div>
 
                     <button
                         type="button"

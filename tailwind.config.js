@@ -9,6 +9,11 @@ export default {
         './resources/views/**/*.blade.php',
     ],
 
+    // 'class' y no el valor por defecto ('media') porque el usuario elige el
+    // tema desde la barra de navegación. El script del <head> se encarga de
+    // poner la clase `dark` en <html> antes de pintar.
+    darkMode: 'class',
+
     theme: {
         extend: {
             fontFamily: {

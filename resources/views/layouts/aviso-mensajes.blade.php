@@ -65,6 +65,50 @@
                         Ver bandeja
                     </a>
                 </div>
+</div>
+        </template>
+    </div>
+
+    {{--
+        Aviso de audio bloqueado.
+
+        El navegador no deja reproducir sonido hasta que el usuario interactúa
+        con la página. Antes esto fallaba en silencio y el usuario no entendía
+        por qué no escuchaba nada; ahora se le dice qué hacer.
+    --}}
+    <div
+        x-show="sonido && audioBloqueado"
+        x-cloak
+        x-data="{ descartado: false }"
+        class="fixed bottom-4 start-4 z-50 w-72 max-w-[calc(100vw-2rem)]"
+    >
+        <template x-if="!descartado">
+            <div class="rounded-lg shadow-md overflow-hidden border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950">
+                <div class="flex items-start gap-3 p-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M21.485 12a9 9 0 01-2.831 6.364M4.393 4.393A9.99 9.99 0 002.25 12c0 2.72.86 5.22 2.28 7.28m0-15.06A9.99 9.99 0 0121.75 12c0 2.72-.86 5.22-2.28 7.28M12 15v.007" />
+                    </svg>
+
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-amber-900 dark:text-amber-200">
+                            Sonido desactivado por el navegador
+                        </p>
+                        <p class="mt-0.5 text-xs text-amber-700 dark:text-amber-300">
+                            Haz clic en cualquier parte de la página para activarlo.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        @click="descartado = true"
+                        class="shrink-0 text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-200 transition-colors"
+                        aria-label="Cerrar aviso de sonido"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </template>
     </div>

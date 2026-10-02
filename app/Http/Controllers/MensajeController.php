@@ -24,6 +24,12 @@ class MensajeController extends Controller
      * El cliente manda `desde` con el último id que ya conocía. En la primera
      * llamada no lo manda, y por eso nunca notificamos mensajes que ya
      * existían antes de abrir la aplicación.
+     *
+     * Como el sondeo ocurre cada 3 segundos, por defecto devuelve solo lo
+     * ligero (contador, cursor y novedades). El resumen de conversaciones es
+     * una consulta con relaciones y conteos que no tiene sentido repetir 20
+     * veces por minuto: se pide a parte con `bandeja=1`, que es cuando el
+     * usuario abre el desplegable y lo necesita de verdad.
      */
     public function estado(Request $request): JsonResponse
     {
@@ -31,17 +37,7 @@ class MensajeController extends Controller
         $usuarioId = $usuario->id;
         $desde = $request->filled('desde') ? (int) $request->input('desde') : null;
 
-        $conversaciones = Conversacion::delUsuario($usuarioId)
-            ->with(['emisor:id,name', 'receptor:id,name', 'ultimoMensaje'])
-            ->withCount([
-                'mensajes as no_leidos' => fn (Builder $query) => $query
-                    ->whereNull('leido_en')
-                    ->where('usuario_id', '!=', $usuarioId),
-            ])
-            ->orderByDesc('ultimo_mensaje_en')
-            ->get();
-
-        $conversacionesIds = $conversaciones->pluck('id');
+        $conversacionesIds = Conversacion::delUsuario($usuarioId)->pluck('id');
 
         $cursor = (int) Mensaje::query()
             ->whereIn('conversacion_id', $conversacionesIds)
@@ -61,16 +57,40 @@ class MensajeController extends Controller
                 ->orderBy('id')
                 ->get();
 
-        return response()->json([
+        $respuesta = [
             'sin_responder' => $usuario->mensajesNoLeidos(),
             'cursor' => $cursor,
             'nuevos' => $nuevos
                 ->map(fn (Mensaje $mensaje) => $this->serializarNotificacion($mensaje, $usuario))
                 ->all(),
-            'conversaciones' => $conversaciones
-                ->map(fn (Conversacion $conversacion) => $this->serializarConversacion($conversacion, $usuario))
-                ->all(),
-        ]);
+        ];
+
+        if ($request->boolean('bandeja')) {
+            $respuesta['conversaciones'] = $this->bandeja($usuario);
+        }
+
+        return response()->json($respuesta);
+    }
+
+    /**
+     * Resumen de las conversaciones del usuario, para el desplegable de la
+     * barra de navegación.
+     */
+    private function bandeja(User $usuario): array
+    {
+        $usuarioId = $usuario->id;
+
+        return Conversacion::delUsuario($usuarioId)
+            ->with(['emisor:id,name', 'receptor:id,name', 'ultimoMensaje'])
+            ->withCount([
+                'mensajes as no_leidos' => fn (Builder $query) => $query
+                    ->whereNull('leido_en')
+                    ->where('usuario_id', '!=', $usuarioId),
+            ])
+            ->orderByDesc('ultimo_mensaje_en')
+            ->get()
+            ->map(fn (Conversacion $conversacion) => $this->serializarConversacion($conversacion, $usuario))
+            ->all();
     }
 
     /**
