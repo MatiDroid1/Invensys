@@ -57,10 +57,16 @@ Route::middleware('auth')->group(function () {
         ->middleware('admin');
     Route::get('/reportes/stock', [ReporteController::class, 'stock'])
         ->name('reportes.stock');
+    Route::get('/reportes/stock.csv', [ReporteController::class, 'stockCsv'])
+        ->name('reportes.stock.csv');
     Route::get('/reportes/movimientos', [ReporteController::class, 'movimientos'])
         ->name('reportes.movimientos');
+    Route::get('/reportes/movimientos.csv', [ReporteController::class, 'movimientosCsv'])
+        ->name('reportes.movimientos.csv');
     Route::get('/reportes/entregas-persona', [ReporteController::class, 'entregasPersona'])
         ->name('reportes.entregas-persona');
+    Route::get('/reportes/entregas-persona.csv', [ReporteController::class, 'entregasPersonaCsv'])
+        ->name('reportes.entregas-persona.csv');
     Route::get(
         'movimientos/ajuste/create',
         [MovimientoController::class, 'createAjuste']
