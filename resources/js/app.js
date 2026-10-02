@@ -3,6 +3,7 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import notificadorMensajes from './notificadorMensajes';
 import avisoSonoro from './avisoSonoro';
+import temaOscuro from './tema';
 
 window.Alpine = Alpine;
 
@@ -11,5 +12,6 @@ window.Alpine = Alpine;
 window.avisoSonoro = avisoSonoro;
 
 Alpine.data('notificadorMensajes', notificadorMensajes);
+Alpine.data('temaOscuro', temaOscuro);
 
 Alpine.start();

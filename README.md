@@ -187,25 +187,43 @@ Abre <http://localhost:8000> en tu navegador.
 
 ## Acceso al sistema
 
-El seeder crea un usuario administrador. Puedes cambiar sus datos en `.env` **antes** de ejecutar
+El seeder crea un usuario administrador. Define sus datos en `.env` **antes** de ejecutar
 `php artisan migrate --seed`:
 
 ```env
 ADMIN_NAME=Administrador
 ADMIN_EMAIL=admin@invensys.cl
-ADMIN_PASSWORD=password
+ADMIN_PASSWORD=una-clave-larga-y-propia
 ```
 
 | | |
 |---|---|
 | **URL** | <http://localhost:8000/login> |
-| **Correo** | `admin@invensys.cl` |
-| **Contraseña** | `password` |
+| **Correo** | el que definiste en `ADMIN_EMAIL` |
+| **Contraseña** | la que definiste en `ADMIN_PASSWORD` |
 
-> **Importante:** cambia la contraseña antes de usar el sistema con datos reales. Puedes hacerlo
-> desde *Mi perfil → Actualizar contraseña* o desde *Administración → Usuarios*.
+> `ADMIN_PASSWORD` es **obligatoria**. Si falta, el seeder se detiene con un error en vez de crear la
+> cuenta con una contraseña adivinable. También rechaza claves demasiado cortas o evidente.
 
-También puedes crear usuarios desde la interfaz en **Administración → Usuarios**.
+No hay registro público: las cuentas se crean desde **Administración → Usuarios**.
+
+### Olvidé mi contraseña
+
+No hay servidor de correo configurado, así que el enlace de recuperación no se puede enviar. La
+contraseña se restablece desde la terminal del servidor:
+
+```bash
+php artisan usuario:clave admin@invensys.cl
+```
+
+Pide la nueva clave de forma oculta y además **cierra las sesiones abiertas** de esa persona, para que
+si la clave se cambió porque se filtró, quien la tenía pierde el acceso de inmediato.
+
+Para ejecutarla sin interacción, por ejemplo desde un script:
+
+```bash
+php artisan usuario:clave admin@invensys.cl --clave="AlgoMuySeguro123"
+```
 
 ---
 
@@ -473,6 +491,115 @@ Publica las vistas de paginación (ver sección anterior) y recompila con `npm r
 
 **¿Cómo creo un usuario administrador adicional?**
 Edítalo en *Administración → Usuarios* y cambia su rol a `admin`.
+
+**¿Se puede volver a abrir el registro público?**
+No es recomendable. La ruta `POST /register` estaba abierta y cualquier persona que conociera la URL
+podía crearse una cuenta activa y entrar a inventario, mensajería y reportes. Si realmente hace
+falta, descomenta las dos líneas comentadas en `routes/auth.php` y ajusta el middleware `verified`.
+
+---
+
+## Puesta en producción
+
+Checklist para sacar Invensys de un equipo de desarrollo.
+
+### 1. `.env`
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://inventario.ejemplo.cl
+LOG_LEVEL=warning
+
+# Si el sitio va por HTTPS
+SESSION_SECURE_COOKIE=true
+```
+
+`APP_DEBUG=false` es lo más importante: con `true`, cada error muestra la traza completa y valores del
+entorno, incluida `APP_KEY`.
+
+### 2. Instalar dependencias sin paquetes de desarrollo
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci
+npm run build
+```
+
+### 3. Preparar la aplicación
+
+```bash
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+### 4. Permisos
+
+```bash
+# En Linux
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+```
+
+### 5. Permisos de escritura
+
+Apache necesita escribir en `storage/` y en `bootstrap/cache/`. En Windows se concede el permiso al
+usuario que corre el servicio, no a todos.
+
+### 6. Solo `public/` debe quedar expuesto
+
+Es el punto más fácil de ocultar y el más grave si se olvida.
+
+Si el DocumentRoot de Apache apunta a la raíz del proyecto, cualquiera podría descargar
+`/.env` —con `APP_KEY` y la contraseña de la base de datos— además de `/app/`, `/database/` y
+`/storage/logs/laravel.log`. El archivo `.htaccess` de la raíz del proyecto cierra esa puerta.
+
+Lo correcto sigue siendo apuntar el vhost directamente a `public/`:
+
+```apache
+<VirtualHost *:80>
+    ServerName inventario.ejemplo.cl
+    DocumentRoot "C:/xampp/htdocs/invensys/public"
+
+    <Directory "C:/xampp/htdocs/invensys/public">
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+```
+
+### 7. HTTPS
+
+Sin HTTPS las contraseñas y cookies viajan en texto plano. Con Apache:
+
+```bash
+# Certbot en Linux
+sudo certbot --apache -d inventario.ejemplo.cl
+```
+
+### 8. Lista de verificación
+
+```bash
+# Debe responder 403 o 404. Si devuelve el archivo, hay un problema grave.
+curl -I https://inventario.ejemplo.cl/.env
+
+# La aplicación debe seguir respondiendo
+curl -I https://inventario.ejemplo.cl/login
+
+# Comprobar que se puede instalar en producción
+composer install --no-dev --dry-run
+```
+
+- [ ] `APP_DEBUG=false`
+- [ ] `APP_URL` es la URL real, no `localhost`
+- [ ] `ADMIN_PASSWORD` definida y no obvia
+- [ ] `/.env` inaccesible por web
+- [ ] Migraciones ejecutadas
+- [ ] Assets compilados
+- [ ] HTTPS activo
+- [ ] Copia de seguridad de MySQL configurada
 
 ---
 
