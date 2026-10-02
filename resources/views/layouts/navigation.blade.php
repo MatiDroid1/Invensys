@@ -418,7 +418,7 @@
                 <!-- Settings Dropdown -->
                 <div class="hidden xl:flex xl:items-center">
 
-                <x-dropdown align="right" width="48" :content-classes="'z-[100]'">
+                <x-dropdown align="right" width="48" :content-classes="'py-1 bg-white dark:bg-gray-700'">
 
                     <x-slot name="trigger">
                         <button
