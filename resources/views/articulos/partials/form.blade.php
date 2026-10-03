@@ -1,23 +1,19 @@
 @php
     $esEdicion = isset($articulo);
+    $claseInput = 'md-field mt-1';
 @endphp
 
-{{--
-    Los campos de alta y edición se comparten: lo único que cambia entre ambos
-    es qué valor se precarga (o ninguno si se está creando). Por eso aquí solo
-    vive el HTML y el `@include` decide qué se edita.
---}}
-<div class="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
 
     {{-- Código --}}
     <div>
-        <x-input-label for="codigo" value="Código" class="md-label" />
+        <x-input-label for="codigo" value="Código" />
 
         <x-text-input
             id="codigo"
             name="codigo"
             type="text"
-            class="md-field"
+            class="mt-1"
             :value="old('codigo', $esEdicion ? $articulo->codigo : '')"
             maxlength="50"
             placeholder="Ej: MED-001"
@@ -25,31 +21,36 @@
             autofocus
         />
 
-        <x-input-error :messages="$errors->get('codigo')" class="md-error" />
+        <x-input-error :messages="$errors->get('codigo')" class="mt-2" />
     </div>
 
     {{-- Nombre --}}
     <div>
-        <x-input-label for="nombre" value="Nombre" class="md-label" />
+        <x-input-label for="nombre" value="Nombre" />
 
         <x-text-input
             id="nombre"
             name="nombre"
             type="text"
-            class="md-field"
+            class="mt-1"
             :value="old('nombre', $esEdicion ? $articulo->nombre : '')"
             maxlength="150"
             required
         />
 
-        <x-input-error :messages="$errors->get('nombre')" class="md-error" />
+        <x-input-error :messages="$errors->get('nombre')" class="mt-2" />
     </div>
 
     {{-- Categoría --}}
     <div>
-        <x-input-label for="categoria_id" value="Categoría" class="md-label" />
+        <x-input-label for="categoria_id" value="Categoría" />
 
-        <select name="categoria_id" id="categoria_id" class="md-field" required>
+        <select
+            name="categoria_id"
+            id="categoria_id"
+            class="{{ $claseInput }}"
+            required
+        >
             <option value="">Seleccione una categoría</option>
 
             @foreach ($categorias as $categoria)
@@ -62,14 +63,19 @@
             @endforeach
         </select>
 
-        <x-input-error :messages="$errors->get('categoria_id')" class="md-error" />
+        <x-input-error :messages="$errors->get('categoria_id')" class="mt-2" />
     </div>
 
     {{-- Unidad de medida --}}
     <div>
-        <x-input-label for="unidad_medida_id" value="Unidad de medida" class="md-label" />
+        <x-input-label for="unidad_medida_id" value="Unidad de medida" />
 
-        <select name="unidad_medida_id" id="unidad_medida_id" class="md-field" required>
+        <select
+            name="unidad_medida_id"
+            id="unidad_medida_id"
+            class="{{ $claseInput }}"
+            required
+        >
             <option value="">Seleccione una unidad</option>
 
             @foreach ($unidadesMedida as $unidad)
@@ -82,72 +88,75 @@
             @endforeach
         </select>
 
-        <x-input-error :messages="$errors->get('unidad_medida_id')" class="md-error" />
+        <x-input-error :messages="$errors->get('unidad_medida_id')" class="mt-2" />
     </div>
 
     {{-- Descripción --}}
     <div class="md:col-span-2">
-        <x-input-label for="descripcion" value="Descripción" class="md-label" />
+        <x-input-label for="descripcion" value="Descripción" />
 
         <textarea
             name="descripcion"
             id="descripcion"
             rows="3"
-            class="md-field"
+            class="md-field mt-1"
             placeholder="Detalle opcional del artículo"
         >{{ old('descripcion', $esEdicion ? $articulo->descripcion : '') }}</textarea>
 
-        <x-input-error :messages="$errors->get('descripcion')" class="md-error" />
+        <x-input-error :messages="$errors->get('descripcion')" class="mt-2" />
     </div>
 
     {{-- Stock mínimo --}}
     <div>
-        <x-input-label for="stock_minimo" value="Stock mínimo" class="md-label" />
+        <x-input-label for="stock_minimo" value="Stock mínimo" />
 
         <x-text-input
             id="stock_minimo"
             name="stock_minimo"
             type="number"
-            class="md-field"
+            class="mt-1"
             :value="old('stock_minimo', $esEdicion ? $articulo->stock_minimo : 0)"
             min="0"
             step="0.01"
             required
         />
 
-        <p class="md-hint">Umbral usado para generar la alerta de stock bajo.</p>
+        <p class="md-hint">
+            Umbral usado para generar la alerta de stock bajo.
+        </p>
 
-        <x-input-error :messages="$errors->get('stock_minimo')" class="md-error" />
+        <x-input-error :messages="$errors->get('stock_minimo')" class="mt-2" />
     </div>
 
     {{-- Opciones --}}
-    <div class="flex flex-col justify-center gap-2">
-        <label class="flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/40">
+    <div class="flex flex-col justify-center gap-3">
+        <label class="flex items-center gap-2">
             <input
                 type="checkbox"
                 name="control_individual"
                 value="1"
                 @checked(old('control_individual', $esEdicion ? $articulo->control_individual : false))
-                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-900"
+                class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900"
             >
-            <span class="text-sm text-gray-700 dark:text-gray-200">
+            <span class="text-sm text-gray-700 dark:text-gray-300">
                 Control individual
             </span>
         </label>
 
         @if ($esEdicion)
-            <label class="flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/40">
+            <label class="flex items-center gap-2">
                 <input
                     type="checkbox"
                     name="activo"
                     value="1"
                     @checked(old('activo', $articulo->activo))
-                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-900"
+                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900"
                 >
-                <span class="text-sm text-gray-700 dark:text-gray-200">
+                <span class="text-sm text-gray-700 dark:text-gray-300">
                     Artículo activo
                 </span>
             </label>
         @endif
     </div>
+
 </div>

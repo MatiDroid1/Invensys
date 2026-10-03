@@ -3,68 +3,49 @@
         Iniciar sesión
     </x-slot>
 
-    <x-auth-session-status class="mb-5" :status="session('status')" />
+    <!-- Session Status -->
+    <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
+        <!-- Email Address -->
         <div>
-            <label for="email" class="md-label">Correo electrónico</label>
-
-            <input
-                type="email"
-                name="email"
-                id="email"
-                value="{{ old('email') }}"
-                required
-                autofocus
-                autocomplete="username"
-                class="md-field"
-            >
-
-            <x-input-error :messages="$errors->get('email')" class="md-error" />
+            <x-input-label for="email" value="Correo electrónico" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <div class="mt-5">
-            <div class="flex items-baseline justify-between gap-3">
-                <label for="password" class="md-label">Contraseña</label>
+        <!-- Password -->
+        <div class="mt-4">
+            <x-input-label for="password" value="Contraseña" />
 
-                @if (Route::has('password.request'))
-                    <a href="{{ route('password.request') }}" class="mb-1.5 text-sm text-indigo-600 hover:underline dark:text-indigo-400">
-                        ¿Olvidaste tu contraseña?
-                    </a>
-                @endif
-            </div>
+            <x-text-input id="password" class="block mt-1 w-full"
+                            type="password"
+                            name="password"
+                            required autocomplete="current-password" />
 
-            <input
-                type="password"
-                name="password"
-                id="password"
-                required
-                autocomplete="current-password"
-                class="md-field"
-            >
-
-            <x-input-error :messages="$errors->get('password')" class="md-error" />
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <div class="mt-5">
-            <label for="remember_me" class="inline-flex cursor-pointer items-center gap-2">
-                <input
-                    type="checkbox"
-                    name="remember"
-                    id="remember_me"
-                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-900 dark:focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
-                >
-
+        <!-- Remember Me -->
+        <div class="block mt-4">
+            <label for="remember_me" class="inline-flex items-center gap-2">
+                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
                 <span class="text-sm text-gray-600 dark:text-gray-400">Recordarme</span>
             </label>
         </div>
 
-        <div class="mt-7">
-            <button type="submit" class="md-btn md-btn-md md-btn-filled w-full justify-center">
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end mt-6">
+            @if (Route::has('password.request'))
+                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
+                    ¿Olvidaste tu contraseña?
+                </a>
+            @endif
+
+            <x-primary-button class="sm:ms-3 w-full sm:w-auto">
                 Iniciar sesión
-            </button>
+            </x-primary-button>
         </div>
     </form>
 </x-guest-layout>

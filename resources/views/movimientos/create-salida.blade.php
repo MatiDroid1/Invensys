@@ -1,37 +1,132 @@
-<x-pagina-form
-    titulo="Nueva salida de inventario"
-    :ruta="route('movimientos.salida.store')"
-    :ruta-listado="route('movimientos.index')"
-    texto-accion="Registrar salida"
->
-    <x-slot:descripcion>
-        Una salida descuenta unidades del stock y queda asentada en el Kardex.
-    </x-slot:descripcion>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="md-title">
+            Nueva salida de inventario
+        </h2>
+    </x-slot>
 
-    <x-movimiento-campos
-        :articulos="$articulos"
-        :articulo-preseleccionado="$articuloPreseleccionado"
-        placeholder-referencia="Ej: Solicitud interna #456"
-    >
-        <x-slot:extra>
-            <div>
-                <label for="persona_id" class="md-label">Persona que recibe</label>
+    <x-pagina-form :action="route('movimientos.salida.store')">
+        <div>
+            <label for="articulo_id" class="md-label">
+                Artículo
+            </label>
 
-                <select name="persona_id" id="persona_id" class="md-field" required>
-                    <option value="">Seleccione una persona</option>
+            <select
+                name="articulo_id"
+                id="articulo_id"
+                class="md-field mt-1"
+                required
+            >
+                <option value="">Seleccione un artículo</option>
 
-                    @foreach ($personas as $persona)
-                        <option value="{{ $persona->id }}" @selected(old('persona_id') == $persona->id)>
-                            {{ $persona->nombre_completo }}
-                            @if ($persona->area)
-                                - {{ $persona->area }}
-                            @endif
-                        </option>
-                    @endforeach
-                </select>
+                @foreach ($articulos as $articulo)
+                    <option
+                        value="{{ $articulo->id }}"
+                        @selected(old('articulo_id', $articuloPreseleccionado?->id) == $articulo->id)
+                    >
+                        {{ $articulo->codigo }} - {{ $articulo->nombre }}
+                        (Stock: {{ number_format($articulo->stock_actual, 2, ',', '.') }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
-                <x-input-error :messages="$errors->get('persona_id')" class="md-error" />
-            </div>
-        </x-slot:extra>
-    </x-movimiento-campos>
-</x-pagina-form>
+        <div>
+            <label for="persona_id" class="md-label">
+                Persona que recibe
+            </label>
+
+            <select
+                name="persona_id"
+                id="persona_id"
+                class="md-field mt-1"
+                required
+            >
+                <option value="">Seleccione una persona</option>
+
+                @foreach ($personas as $persona)
+                    <option
+                        value="{{ $persona->id }}"
+                        @selected(old('persona_id') == $persona->id)
+                    >
+                        {{ $persona->nombre_completo }}
+                        @if ($persona->area)
+                            - {{ $persona->area }}
+                        @endif
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div>
+            <label for="cantidad" class="md-label">
+                Cantidad
+            </label>
+
+            <input
+                type="number"
+                name="cantidad"
+                id="cantidad"
+                value="{{ old('cantidad') }}"
+                min="0.01"
+                step="0.01"
+                class="md-field mt-1"
+                required
+            >
+        </div>
+
+        <div>
+            <label for="fecha_movimiento" class="md-label">
+                Fecha y hora
+            </label>
+
+            <input
+                type="datetime-local"
+                name="fecha_movimiento"
+                id="fecha_movimiento"
+                value="{{ old('fecha_movimiento', now()->format('Y-m-d\TH:i')) }}"
+                class="md-field mt-1"
+                required
+            >
+        </div>
+
+        <div>
+            <label for="referencia" class="md-label">
+                Referencia
+            </label>
+
+            <input
+                type="text"
+                name="referencia"
+                id="referencia"
+                value="{{ old('referencia') }}"
+                maxlength="100"
+                placeholder="Ej: Solicitud interna #456"
+                class="md-field mt-1"
+            >
+        </div>
+
+        <div>
+            <label for="observaciones" class="md-label">
+                Observaciones
+            </label>
+
+            <textarea
+                name="observaciones"
+                id="observaciones"
+                rows="4"
+                class="md-field mt-1"
+            >{{ old('observaciones') }}</textarea>
+        </div>
+
+        <x-slot:acciones>
+            <button type="submit" class="md-btn md-btn-filled">
+                Registrar salida
+            </button>
+
+            <a href="{{ route('movimientos.index') }}" class="md-btn md-btn-text">
+                Cancelar
+            </a>
+        </x-slot:acciones>
+    </x-pagina-form>
+</x-app-layout>
