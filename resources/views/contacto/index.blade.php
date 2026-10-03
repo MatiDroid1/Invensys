@@ -1,151 +1,122 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Bandeja de contacto
-            </h2>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="md-title">Bandeja de contacto</h2>
 
-            <a
-                href="{{ route('contacto.create') }}"
-                class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
-            >
+                <p class="md-subtitle mt-0.5">Consultas y solicitudes enviadas por los usuarios.</p>
+            </div>
+
+            <a href="{{ route('contacto.create') }}" class="md-btn md-btn-md md-btn-filled">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+
                 Nuevo mensaje
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8">
+        <div class="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
+            <x-alerta />
 
-            @if (session('success'))
-                <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-md">
-                    {{ session('success') }}
-                </div>
-            @endif
+            <section class="md-card overflow-hidden">
+                @if ($contactos->isEmpty())
+                    <x-estado-vacio
+                        titulo="Bandeja vacía"
+                        descripcion="No hay mensajes de contacto registrados."
+                    >
+                        <x-slot:accion>
+                            <a href="{{ route('contacto.create') }}" class="md-btn md-btn-md md-btn-filled">
+                                Escribir el primero
+                            </a>
+                        </x-slot:accion>
+                    </x-estado-vacio>
+                @else
+                    {{--
+                        El mensaje se recorta a tres líneas con `line-clamp-3`: la
+                        bandeja es para leer de un vistazo, no para leer todo. El
+                        texto íntegro sigue disponible en el atributo `title`, que
+                        aparece al dejar el cursor encima.
+                    --}}
+                    <div class="overflow-x-auto">
+                        <table class="md-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Fecha</th>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col">Correo</th>
+                                    <th scope="col">Asunto</th>
+                                    <th scope="col">Mensaje</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col" class="text-right">Acción</th>
+                                </tr>
+                            </thead>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+                            <tbody>
+                                @foreach ($contactos as $contacto)
+                                    <tr>
+                                        <td class="whitespace-nowrap tabular-nums text-gray-500 dark:text-gray-400">
+                                            {{ $contacto->created_at->format('d/m/Y H:i') }}
+                                        </td>
 
-                    @if ($contactos->isEmpty())
+                                        <td class="font-medium text-gray-900 dark:text-white">
+                                            {{ $contacto->nombre }}
+                                        </td>
 
-                        <p>No hay mensajes de contacto registrados.</p>
-
-                    @else
-
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full">
-
-                                <thead>
-                                    <tr class="border-b border-gray-200 dark:border-gray-700">
-
-                                        <th class="px-4 py-3 text-left">
-                                            Fecha
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Nombre
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Email
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Asunto
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Mensaje
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Estado
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Acción
-                                        </th>
-
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-
-                                    @foreach ($contactos as $contacto)
-
-                                        <tr class="border-b border-gray-200 dark:border-gray-700 align-top">
-
-                                            <td class="px-4 py-3 whitespace-nowrap">
-                                                {{ $contacto->created_at->format('d/m/Y H:i') }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $contacto->nombre }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
+                                        <td>
+                                            <a href="mailto:{{ $contacto->email }}" class="text-indigo-600 hover:underline dark:text-indigo-300">
                                                 {{ $contacto->email }}
-                                            </td>
+                                            </a>
+                                        </td>
 
-                                            <td class="px-4 py-3 font-medium">
-                                                {{ $contacto->asunto }}
-                                            </td>
+                                        <td>{{ $contacto->asunto }}</td>
 
-                                            <td class="px-4 py-3 max-w-md">
+                                        <td class="max-w-md">
+                                            <span class="line-clamp-3" title="{{ $contacto->mensaje }}">
                                                 {{ $contacto->mensaje }}
-                                            </td>
+                                            </span>
+                                        </td>
 
-                                            <td class="px-4 py-3">
-                                                @if ($contacto->estado === 'PENDIENTE')
-                                                    <span class="text-red-600 font-semibold">
-                                                        Pendiente
-                                                    </span>
-                                                @else
-                                                    <span class="text-green-600 font-semibold">
-                                                        Atendido
-                                                    </span>
-                                                @endif
-                                            </td>
+                                        <td>
+                                            <span @class([
+                                                'md-badge',
+                                                'md-badge-danger' => $contacto->estado === 'PENDIENTE',
+                                                'md-badge-success' => $contacto->estado !== 'PENDIENTE',
+                                            ])>
+                                                {{ $contacto->estado === 'PENDIENTE' ? 'Pendiente' : 'Atendido' }}
+                                            </span>
+                                        </td>
 
-                                            <td class="px-4 py-3">
+                                        <td class="text-right">
+                                            @if ($contacto->estado === 'PENDIENTE')
+                                                <form
+                                                    method="POST"
+                                                    action="{{ route('contacto.atender', $contacto) }}"
+                                                >
+                                                    @csrf
+                                                    @method('PATCH')
 
-                                                @if ($contacto->estado === 'PENDIENTE')
-                                                    <form
-                                                        method="POST"
-                                                        action="{{ route('contacto.atender', $contacto) }}"
+                                                    <button
+                                                        type="submit"
+                                                        class="md-btn md-btn-sm md-btn-tonal"
+                                                        title="Marcar {{ $contacto->nombre }} como atendido"
                                                     >
-                                                        @csrf
-                                                        @method('PATCH')
-
-                                                        <button
-                                                            type="submit"
-                                                            class="text-blue-600 hover:underline"
-                                                        >
-                                                            Marcar atendido
-                                                        </button>
-                                                    </form>
-                                                @else
-                                                    <span class="text-gray-500">
-                                                        -
-                                                    </span>
-                                                @endif
-
-                                            </td>
-
-                                        </tr>
-
-                                    @endforeach
-
-                                </tbody>
-
-                            </table>
-                        </div>
-
-                    @endif
-
-                </div>
-            </div>
-
+                                                        Marcar atendido
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="text-gray-400 dark:text-gray-500">—</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </section>
         </div>
     </div>
 </x-app-layout>

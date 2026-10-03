@@ -37,9 +37,11 @@
         >
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
+            {{-- Sin z-index a propósito: la barra de navegación es fija (z-40) y
+                 el encabezado solo lleva `shadow`. Con un z-index propio, el
+                 encabezado quedaría por encima de la barra al desplazarse. --}}
             @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow relative z-[90]">
+                <header class="bg-white dark:bg-gray-800 shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>

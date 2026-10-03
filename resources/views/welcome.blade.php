@@ -17,41 +17,26 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans antialiased bg-gray-50 text-gray-900">
+<body class="bg-gray-50 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
 
     {{-- Encabezado --}}
-    <header class="bg-white border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
+    <header class="border-b border-gray-200 bg-white dark:border-gray-700/70 dark:bg-gray-800">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-                    <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    <span class="font-semibold text-lg">Invensys</span>
+                    <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-100" />
+                    <span class="text-lg font-semibold">Invensys</span>
                 </a>
 
                 <div class="flex items-center gap-2">
                     @auth
-                        <a
-                            href="{{ route('dashboard') }}"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
-                        >
+                        <a href="{{ route('dashboard') }}" class="md-btn md-btn-sm md-btn-text">
                             Ir al panel
                         </a>
                     @else
-                        <a
-                            href="{{ route('login') }}"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
-                        >
+                        <a href="{{ route('login') }}" class="md-btn md-btn-sm md-btn-text">
                             Iniciar sesión
                         </a>
-
-                        <!-- @if (Route::has('register'))
-                            <a
-                                href="{{ route('register') }}"
-                                class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md hover:bg-gray-700"
-                            >
-                                Crear cuenta
-                            </a>
-                        @endif -->
                     @endauth
                 </div>
             </div>
@@ -60,45 +45,32 @@
 
     {{-- Portada --}}
     <main>
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
             <div class="max-w-3xl">
-                <span
-                    class="inline-flex items-center px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-700 bg-indigo-100 rounded-full"
-                >
-                    Control de inventario
-                </span>
+                <span class="md-badge">Control de inventario</span>
 
-                <h1 class="mt-6 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+                <h1 class="mt-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
                     Inventario ordenado, decisiones al día
                 </h1>
 
-                <p class="mt-6 text-lg text-gray-600">
+                <p class="mt-6 text-lg text-gray-600 dark:text-gray-300">
                     Invensys centraliza el stock de tus artículos en un solo lugar: registra entradas,
                     salidas y ajustes, consulta el Kardex de cada producto y genera reportes con la
                     trazabilidad de cada operación.
                 </p>
 
-                <div class="mt-10 flex flex-col sm:flex-row gap-3">
+                <div class="mt-10 flex flex-col gap-3 sm:flex-row">
                     @auth
-                        <a
-                            href="{{ route('dashboard') }}"
-                            class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-700"
-                        >
+                        <a href="{{ route('dashboard') }}" class="md-btn md-btn-lg md-btn-filled">
                             Abrir el panel
                         </a>
                     @else
-                        <a
-                            href="{{ route('login') }}"
-                            class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-700"
-                        >
+                        <a href="{{ route('login') }}" class="md-btn md-btn-lg md-btn-filled">
                             Iniciar sesión
                         </a>
                     @endauth
 
-                    <a
-                        href="#modulos"
-                        class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-                    >
+                    <a href="#modulos" class="md-btn md-btn-lg md-btn-outlined">
                         Conocer el sistema
                     </a>
                 </div>
@@ -106,19 +78,16 @@
         </section>
 
         {{-- Módulos --}}
-        <section id="modulos" class="py-16 sm:py-20 bg-white border-y border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold tracking-tight">
-                    Módulos
-                </h2>
+        <section id="modulos" class="border-y border-gray-200 bg-white py-16 dark:border-gray-700/70 dark:bg-gray-800 sm:py-20">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold tracking-tight">Módulos</h2>
 
-                <p class="mt-4 max-w-2xl text-gray-600">
+                <p class="mt-4 max-w-2xl text-gray-600 dark:text-gray-300">
                     Todo el ciclo de vida del inventario, desde el alta de un artículo hasta su
                     kardex histórico.
                 </p>
 
-                <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
+                <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     @php
                         $modulos = [
                             [
@@ -149,17 +118,15 @@
                             [
                                 'titulo' => 'Auditoría',
                                 'descripcion' => 'Cada alta, edición y movimiento queda registrado con usuario, fecha y detalle del cambio.',
-                                'icono' => 'M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.746 3.746 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.746 3.746 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z',
+                                'icono' => 'M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.746 3.746 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.746 3.746 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.745 3.745 0 011.043 3.296A3.745 3.745 0 0121 12z',
                             ],
                         ];
                     @endphp
 
                     @foreach ($modulos as $modulo)
-                        <div
-                            class="p-6 bg-gray-50 rounded-xl border border-gray-200 transition hover:border-gray-300 hover:shadow-sm"
-                        >
-                            <div class="flex items-center justify-center w-11 h-11 text-white bg-gray-800 rounded-lg">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5"
+                        <div class="md-card p-6 transition hover:shadow-e2">
+                            <div class="md-icon-btn w-11 h-11 bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5"
                                     viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="{{ $modulo['icono'] }}" />
@@ -170,21 +137,20 @@
                                 {{ $modulo['titulo'] }}
                             </h3>
 
-                            <p class="mt-2 text-sm text-gray-600">
+                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                                 {{ $modulo['descripcion'] }}
                             </p>
                         </div>
                     @endforeach
-
                 </div>
             </div>
         </section>
     </main>
 
     {{-- Pie --}}
-    <footer class="bg-white border-t border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <p class="text-center text-sm text-gray-500">
+    <footer class="border-t border-gray-200 bg-white dark:border-gray-700/70 dark:bg-gray-800">
+        <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500 dark:text-gray-400">
                 &copy; {{ now()->year }} {{ config('app.name', 'Invensys') }}.
                 Sistema de control de inventario.
             </p>

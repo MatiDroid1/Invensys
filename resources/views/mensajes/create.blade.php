@@ -1,69 +1,65 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Nuevo mensaje
-        </h2>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="md-title">Nuevo mensaje</h2>
+
+                <p class="md-subtitle mt-0.5">Escribe a otro usuario del sistema.</p>
+            </div>
+
+            <a href="{{ route('mensajes.index') }}" class="md-btn md-btn-sm md-btn-outlined">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+
+                Volver a mis mensajes
+            </a>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8">
+        <div class="mx-auto max-w-4xl space-y-4 px-4 sm:px-6 lg:px-8">
+            <x-alerta />
 
-            @if (session('success'))
-                <div class="mb-6 p-4 bg-green-100 text-green-800 rounded-md">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-
-                    <p class="mb-6 text-gray-600 dark:text-gray-300">
-                        Elige un usuario para escribirle. Si ya existe una conversación entre ustedes, se continuará en el mismo hilo.
+            <section class="md-card p-6">
+                @if ($disponibles->isNotEmpty())
+                    <p class="mb-6 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:bg-gray-700/40 dark:text-gray-300">
+                        Elige un usuario para escribirle. Si ya existe una conversación
+                        entre ustedes, se continuará en el mismo hilo.
                     </p>
+                @endif
 
-                    @if ($errors->any())
-                        <div class="mb-6 p-4 bg-red-100 text-red-800 rounded-md">
-                            <ul class="list-disc list-inside">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                {{--
+                    Sin usuarios activos no hay nada que enviar, así que en vez de
+                    mostrar un formulario inutilizable se explica por qué y se
+                    ofrece el camino de vuelta.
+                --}}
+                @if ($disponibles->isEmpty())
+                    <x-estado-vacio
+                        titulo="No hay destinatarios"
+                        descripcion="No hay otros usuarios activos a los que escribir."
+                    >
+                        <x-slot:accion>
+                            <a href="{{ route('mensajes.index') }}" class="md-btn md-btn-md md-btn-outlined">
+                                Volver a mis mensajes
+                            </a>
+                        </x-slot:accion>
+                    </x-estado-vacio>
+                @else
+                    <form method="POST" action="{{ route('mensajes.store') }}">
+                        @csrf
 
-                    @if ($disponibles->isEmpty())
-
-                        <p class="mb-6 text-gray-600 dark:text-gray-300">
-                            No hay otros usuarios activos a los que escribir.
-                        </p>
-
-                        <a
-                            href="{{ route('mensajes.index') }}"
-                            class="px-4 py-2 text-gray-600 dark:text-gray-300"
-                        >
-                            Volver a mis mensajes
-                        </a>
-
-                    @else
-
-                        <form method="POST" action="{{ route('mensajes.store') }}">
-                            @csrf
-
-                            <div class="mb-4">
-                                <label
-                                    for="usuario_receptor_id"
-                                    class="block font-medium text-sm"
-                                >
-                                    Destinatario
-                                </label>
+                        <div class="space-y-5">
+                            <div>
+                                <label for="usuario_receptor_id" class="md-label">Destinatario</label>
 
                                 <select
                                     name="usuario_receptor_id"
                                     id="usuario_receptor_id"
                                     required
-                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                    class="md-field mt-1.5"
                                 >
-                                    <option value="">Seleccione un usuario...</option>
+                                    <option value="">Selecciona un usuario...</option>
 
                                     @foreach ($disponibles as $usuario)
                                         <option
@@ -77,51 +73,38 @@
                                         </option>
                                     @endforeach
                                 </select>
+
+                                <x-input-error :messages="$errors->get('usuario_receptor_id')" class="md-error" />
                             </div>
 
-                            <div class="mb-6">
-                                <label
-                                    for="cuerpo"
-                                    class="block font-medium text-sm"
-                                >
-                                    Mensaje
-                                </label>
+                            <div>
+                                <label for="cuerpo" class="md-label">Mensaje</label>
 
                                 <textarea
                                     name="cuerpo"
                                     id="cuerpo"
                                     rows="6"
                                     maxlength="2000"
-                                    placeholder="Escriba su mensaje. Puede dejarlo vacío y enviarlo luego desde la conversación."
-                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:placeholder-gray-500"
+                                    placeholder="Escribe tu mensaje. Puedes dejarlo vacío y enviarlo luego desde la conversación."
+                                    class="md-field mt-1.5"
                                 >{{ old('cuerpo') }}</textarea>
+
+                                <x-input-error :messages="$errors->get('cuerpo')" class="md-error" />
                             </div>
+                        </div>
 
-                            <div class="flex items-center gap-3">
+                        <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+                            <button type="submit" class="md-btn md-btn-md md-btn-filled">
+                                Enviar mensaje
+                            </button>
 
-                                <button
-                                    type="submit"
-                                    class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
-                                >
-                                    Enviar mensaje
-                                </button>
-
-                                <a
-                                    href="{{ route('mensajes.index') }}"
-                                    class="px-4 py-2 text-gray-600 dark:text-gray-300"
-                                >
-                                    Cancelar
-                                </a>
-
-                            </div>
-
-                        </form>
-
-                    @endif
-
-                </div>
-            </div>
-
+                            <a href="{{ route('mensajes.index') }}" class="md-btn md-btn-md md-btn-outlined">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                @endif
+            </section>
         </div>
     </div>
 </x-app-layout>

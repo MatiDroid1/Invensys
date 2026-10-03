@@ -183,6 +183,66 @@ php artisan serve
 
 Abre <http://localhost:8000> en tu navegador.
 
+### 10. Ojo: desplegar en XAMPP (Apache) es otra cosa
+
+Con `php artisan serve` no hay nada que configurar. Con Apache hay tres cosas que
+fallan en silencio si no se tienen en cuenta, y la típica es esta:
+
+> **Solo funciona la portada y cualquier otra URL devuelve 404.**
+
+Eso almost siempre es `mod_rewrite` apagado, no el código. XAMPP lo trae
+**comentado** en una instalación nueva, y sin ese módulo el `.htaccess` de
+`public/` no hace nada: `/Invensys/public/` entra por el índice de directorio
+(por eso esa sí funciona) y `/Invensys/public/login` busca un archivo que no
+existe y devuelve 404.
+
+**Paso 1 — encender `mod_rewrite`.** Abre `C:\xampp\apache\conf\httpd.conf`, busca
+la línea y quítale el `#` del principio:
+
+```apache
+#LoadModule rewrite_module modules/mod_rewrite.so
+```
+
+Después reinicia Apache desde el panel de control de XAMPP. Y revisa que en el
+mismo archivo, para `C:/xampp/htdocs`, diga `AllowOverride All` (no `none`): sin
+eso Apache ni siquiera mira los `.htaccess`.
+
+**Paso 2 — confirmar que los archivos ocultos llegaron.** `.htaccess` empieza con
+punto, así que se pierde fácil al copiar la carpeta en vez de clonar el
+repositorio. Debe existir `public\.htaccess` dentro del proyecto.
+
+**Paso 3 — `APP_URL` con la ruta real.** La aplicación se sirve desde `public/`,
+entando en una subcarpeta la URL incluye ese `/public`:
+
+```env
+APP_URL=http://localhost/Invensys/public
+```
+
+Si queda mal, los enlaces del menú y los formularios apuntan a rutas que no
+existen.
+
+**Paso 4 — instalar y compilar en ese equipo.** `vendor/` y `public/build` están
+en `.gitignore`: si clonaste, hay que compilarlos ahí mismo.
+
+```bash
+composer install
+npm install
+npm run build
+php artisan key:generate
+php artisan migrate --seed
+php artisan optimize:clear
+```
+
+**Cómo confirmar que quedó bien.** Esta es la prueba que separa "falta
+mod_rewrite" de "está roto el código":
+
+```bash
+curl -i http://localhost/Invensys/public/login
+```
+
+- **200** → todo bien.
+- **404** → vuelve al paso 1 y 2.
+
 ---
 
 ## Acceso al sistema
