@@ -2,151 +2,94 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ==========================================================================
-   BASE
-   ========================================================================== */
-
-/* Evita que los elementos con x-show/x-cloak parpadeen antes de que Alpine
+/* Evita que los elementos con x-show=x-cloak parpadeen antes de que Alpine
    los oculte. Necesario para el aviso de mensajes y la bandeja desplegable. */
 [x-cloak] {
     display: none !important;
 }
 
 @layer base {
+    /*
+     * Colores por defecto del documento.
+     *
+     * El contenedor de contenido pinta el fondo oscuro, pero el texto que no
+     * declara color propio heredaba el negro del navegador: sobre fondo gris
+     * oscuro quedaba ilegible. Fijar aquí color claro/oscuro evita tener que
+     * repetir `text-*` en cada pantalla.
+     *
+     * `color-scheme` hace además que los controles nativos del navegador
+     * (selectores de fecha, barras de scroll, casillas) se pinten oscuros en
+     * vez de quedar blancos dentro de una superficie oscura.
+     */
     html {
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    /* El color base vive en el <body> y no en el contenedor de cada vista: si
-       cambia el fondo en un solo lugar, al recargar o al deslizar se ve un
-       destello del color equivocado en los bordes. */
-    body {
-        @apply bg-gray-100 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100;
         color-scheme: light;
     }
 
-    .dark body {
+    html.dark {
         color-scheme: dark;
     }
 
-    /* Foco visible y uniforme para navegación por teclado. El `ring` sustituye
-       al `outline` para que no se vea el doble foco en Chrome. */
+    body {
+        @apply bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+    }
+
+    /*
+     * Placeholder: en claro era gris medio y en oscuro desaparecía sobre el
+     * fondo. Se aclara en ambos temas.
+     */
+    ::placeholder {
+        @apply text-gray-400 dark:text-gray-500;
+    }
+
+    /*
+     * Foco visible y parejo en toda la aplicación.
+     *
+     * Antes cada control repetía su propio `focus:ring-2`, y las variantes se
+     *iban omitiendo: un input de la mitad de los formularios se quedaba sin
+     * indications de foco, que es un problema de accesibilidad, no de gusto.
+     * Ahora el anillo lo pone la capa base para todos y cada componente solo
+     * define su color.
+     */
     :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-        @apply outline-none ring-2 ring-indigo-500 ring-offset-2 ring-offset-gray-100 dark:ring-indigo-400 dark:ring-offset-gray-900;
-    }
-
-    /* Barras de desplazamiento finas y discretas: las tablas y los paneles
-       laterales son las superficies donde más se nota una barra gruesa. */
-    * {
-        scrollbar-width: thin;
-        scrollbar-color: theme('colors.gray.300') transparent;
-    }
-
-    .dark * {
-        scrollbar-color: theme('colors.gray.600') transparent;
-    }
-
-    ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        @apply rounded-full bg-gray-300 dark:bg-gray-600;
-        border: 3px solid transparent;
-        background-clip: content-box;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        @apply bg-gray-400 dark:bg-gray-500;
+        @apply outline-none ring-2 ring-indigo-500 ring-offset-2 ring-offset-white dark:ring-indigo-400 dark:ring-offset-gray-900;
     }
 }
 
-/* ==========================================================================
-   COMPONENTES
-
-   Cada clase es un selector de una sola clase a propósito. Tailwind elimina
-   las reglas de `@layer components` que no encuentra en el HTML, y un selector
-   descendiente (`.md-table th`) no aparece en el contenido: se descartaba al
-   compilar y por eso las tablas salían sin encabezado ni celdas con estilo.
-   Por eso el estilo de tabla se aplica con clases propias por celda
-   (`.md-th`, `.md-td`) en lugar de descendientes.
-   ========================================================================== */
-
 @layer components {
-    /* ----------------------------------------------------------------------
+    /* ==================================================================
        Superficies
-       ---------------------------------------------------------------------- */
+       ================================================================== */
 
+    /* Tarjeta estándar: el contenedor de casi todo el sistema. */
     .md-card {
-        @apply rounded-2xl border border-gray-100 bg-white shadow-e1 dark:border-gray-700/70 dark:bg-gray-800;
+        @apply rounded-2xl border border-gray-200/80 bg-white shadow-e1 dark:border-gray-700/70 dark:bg-gray-800;
     }
 
-    /* Tarjeta sin elevación, para内容量 que ya vive dentro de otra tarjeta. */
+    /* Variante sin borde: se usa encima de un fondo ya claro para no dibujar
+       dos rectángulos seguidos (tarjeta dentro de tarjeta). */
     .md-card-plain {
-        @apply rounded-2xl border border-gray-100 bg-white dark:border-gray-700/70 dark:bg-gray-800;
+        @apply rounded-2xl bg-white shadow-e1 dark:bg-gray-800;
     }
 
+    /* Franja de separación entre bloques dentro de una misma tarjeta. */
     .md-divider {
         @apply border-t border-gray-100 dark:border-gray-700/70;
     }
 
-    .md-section {
-        @apply px-5 py-4;
-    }
-
-    /* ----------------------------------------------------------------------
-       Tipografía
-       ---------------------------------------------------------------------- */
-
-    .md-title {
-        @apply text-xl font-semibold leading-7 tracking-tight text-gray-900 dark:text-white;
-    }
-
-    .md-subtitle {
-        @apply text-sm font-medium text-gray-500 dark:text-gray-400;
-    }
-
-    .md-overline {
-        @apply text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400;
-    }
-
-    .md-section-title {
-        @apply text-base font-semibold text-gray-900 dark:text-white;
-    }
-
-    /* ----------------------------------------------------------------------
-       Formularios
-       ---------------------------------------------------------------------- */
-
-    .md-label {
-        @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
-    }
-
-    .md-hint {
-        @apply mt-1.5 text-xs text-gray-500 dark:text-gray-400;
-    }
-
-    .md-error {
-        @apply mt-1.5 text-xs font-medium text-red-600 dark:text-red-400;
-    }
-
-    /* Los campos de Material se distinguen por el borde y la altura del texto,
-       no por una línea inferior como en el Material clásico. */
-    .md-field {
-        @apply block w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-e0 transition-colors placeholder:text-gray-400 hover:border-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:placeholder-gray-500 dark:hover:border-gray-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20;
-    }
-
-    /* ----------------------------------------------------------------------
+    /* ==================================================================
        Botones
-       ---------------------------------------------------------------------- */
+       ==================================================================
+       Todos los botones de Material se apoyan en el mismo esqueleto: forma de
+       cápsula, sin borde duro, foco por anillo y una compresión sutil al
+       apretar. Lo que cambia entre variantes es solo el relleno.
+    */
 
     .md-btn {
-        @apply inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 ease-standard disabled:pointer-events-none disabled:opacity-50;
+        @apply inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full
+               text-sm font-semibold
+               transition-all duration-200 ease-standard
+               active:scale-[0.98]
+               disabled:pointer-events-none disabled:opacity-50;
     }
 
     .md-btn-sm {
@@ -161,180 +104,165 @@
         @apply px-6 py-3 text-base;
     }
 
+    /* Relleno: la acción principal de la pantalla. Una sola por vista. */
     .md-btn-filled {
-        @apply bg-indigo-600 text-white shadow-e1 hover:bg-indigo-700 active:bg-indigo-800 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:active:bg-indigo-600;
+        @apply bg-indigo-600 text-white shadow-e1 hover:bg-indigo-700 hover:shadow-e2 dark:bg-indigo-500 dark:text-gray-900 dark:hover:bg-indigo-400;
     }
 
+    /* Tonal: acción importante pero secundaria (exportar, filtrar). */
     .md-btn-tonal {
         @apply bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-200 dark:hover:bg-indigo-500/25;
     }
 
+    /* Contorno: acciones terciarias (cancelar, volver). */
     .md-btn-outlined {
-        @apply border border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-gray-700/60;
+        @apply border border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-gray-800;
     }
 
+    /* Texto: acciones de bajo compromiso que viven dentro de un grupo. */
     .md-btn-text {
         @apply text-indigo-600 hover:bg-indigo-50 dark:text-indigo-300 dark:hover:bg-indigo-500/15;
     }
 
     .md-btn-danger {
-        @apply bg-red-600 text-white shadow-e1 hover:bg-red-700 active:bg-red-800;
+        @apply bg-red-600 text-white shadow-e1 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500;
     }
 
     .md-btn-danger-outlined {
-        @apply border border-red-300 bg-white text-red-700 hover:bg-red-50 dark:border-red-900 dark:bg-gray-800 dark:text-red-300 dark:hover:bg-red-500/10;
+        @apply border border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-500/10;
     }
 
-    /* Botón de icono: cuadrado y sin etiqueta. */
+    /* Botón de icono: la misma aura, cuadrada y sin rótulo. */
     .md-icon-btn {
-        @apply inline-flex h-10 w-10 shrink-0 select-none items-center justify-center gap-2 rounded-full text-gray-500 transition-all duration-200 ease-standard hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200;
+        @apply md-btn h-10 w-10 shrink-0 p-0 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white;
     }
 
-    /* ----------------------------------------------------------------------
-       Chips y etiquetas de estado
-       ---------------------------------------------------------------------- */
+    /* ==================================================================
+       Campos de formulario
+       ================================================================== */
+
+    .md-label {
+        @apply block text-sm font-medium text-gray-700 dark:text-gray-200;
+    }
+
+    /* Texto de apoyo bajo el campo: no es un error, es contexto. */
+    .md-hint {
+        @apply mt-1.5 text-xs text-gray-500 dark:text-gray-400;
+    }
+
+    /* Mensaje de error. Material lo pone bajo el campo, no flotando arriba. */
+    .md-error {
+        @apply mt-1.5 text-xs font-medium text-red-600 dark:text-red-400;
+    }
+
+    /*
+     * El campo es outlined, no filled: un borde que se pinta de índigo y hace
+     * crecer un halo suave al enfocar. Con tablas densas de inventario el
+     * relleno gris de los campos filled pesa demasiado.
+     */
+    .md-field {
+        @apply block w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm
+               transition-colors duration-200 placeholder:text-gray-400
+               focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/10
+               disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400
+               dark:border-gray-600 dark:bg-gray-900/60 dark:text-gray-100 dark:placeholder:text-gray-500
+               dark:focus:border-indigo-400 dark:disabled:bg-gray-800/60;
+    }
+
+    /* El <select> pierde la flecha del sistema: se dibuja una, para que el
+       control se vea igual en todos los navegadores y en los dos temas. */
+    select.md-field {
+        @apply cursor-pointer appearance-none bg-none pr-10;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.15rem;
+    }
+
+    .dark select.md-field {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    }
+
+    /* ==================================================================
+       Etiquetas e insignias
+       ================================================================== */
 
     .md-chip {
         @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
     }
 
     .md-badge {
-        @apply inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700/60 dark:text-gray-200;
+        @apply md-chip bg-gray-100 text-gray-700 dark:bg-gray-700/70 dark:text-gray-200;
     }
 
     .md-badge-success {
-        @apply inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300;
+        @apply md-chip bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300;
     }
 
     .md-badge-warning {
-        @apply inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-300;
+        @apply md-chip bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300;
     }
 
     .md-badge-danger {
-        @apply inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 dark:bg-red-500/15 dark:text-red-300;
+        @apply md-chip bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300;
     }
 
-    .md-badge-info {
-        @apply inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-200;
-    }
-
-    /* ----------------------------------------------------------------------
+    /* ==================================================================
        Tablas
-
-       El contenedor no lleva márgenes negativos: la tabla se ciñe al ancho de
-       su tarjeta y el desplazamiento horizontal ocurre dentro de ella. Antes
-       se sacaba con `-mx-4 sm:-mx-6`, que no compensaba el `lg:px-8` del
-       contenedor de página y por eso la primera columna quedaba desalineada
-       respecto del título y de los filtros.
-       ---------------------------------------------------------------------- */
-
-    .md-table-scroll {
-        @apply overflow-x-auto;
-    }
-
-    /* Variante con alto máximo: deja el encabezado fijo mientras se recorre
-       un historial largo. */
-    .md-table-scroll-tall {
-        @apply overflow-auto;
-        max-height: 70vh;
-    }
+       ==================================================================
+       Es la pantalla de trabajo del sistema (artículos, movimientos, kardex),
+       así que la prioridad es que se pueda escanear: encabezado quieto, filas
+       con relieve al pasar el mouse y separadores Tenue.
+    */
 
     .md-table {
-        @apply w-full border-collapse text-left text-sm;
+        @apply w-full text-left text-sm;
     }
 
-    .md-tr {
-        @apply border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50/70 dark:border-gray-700/70 dark:hover:bg-white/[0.03];
+    .md-table thead th {
+        @apply whitespace-nowrap border-b border-gray-200 bg-gray-50/80 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:bg-gray-700/30 dark:text-gray-400;
     }
 
-    .md-th {
-        @apply whitespace-nowrap px-4 py-3 text-left align-middle text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400;
+    .md-table tbody td {
+        @apply border-b border-gray-100 px-4 py-3 align-middle text-gray-700 dark:border-gray-700/70 dark:text-gray-200;
     }
 
-    /* Encabezado pegajoso: sólo tiene efecto dentro de un contenedor con alto
-       máximo (`.md-table-scroll-tall`). */
-    .md-th-sticky {
-        @apply sticky top-0 z-10 bg-gray-50/95 backdrop-blur dark:bg-gray-900/95;
+    .md-table tbody tr {
+        @apply transition-colors duration-150 hover:bg-gray-50/70 dark:hover:bg-gray-700/25;
     }
 
-    .md-td {
-        @apply px-4 py-3.5 align-middle text-sm text-gray-700 dark:text-gray-300;
+    /* En tablas angostas la etiqueta del encabezado estorba más de lo que
+       ayuda: se oculta y el nombre de la columna queda en el `title`. */
+    @screen sm {
+        .md-table thead th:first-child,
+        .md-table tbody td:first-child {
+            @apply ps-4;
+        }
     }
 
-    /* Columna de la cifra principal de cada fila: es la que se lee primero. */
-    .md-td-strong {
-        @apply font-medium text-gray-900 dark:text-gray-100;
+    /* ==================================================================
+       Tipografía y bloques
+       ================================================================== */
+
+    .md-title {
+        @apply text-xl font-semibold tracking-tight text-gray-900 dark:text-white;
     }
 
-    /* Cifras alineadas a la derecha y con dígitos de ancho fijo, para que las
-       columnas de stock no bailen al cambiar de valor. */
-    .md-td-num {
-        @apply whitespace-nowrap text-right tabular-nums;
+    .md-subtitle {
+        @apply text-sm font-medium text-gray-600 dark:text-gray-300;
     }
 
-    .md-td-clip {
-        @apply block max-w-[18rem] truncate;
+    /* Etiqueta de sección: la que rotula una tarjeta o un grupo del menú. */
+    .md-overline {
+        @apply text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400;
     }
 
-    .md-th-num {
-        @apply text-right;
+    /* Contenedor de una tarjeta con cabecera y cuerpo. */
+    .md-section {
+        @apply md-divider px-5 py-4;
     }
 
-    /* ----------------------------------------------------------------------
-       Barra de aplicación y navegación
-       ---------------------------------------------------------------------- */
-
-    .md-appbar {
-        @apply sticky top-0 z-40 border-b border-gray-100 bg-white/85 backdrop-blur-md dark:border-gray-700/70 dark:bg-gray-800/85;
-    }
-
-    /* Elemento de navegación. Todos miden lo mismo y comparten centrado, que es
-       lo que evita que los enlaces y los desplegales queden a distinta altura
-       (lo que pasaba con el subrayado de Jetstream). */
-    .md-nav-item {
-        @apply inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white;
-    }
-
-    /* Estado activo: cápsula tonal, no subrayado. */
-    .md-nav-item-active {
-        @apply bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 dark:bg-indigo-500/15 dark:text-indigo-200 dark:hover:bg-indigo-500/25 dark:hover:text-indigo-100;
-    }
-
-    .md-menu {
-        @apply absolute z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-gray-100 bg-white py-1.5 shadow-e3 dark:border-gray-700 dark:bg-gray-800;
-    }
-
-    .md-menu-item {
-        @apply flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700;
-    }
-
-    .md-menu-title {
-        @apply px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500;
-    }
-
-    /* ----------------------------------------------------------------------
-       Estructura de página
-       ---------------------------------------------------------------------- */
-
-    /* Un solo contenedor para todas las pantallas: mismo ancho, mismo padding
-       lateral y mismo ritmo vertical, sin repetirlo en cada vista. */
-    .md-page {
-        @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
-    }
-
-    .md-page-body {
-        @apply py-6 sm:py-8;
-    }
-
-    /* Cabecera de página: va sobre el fondo de la app, sin banda blanca con
-       sombra propia, para que la barra de aplicación y el título formen una
-       sola superficie. */
-    .md-page-header {
-        @apply border-b border-gray-100 bg-white dark:border-gray-700/70 dark:bg-gray-800;
-    }
-
-    /* Tarjeta de cifra del panel. */
-    .md-stat {
-        @apply rounded-2xl border border-gray-100 bg-white p-5 shadow-e1 dark:border-gray-700/70 dark:bg-gray-800;
+    .md-section-title {
+        @apply text-base font-semibold text-gray-900 dark:text-white;
     }
 }

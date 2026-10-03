@@ -1,10 +1,8 @@
 <section class="space-y-5">
     <header>
-        <h2 class="md-section-title">
-            Eliminar cuenta
-        </h2>
+        <h2 class="md-section-title">Eliminar cuenta</h2>
 
-        <p class="md-subtitle mt-1">
+        <p class="md-subtitle mt-0.5">
             Una vez eliminada tu cuenta, todos sus datos se eliminarán permanentemente. Antes de
             continuar, descarga cualquier información que necesites conservar.
         </p>
@@ -38,11 +36,7 @@
             @csrf
             @method('delete')
 
-            <h2 class="md-section-title">
-                ¿Seguro que deseas eliminar tu cuenta?
-            </h2>
-
-            <p class="md-subtitle mt-1">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
                 Todos los datos de tu cuenta se eliminarán permanentemente. Ingresa tu contraseña para
                 confirmar.
             </p>
@@ -52,9 +46,12 @@
 
                 <input
                     type="password"
-                    class="mt-1 sm:w-3/4"
-                    placeholder="Contraseña"
-                />
+                    name="password"
+                    id="password"
+                    autocomplete="current-password"
+                    class="md-field"
+                    placeholder="Tu contraseña"
+                >
 
                 <x-input-error :messages="$errors->userDeletion->get('password')" class="md-error" />
             </div>

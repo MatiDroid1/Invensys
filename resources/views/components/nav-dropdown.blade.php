@@ -1,39 +1,40 @@
-@props([
-    'align' => 'left',
-    'active' => false,
-])
+@props(['label', 'activo' => false])
 
-{{--
-    Destino con menú desplegable en la barra superior.
+@php
+    /*
+     * Botón + panel de los menús desplegables de la barra (Movimientos,
+     * Reportes, Administración). Antes ese markup estaba copiado tres veces, cada
+     * una con su propia sangría; los tres menús se parecían entre sí pero
+     * cambiaban en detalles, que es justo como aparecen los descuadres.
+     */
+    $inactivo = 'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white';
+    $seleccionado = 'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300';
+@endphp
 
-    Antes cada desplegable repetía su propio bloque de Alpine y su propio
-    `<div>` (y dos de ellos quedaban sin sangrar en el archivo). Aquí se resuelve
-    una sola vez, con el mismo comportamiento en todos: abrir, cerrar al hacer
-    clic fuera y con `Esc`.
-
-    El botón usa `md-nav-item`, la misma clase que un enlace normal, para que la
-    fila se lea como una sola tira y no como dos estilos distintos.
---}}
-<div x-data="{ abierto: false }" @keydown.escape.window="abierto = false" class="relative">
+<div
+    x-data="{ abierto: {{ $activo ? 'true' : 'false' }} }"
+    @keydown.escape.window="abierto = false"
+    class="relative"
+>
     <button
         type="button"
         @click="abierto = !abierto"
-        :aria-expanded="abierto"
-        aria-haspopup="true"
-        class="md-nav-item {{ $active ? 'md-nav-item-active' : '' }}"
+        :aria-expanded="abierto.toString()"
+        {{ $attributes->merge(['class' => $activo ? $seleccionado : $inactivo]) }}
     >
-        {{ $trigger }}
+        {{ $label }}
 
         <svg
+            class="h-4 w-4 shrink-0 transition-transform duration-200"
+            :class="abierto ? 'rotate-180' : ''"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            class="h-4 w-4 shrink-0 transition-transform duration-200 ease-standard"
-            :class="abierto && 'rotate-180'"
+            aria-hidden="true"
         >
             <path
                 fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 11.586l4.707-4.293a1 1 0 011.414 1.414l-5.414 5a1 1 0 01-1.414 0l-5.414-5a1 1 0 010-1.414z"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l4.707-4.293a1 1 0 011.414 1.414l-5.414 5a1 1 0 01-1.414 0l-5.414-5a1 1 0 010-1.414z"
                 clip-rule="evenodd"
             />
         </svg>
@@ -42,15 +43,15 @@
     <div
         x-show="abierto"
         @click.outside="abierto = false"
-        x-cloak
         x-transition:enter="transition ease-out duration-150"
-        x-transition:enter-start="opacity-0 scale-95"
-        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:enter-start="opacity-0 -translate-y-1"
+        x-transition:enter-end="opacity-100 translate-y-0"
         x-transition:leave="transition ease-in duration-100"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        x-cloak
         style="display: none;"
-        class="md-menu origin-top {{ $align === 'right' ? 'right-0' : 'left-0' }}"
+        class="absolute start-0 top-full mt-2 w-60 rounded-2xl bg-white p-1.5 shadow-e3 ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10 z-50"
     >
         {{ $slot }}
     </div>

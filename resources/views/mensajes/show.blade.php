@@ -1,26 +1,24 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h2 class="md-title">
-                    Conversación con {{ $interlocutor->name }}
-                </h2>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0">
+                <h2 class="md-title truncate">Conversación con {{ $interlocutor->name }}</h2>
 
-                <p class="md-subtitle">
-                    {{ $interlocutor->email }}
-                </p>
+                <p class="md-subtitle mt-0.5 truncate">{{ $interlocutor->email }}</p>
             </div>
 
-            <a href="{{ route('mensajes.index') }}" class="md-btn md-btn-filled">
+            <a href="{{ route('mensajes.index') }}" class="md-btn md-btn-sm md-btn-outlined">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+
                 Volver a mensajes
             </a>
         </div>
     </x-slot>
 
-    <div class="md-page md-page-body">
-        {{-- El hilo se mantiene en una columna estrecha: a todo el ancho las
-             burbujas quedan demasiado separadas para leer la conversación. --}}
-        <div class="mx-auto max-w-4xl">
+    <div class="py-6">
+        <div class="mx-auto max-w-5xl sm:px-6 lg:px-8">
 
             <div
                 x-data="{
@@ -258,7 +256,7 @@
                     },
                 }"
                 x-init="leerPreferencia(); iniciar()"
-                class="md-card flex flex-col h-[calc(100vh-13rem)] min-h-[24rem] overflow-hidden"
+                class="md-card flex h-[calc(100vh-13rem)] min-h-[24rem] flex-col overflow-hidden"
             >
                 <div
                     x-ref="hilo"
@@ -382,7 +380,7 @@
 
                 </div>
 
-                <div class="shrink-0 border-t border-gray-100 bg-white p-5 dark:border-gray-700/70 dark:bg-gray-800">
+                <div class="shrink-0 border-t border-gray-100 bg-white p-6 dark:border-gray-700/70 dark:bg-gray-800">
 
                     @if ($errors->any())
                         <div class="mb-4 rounded-2xl bg-red-50 px-4 py-3 dark:bg-red-500/10">
@@ -440,7 +438,7 @@
                             <button
                                 type="submit"
                                 :disabled="enviando || !cuerpo.trim()"
-                                class="md-btn md-btn-filled"
+                                class="md-btn md-btn-md md-btn-filled disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <span x-show="!enviando">Enviar</span>
                                 <span x-show="enviando" style="display: none;">Enviando...</span>
