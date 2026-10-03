@@ -32,9 +32,9 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # El patrón es relativo a esta carpeta, así que "app/" cubre
-    # /invensys/app/... sin tocar /invensys/public/app/.
-    RewriteRule ^(app|bootstrap|database|routes|storage|tests|vendor|node_modules)/ - [F,L]
+    # El patrón es relativo a esta carpeta, así que estas rutas no se sirven
+    # desde la raíz del proyecto; los recursos públicos viven en /public.
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|node_modules|\.git)/ - [F,L]
 
     # Escribir la carpeta a mano es lo natural ("http://localhost/Invensys/"), y
     # aquí no hay nada que mostrar. Se manda a /public/, que es donde vive el
@@ -51,7 +51,7 @@
 
 # Recurso de respaldo: si mod_rewrite no está disponible, se niegan igual.
 <IfModule !mod_rewrite.c>
-    RedirectMatch 404 ^(app|bootstrap|database|routes|storage|tests|vendor|node_modules)/
+    RedirectMatch 404 ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|node_modules|\.git)/
 
     # Sin mod_rewrite no hay forma de mandar /Invensys/ a /Invensys/public/:
     # una redirección con ruta absoluta es lo único que queda.

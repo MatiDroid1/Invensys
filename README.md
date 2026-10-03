@@ -267,6 +267,23 @@ ADMIN_PASSWORD=una-clave-larga-y-propia
 
 No hay registro público: las cuentas se crean desde **Administración → Usuarios**.
 
+### Acceder desde otros equipos con XAMPP
+
+Usa la IP del equipo donde corre Apache y conserva `/Invensys/public` en la URL. Por ejemplo,
+si el servidor tiene la IP `192.168.1.10`, los equipos de la red deben abrir
+`http://192.168.1.10/Invensys/public/login`.
+
+En el `.env` del servidor, configura la URL real para los enlaces que Laravel genera fuera de una
+solicitud web y limpia la configuración cacheada después de editarlo:
+
+```env
+APP_URL=http://192.168.1.10/Invensys/public
+SESSION_PATH=/Invensys/public
+```
+
+Reemplaza `192.168.1.10` por la IP actual del servidor. Si cambiaste `.env` y Laravel tiene la
+configuración cacheada, ejecuta `php artisan config:clear`.
+
 ### Olvidé mi contraseña
 
 No hay servidor de correo configurado, así que el enlace de recuperación no se puede enviar. La

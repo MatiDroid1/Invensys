@@ -6,11 +6,11 @@
     </x-slot>
 
     <div class="md-page md-page-body space-y-6">
-        <section class="md-card p-5 sm:p-6">
+        <section class="md-card mx-auto w-full max-w-3xl p-5 sm:p-6">
             <form method="GET" action="{{ route('kardex.index') }}">
-                <div class="flex flex-col gap-4 md:flex-row md:items-end">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
 
-                    <div class="flex-1">
+                    <div class="min-w-0 flex-1">
                         <label
                             for="articulo_id"
                             class="md-label"
@@ -41,7 +41,7 @@
                     <div>
                         <button
                             type="submit"
-                            class="md-btn md-btn-filled"
+                            class="md-btn md-btn-filled w-full sm:w-auto"
                         >
                             Consultar Kardex
                         </button>

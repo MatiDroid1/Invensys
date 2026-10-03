@@ -9,7 +9,7 @@
         <x-alerta />
 
         {{-- Filtros --}}
-        <section class="md-card p-5 sm:p-6">
+        <section class="md-card mx-auto w-full max-w-5xl p-5 sm:p-6">
             <form method="GET" action="{{ route('reportes.entregas-persona') }}">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div>

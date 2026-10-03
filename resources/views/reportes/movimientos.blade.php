@@ -7,7 +7,7 @@
 
     <div class="md-page md-page-body space-y-6">
         {{-- Filtros --}}
-        <section class="md-card p-5 sm:p-6">
+        <section class="md-card mx-auto w-full max-w-5xl p-5 sm:p-6">
             <form method="GET" action="{{ route('reportes.movimientos') }}">
 
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
