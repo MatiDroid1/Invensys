@@ -51,7 +51,7 @@ export default {
     // cruzaba cada clase con todas las variantes y el CSS pasaba de 67 kB a
     // 225 kB. Si añades una clase a `app.css`, añádela también aquí.
     safelist: [
-        'md-appbar', 'md-badge', 'md-badge-danger', 'md-badge-success', 'md-badge-warning',
+        'md-appbar', 'md-badge', 'md-badge-danger', 'md-badge-info', 'md-badge-success', 'md-badge-warning',
         'md-btn', 'md-btn-danger', 'md-btn-danger-outlined', 'md-btn-filled', 'md-btn-lg',
         'md-btn-md', 'md-btn-outlined', 'md-btn-sm', 'md-btn-text', 'md-btn-tonal',
         'md-card', 'md-card-plain', 'md-chip', 'md-divider', 'md-error', 'md-field',

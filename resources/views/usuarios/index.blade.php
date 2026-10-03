@@ -58,7 +58,7 @@
                                 </td>
 
                                 <td class="md-td">
-                                    <span class="md-chip">
+                                    <span class="md-badge">
                                         {{ $usuario->rol === 'admin' ? 'Administrador' : 'Usuario' }}
                                     </span>
                                 </td>

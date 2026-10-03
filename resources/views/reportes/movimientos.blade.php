@@ -220,9 +220,7 @@
                                 </td>
 
                                 <td class="md-td">
-                                    <span class="md-chip">
-                                        {{ $movimiento->tipo }}
-                                    </span>
+                                    <x-tipo-movimiento :tipo="$movimiento->tipo" />
                                 </td>
 
                                 <td class="md-td md-td-num">

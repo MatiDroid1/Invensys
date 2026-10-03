@@ -214,6 +214,10 @@
         @apply inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 dark:bg-red-500/15 dark:text-red-300;
     }
 
+    .md-badge-info {
+        @apply inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-200;
+    }
+
     /* ----------------------------------------------------------------------
        Tablas
 

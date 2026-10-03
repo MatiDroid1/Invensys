@@ -1,10 +1,10 @@
 <section class="space-y-6">
     <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <h2 class="md-section-title">
             Eliminar cuenta
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <p class="md-subtitle mt-1">
             Una vez eliminada tu cuenta, todos sus datos se eliminarán permanentemente. Antes de
             continuar, descarga cualquier información que necesites conservar.
         </p>
@@ -20,11 +20,11 @@
             @csrf
             @method('delete')
 
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            <h2 class="md-section-title">
                 ¿Seguro que deseas eliminar tu cuenta?
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <p class="md-subtitle mt-1">
                 Todos los datos de tu cuenta se eliminarán permanentemente. Ingresa tu contraseña para
                 confirmar.
             </p>
@@ -36,7 +36,7 @@
                     id="password"
                     name="password"
                     type="password"
-                    class="mt-1 block w-full sm:w-3/4"
+                    class="mt-1 sm:w-3/4"
                     placeholder="Contraseña"
                 />
 

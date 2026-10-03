@@ -31,14 +31,16 @@
             </a>
         </div>
 
-        <div class="w-full sm:max-w-md mt-6 px-6 py-6 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
-            @isset($title)
-                <h1 class="mb-6 text-lg font-semibold text-gray-800 dark:text-gray-200">
-                    {{ $title }}
-                </h1>
-            @endisset
+        <div class="w-full px-4 sm:max-w-md">
+            <div class="md-card p-6 sm:p-8">
+                @isset($title)
+                    <h1 class="md-title mb-5">
+                        {{ $title }}
+                    </h1>
+                @endisset
 
-            {{ $slot }}
+                {{ $slot }}
+            </div>
         </div>
     </div>
 </body>
