@@ -1,21 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 class="md-title">
                 Movimientos de inventario
             </h2>
 
-            <div class="flex gap-2">
+            <div class="flex flex-wrap items-center gap-2">
                 <a
                     href="{{ route('movimientos.create') }}"
-                    class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+                    class="md-btn md-btn-filled"
                 >
                     Nueva entrada
                 </a>
 
                 <a
                     href="{{ route('movimientos.salida.create') }}"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    class="md-btn md-btn-tonal"
                 >
                     Nueva salida
                 </a>
@@ -23,79 +23,86 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="md-page md-page-body space-y-6">
+        <x-alerta />
 
-            @if (session('success'))
-                <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-md">
-                    {{ session('success') }}
-                </div>
+        <section class="md-card">
+            @if ($movimientos->isEmpty())
+                <x-estado-vacio :descripcion="'No hay movimientos registrados.'" />
+            @else
+                {{-- Historial extenso: el alto máximo deja el encabezado fijo al recorrerlo. --}}
+                <x-tabla :alto="true">
+                    <thead>
+                        <tr class="md-tr">
+                            <th scope="col" class="md-th md-th-sticky md-th-num">
+                                Fecha
+                            </th>
+
+                            <th scope="col" class="md-th md-th-sticky">
+                                Artículo
+                            </th>
+
+                            <th scope="col" class="md-th md-th-sticky">
+                                Tipo
+                            </th>
+
+                            <th scope="col" class="md-th md-th-sticky md-th-num">
+                                Cantidad
+                            </th>
+
+                            <th scope="col" class="md-th md-th-sticky">
+                                Usuario
+                            </th>
+
+                            <th scope="col" class="md-th md-th-sticky">
+                                Persona
+                            </th>
+
+                            <th scope="col" class="md-th md-th-sticky">
+                                Referencia
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach ($movimientos as $movimiento)
+                            <tr class="md-tr">
+                                <td class="md-td md-td-num">
+                                    {{ $movimiento->fecha_movimiento->format('d/m/Y H:i') }}
+                                </td>
+
+                                <td class="md-td md-td-strong">
+                                    {{ $movimiento->articulo->codigo }}
+                                    -
+                                    {{ $movimiento->articulo->nombre }}
+                                </td>
+
+                                <td class="md-td">
+                                    <span class="md-chip">
+                                        {{ $movimiento->tipo }}
+                                    </span>
+                                </td>
+
+                                <td class="md-td md-td-num">
+                                    {{ number_format($movimiento->cantidad, 2, ',', '.') }}
+                                </td>
+
+                                <td class="md-td">
+                                    {{ $movimiento->usuario->name }}
+                                </td>
+
+                                <td class="md-td">
+                                    {{ $movimiento->persona?->nombre_completo ?? '-' }}
+                                </td>
+
+                                <td class="md-td">
+                                    {{ $movimiento->referencia ?? '-' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </x-tabla>
             @endif
-
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-
-                    @if ($movimientos->isEmpty())
-                        <p>No hay movimientos registrados.</p>
-                    @else
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full">
-                                <thead>
-                                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                                        <th class="px-4 py-3 text-left">Fecha</th>
-                                        <th class="px-4 py-3 text-left">Artículo</th>
-                                        <th class="px-4 py-3 text-left">Tipo</th>
-                                        <th class="px-4 py-3 text-left">Cantidad</th>
-                                        <th class="px-4 py-3 text-left">Usuario</th>
-                                        <th class="px-4 py-3 text-left">Persona</th>
-                                        <th class="px-4 py-3 text-left">Referencia</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    @foreach ($movimientos as $movimiento)
-                                        <tr class="border-b border-gray-200 dark:border-gray-700">
-
-                                            <td class="px-4 py-3">
-                                                {{ $movimiento->fecha_movimiento->format('d/m/Y H:i') }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $movimiento->articulo->codigo }}
-                                                -
-                                                {{ $movimiento->articulo->nombre }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $movimiento->tipo }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ number_format($movimiento->cantidad, 2, ',', '.') }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $movimiento->usuario->name }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $movimiento->persona?->nombre_completo ?? '-' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $movimiento->referencia ?? '-' }}
-                                            </td>
-
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-
-                </div>
-            </div>
-
-        </div>
+        </section>
     </div>
 </x-app-layout>
