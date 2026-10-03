@@ -353,6 +353,9 @@ Consecuencias prácticas:
 | Auditoría | `/auditoria` | *(solo admin)* Registro de operaciones. |
 | Perfil | `/profile` | Datos de cuenta, contraseña y eliminación. |
 
+Los reportes descargables se generan como CSV Unicode UTF-16LE, con separador `;` y formato
+regional español, para conservar los acentos al abrirlos directamente en Excel.
+
 ---
 
 ## Roles y permisos
