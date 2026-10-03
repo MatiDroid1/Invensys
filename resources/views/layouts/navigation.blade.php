@@ -293,7 +293,7 @@
                         x-transition:leave-end="opacity-0"
                         x-cloak
                         style="display: none;"
-                        class="absolute end-0 top-full mt-2 w-80 max-h-[26rem] overflow-y-auto rounded-xl bg-white p-1.5 shadow-lg shadow-gray-900/10 ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10 z-50"
+                        class="absolute end-0 top-full mt-2 w-80 max-h-[26rem] overflow-y-auto rounded-2xl bg-white p-1.5 shadow-e3 ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10 z-50"
                     >
                         <p class="px-2.5 pb-2 pt-1.5 text-sm font-semibold text-gray-900 dark:text-white">
                             Mensajes
@@ -408,7 +408,7 @@
                         x-transition:leave-end="opacity-0"
                         x-cloak
                         style="display: none;"
-                        class="absolute end-0 top-full mt-2 w-64 rounded-xl bg-white p-1.5 shadow-lg shadow-gray-900/10 ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10 z-50"
+                        class="absolute end-0 top-full mt-2 w-64 rounded-2xl bg-white p-1.5 shadow-e3 ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10 z-50"
                     >
                         <div class="px-3 py-2.5">
                             <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">

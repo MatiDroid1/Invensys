@@ -1,3 +1,11 @@
-<button {{ $attributes->merge(['type' => 'submit', 'class' => 'inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150']) }}>
+{{--
+    Botón principal de la pantalla. Todo el esqueleto (cápsula, foco, compresión
+    al apretar) viene de `.md-btn`; el relleno, de `.md-btn-filled`.
+
+    Antes llevaba `uppercase tracking-widest text-xs`, que es el estilo por
+    defecto de Laravel, no el de Material: en Material el rótulo va en caja
+    normal y con `text-sm`.
+--}}
+<button {{ $attributes->merge(['type' => 'submit', 'class' => 'md-btn md-btn-md md-btn-filled']) }}>
     {{ $slot }}
 </button>

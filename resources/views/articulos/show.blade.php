@@ -4,31 +4,37 @@
             <div>
                 <a
                     href="{{ route('articulos.index') }}"
-                    class="text-sm text-gray-500 hover:underline dark:text-gray-400"
+                    class="md-btn md-btn-sm md-btn-text -ml-2"
                 >
-                    &larr; Artículos
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+
+                    Artículos
                 </a>
 
-                <h2 class="mt-1 font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {{ $articulo->nombre }}
-                </h2>
+                <h2 class="mt-1.5 md-title">{{ $articulo->nombre }}</h2>
 
                 <p class="mt-1 font-mono text-sm text-gray-500 dark:text-gray-400">
                     {{ $articulo->codigo }}
                 </p>
             </div>
 
-            <div class="flex flex-col gap-2 sm:flex-row">
+            <div class="flex flex-wrap gap-2">
                 <a
                     href="{{ route('articulos.edit', $articulo) }}"
-                    class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-white text-sm rounded-md hover:bg-gray-700"
+                    class="md-btn md-btn-md md-btn-filled"
                 >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                    </svg>
+
                     Editar
                 </a>
 
                 <a
                     href="{{ route('movimientos.salida.create', ['articulo_id' => $articulo->id]) }}"
-                    class="inline-flex items-center justify-center px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700"
+                    class="md-btn md-btn-md md-btn-outlined"
                 >
                     Registrar salida
                 </a>
@@ -36,221 +42,171 @@
         </div>
     </x-slot>
 
-    <div class="py-8 sm:py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="py-8">
+        <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+            @php
+                $stock = (float) $articulo->stock_actual;
+                $minimo = (float) $articulo->stock_minimo;
+                $stockBajo = $stock <= $minimo;
+            @endphp
 
             {{-- Indicadores --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                @php
-                    $stock = (float) $articulo->stock_actual;
-                    $minimo = (float) $articulo->stock_minimo;
-                    $stockBajo = $stock <= $minimo;
-                @endphp
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+                <div class="md-card p-5 sm:p-6">
+                    <p class="md-overline">Stock actual</p>
 
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-5 sm:p-6">
-                        <div class="text-sm text-gray-500 dark:text-gray-400">
-                            Stock actual
-                        </div>
+                    <p @class([
+                        'mt-2 text-2xl font-bold sm:text-3xl',
+                        'text-red-600 dark:text-red-400' => $stockBajo,
+                        'text-emerald-600 dark:text-emerald-400' => ! $stockBajo,
+                    ])>
+                        {{ number_format($stock, 2, ',', '.') }}
+                    </p>
 
-                        <div @class([
-                            'mt-2 text-2xl sm:text-3xl font-bold',
-                            'text-red-600 dark:text-red-400' => $stockBajo,
-                            'text-green-600 dark:text-green-400' => ! $stockBajo,
-                        ])>
-                            {{ number_format($stock, 2, ',', '.') }}
-                        </div>
-
-                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            {{ $articulo->unidadMedida?->nombre }}
-                        </div>
-                    </div>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {{ $articulo->unidadMedida?->nombre }}
+                    </p>
                 </div>
 
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-5 sm:p-6">
-                        <div class="text-sm text-gray-500 dark:text-gray-400">
-                            Stock mínimo
-                        </div>
+                <div class="md-card p-5 sm:p-6">
+                    <p class="md-overline">Stock mínimo</p>
 
-                        <div class="mt-2 text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                            {{ number_format($minimo, 2, ',', '.') }}
-                        </div>
-                    </div>
+                    <p class="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">
+                        {{ number_format($minimo, 2, ',', '.') }}
+                    </p>
                 </div>
 
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-5 sm:p-6">
-                        <div class="text-sm text-gray-500 dark:text-gray-400">
-                            Última entrada
-                        </div>
+                <div class="md-card p-5 sm:p-6">
+                    <p class="md-overline">Última entrada</p>
 
-                        <div class="mt-2 text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            {{ $ultimaEntrada ? \Illuminate\Support\Carbon::parse($ultimaEntrada)->format('d/m/Y') : '—' }}
-                        </div>
-                    </div>
+                    <p class="mt-2 text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
+                        {{ $ultimaEntrada ? \Illuminate\Support\Carbon::parse($ultimaEntrada)->format('d/m/Y') : '—' }}
+                    </p>
                 </div>
 
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-5 sm:p-6">
-                        <div class="text-sm text-gray-500 dark:text-gray-400">
-                            Última salida
-                        </div>
+                <div class="md-card p-5 sm:p-6">
+                    <p class="md-overline">Última salida</p>
 
-                        <div class="mt-2 text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            {{ $ultimaSalida ? \Illuminate\Support\Carbon::parse($ultimaSalida)->format('d/m/Y') : '—' }}
-                        </div>
-                    </div>
+                    <p class="mt-2 text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
+                        {{ $ultimaSalida ? \Illuminate\Support\Carbon::parse($ultimaSalida)->format('d/m/Y') : '—' }}
+                    </p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 {{-- Ficha del artículo --}}
-                <div class="lg:col-span-1 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
-                        <h3 class="text-lg font-semibold mb-4">
-                            Ficha del artículo
-                        </h3>
-
-                        <dl class="space-y-3 text-sm">
-                            <div class="flex justify-between gap-4">
-                                <dt class="text-gray-500 dark:text-gray-400">
-                                    Categoría
-                                </dt>
-                                <dd class="font-medium text-right">
-                                    {{ $articulo->categoria?->nombre ?? '—' }}
-                                </dd>
-                            </div>
-
-                            <div class="flex justify-between gap-4">
-                                <dt class="text-gray-500 dark:text-gray-400">
-                                    Unidad de medida
-                                </dt>
-                                <dd class="font-medium text-right">
-                                    {{ $articulo->unidadMedida?->nombre ?? '—' }}
-                                </dd>
-                            </div>
-
-                            <div class="flex justify-between gap-4">
-                                <dt class="text-gray-500 dark:text-gray-400">
-                                    Control individual
-                                </dt>
-                                <dd class="font-medium text-right">
-                                    {{ $articulo->control_individual ? 'Sí' : 'No' }}
-                                </dd>
-                            </div>
-
-                            <div class="flex justify-between gap-4">
-                                <dt class="text-gray-500 dark:text-gray-400">
-                                    Estado
-                                </dt>
-                                <dd class="font-medium text-right">
-                                    {{ $articulo->activo ? 'Activo' : 'Inactivo' }}
-                                </dd>
-                            </div>
-
-                            <div class="flex justify-between gap-4">
-                                <dt class="text-gray-500 dark:text-gray-400">
-                                    Creado
-                                </dt>
-                                <dd class="font-medium text-right">
-                                    {{ $articulo->created_at->format('d/m/Y') }}
-                                </dd>
-                            </div>
-                        </dl>
-
-                        @if ($articulo->descripcion)
-                            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                                <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">
-                                    Descripción
-                                </h4>
-
-                                <p class="text-sm whitespace-pre-line">
-                                    {{ $articulo->descripcion }}
-                                </p>
-                            </div>
-                        @endif
+                <section class="md-card lg:col-span-1">
+                    <div class="md-divider px-5 py-4">
+                        <h3 class="md-section-title">Ficha del artículo</h3>
                     </div>
-                </div>
+
+                    <dl class="space-y-3 px-5 py-4 text-sm">
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Categoría</dt>
+                            <dd class="text-right font-medium">{{ $articulo->categoria?->nombre ?? '—' }}</dd>
+                        </div>
+
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Unidad de medida</dt>
+                            <dd class="text-right font-medium">{{ $articulo->unidadMedida?->nombre ?? '—' }}</dd>
+                        </div>
+
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Control individual</dt>
+                            <dd class="text-right font-medium">{{ $articulo->control_individual ? 'Sí' : 'No' }}</dd>
+                        </div>
+
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Estado</dt>
+                            <dd class="text-right">
+                                <span @class([
+                                    'md-badge',
+                                    'md-badge-success' => $articulo->activo,
+                                    'md-badge-warning' => ! $articulo->activo,
+                                ])>
+                                    {{ $articulo->activo ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </dd>
+                        </div>
+
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Creado</dt>
+                            <dd class="text-right font-medium">{{ $articulo->created_at->format('d/m/Y') }}</dd>
+                        </div>
+                    </dl>
+
+                    @if ($articulo->descripcion)
+                        <div class="md-divider px-5 py-4">
+                            <h4 class="md-overline mb-2">Descripción</h4>
+
+                            <p class="whitespace-pre-line text-sm text-gray-700 dark:text-gray-200">
+                                {{ $articulo->descripcion }}
+                            </p>
+                        </div>
+                    @endif
+                </section>
 
                 {{-- Movimientos recientes --}}
-                <div class="lg:col-span-2 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
+                <section class="md-card lg:col-span-2">
+                    <div class="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                        <h3 class="md-section-title">Movimientos recientes</h3>
 
-                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
-                            <h3 class="text-lg font-semibold">
-                                Movimientos recientes
-                            </h3>
-
-                            <a
-                                href="{{ route('kardex.index', ['articulo_id' => $articulo->id]) }}"
-                                class="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-                            >
-                                Ver Kardex completo
-                            </a>
-                        </div>
-
-                        @if ($movimientos->isEmpty())
-                            <p class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                                Este artículo no tiene movimientos registrados.
-                            </p>
-                        @else
-                            <div class="overflow-x-auto -mx-6">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-900/50">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                                Fecha
-                                            </th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                                Tipo
-                                            </th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                                Referencia
-                                            </th>
-                                            <th scope="col" class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                                Cantidad
-                                            </th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                        @foreach ($movimientos as $movimiento)
-                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors">
-                                                <td class="px-6 py-3 text-sm whitespace-nowrap">
-                                                    {{ $movimiento->fecha_movimiento->format('d/m/Y H:i') }}
-                                                </td>
-
-                                                <td class="px-6 py-3">
-                                                    <x-tipo-movimiento :tipo="$movimiento->tipo" />
-                                                </td>
-
-                                                <td class="px-6 py-3 text-sm text-gray-500 dark:text-gray-400">
-                                                    {{ $movimiento->referencia ?? '—' }}
-                                                </td>
-
-                                                <td
-                                                    @class([
-                                                        'px-6 py-3 text-sm text-right font-semibold whitespace-nowrap',
-                                                        'text-green-600 dark:text-green-400' => in_array($movimiento->tipo, ['ENTRADA', 'AJUSTE_POSITIVO']),
-                                                        'text-red-600 dark:text-red-400' => in_array($movimiento->tipo, ['SALIDA', 'AJUSTE_NEGATIVO']),
-                                                    ])
-                                                >
-                                                    {{ number_format($movimiento->cantidad, 2, ',', '.') }}
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @endif
-
+                        <a
+                            href="{{ route('kardex.index', ['articulo_id' => $articulo->id]) }}"
+                            class="md-btn md-btn-sm md-btn-text"
+                        >
+                            Ver Kardex completo
+                        </a>
                     </div>
-                </div>
 
+                    @if ($movimientos->isEmpty())
+                        <x-estado-vacio
+                            class="md-divider"
+                            titulo="Sin movimientos"
+                            descripcion="Este artículo todavía no registra entradas ni salidas."
+                        />
+                    @else
+                        <div class="md-divider overflow-x-auto">
+                            <table class="md-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Fecha</th>
+                                        <th scope="col">Tipo</th>
+                                        <th scope="col">Referencia</th>
+                                        <th scope="col" class="text-right">Cantidad</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach ($movimientos as $movimiento)
+                                        <tr>
+                                            <td class="whitespace-nowrap">
+                                                {{ $movimiento->fecha_movimiento->format('d/m/Y H:i') }}
+                                            </td>
+
+                                            <td>
+                                                <x-tipo-movimiento :tipo="$movimiento->tipo" />
+                                            </td>
+
+                                            <td class="text-gray-500 dark:text-gray-400">
+                                                {{ $movimiento->referencia ?? '—' }}
+                                            </td>
+
+                                            <td @class([
+                                                'text-right font-semibold whitespace-nowrap',
+                                                'text-emerald-600 dark:text-emerald-400' => in_array($movimiento->tipo, ['ENTRADA', 'AJUSTE_POSITIVO']),
+                                                'text-red-600 dark:text-red-400' => in_array($movimiento->tipo, ['SALIDA', 'AJUSTE_NEGATIVO']),
+                                            ])>
+                                                {{ number_format($movimiento->cantidad, 2, ',', '.') }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </section>
             </div>
-
         </div>
     </div>
 </x-app-layout>

@@ -1,91 +1,98 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Usuarios
-            </h2>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="md-title">Usuarios</h2>
 
-            <a
-                href="{{ route('usuarios.create') }}"
-                class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
-            >
+                <p class="md-subtitle mt-0.5">Quién puede operar el inventario y con qué permisos.</p>
+            </div>
+
+            <a href="{{ route('usuarios.create') }}" class="md-btn md-btn-md md-btn-filled">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+
                 Nuevo usuario
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8">
+        <div class="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
+            <x-alerta tipo="success" />
+            <x-alerta tipo="error" />
 
-            @if (session('success'))
-                <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-md">
-                    {{ session('success') }}
-                </div>
-            @endif
+            <section class="md-card overflow-hidden">
+                @if ($usuarios->isEmpty())
+                    <x-estado-vacio
+                        titulo="Sin usuarios"
+                        descripcion="No hay usuarios registrados."
+                    >
+                        <x-slot:accion>
+                            <a href="{{ route('usuarios.create') }}" class="md-btn md-btn-md md-btn-filled">
+                                Crear el primer usuario
+                            </a>
+                        </x-slot:accion>
+                    </x-estado-vacio>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="md-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col">Correo</th>
+                                    <th scope="col">Rol</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col" class="text-right">Acciones</th>
+                                </tr>
+                            </thead>
 
-            @if (session('error'))
-                <div class="mb-4 p-4 bg-red-100 text-red-800 rounded-md">
-                    {{ session('error') }}
-                </div>
-            @endif
+                            <tbody>
+                                @foreach ($usuarios as $usuario)
+                                    <tr>
+                                        <td class="font-medium text-gray-900 dark:text-white">
+                                            {{ $usuario->name }}
+                                        </td>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+                                        <td class="text-gray-500 dark:text-gray-400">{{ $usuario->email }}</td>
 
-                    @if ($usuarios->isEmpty())
-                        <p>No hay usuarios registrados.</p>
-                    @else
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full">
-                                <thead>
-                                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                                        <th class="px-4 py-3 text-left">Nombre</th>
-                                        <th class="px-4 py-3 text-left">Correo</th>
-                                        <th class="px-4 py-3 text-left">Rol</th>
-                                        <th class="px-4 py-3 text-left">Estado</th>
-                                        <th class="px-4 py-3 text-left">Acciones</th>
-                                    </tr>
-                                </thead>
+                                        <td>
+                                            @if ($usuario->rol === 'admin')
+                                                <span class="md-badge md-badge-warning">Administrador</span>
+                                            @else
+                                                <span class="md-badge">Usuario</span>
+                                            @endif
+                                        </td>
 
-                                <tbody>
-                                    @foreach ($usuarios as $usuario)
-                                        <tr class="border-b border-gray-200 dark:border-gray-700">
-
-                                            <td class="px-4 py-3 font-medium">
-                                                {{ $usuario->name }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $usuario->email }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $usuario->rol === 'admin' ? 'Administrador' : 'Usuario' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
+                                        <td>
+                                            <span @class([
+                                                'md-badge',
+                                                'md-badge-success' => $usuario->activo,
+                                                'md-badge-warning' => ! $usuario->activo,
+                                            ])>
                                                 {{ $usuario->activo ? 'Activo' : 'Inactivo' }}
-                                            </td>
+                                            </span>
+                                        </td>
 
-                                            <td class="px-4 py-3">
-                                                <a
-                                                    href="{{ route('usuarios.edit', $usuario) }}"
-                                                    class="text-blue-600 hover:underline"
-                                                >
-                                                    Editar
-                                                </a>
-                                            </td>
-
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-
-                </div>
-            </div>
-
+                                        <td class="text-right">
+                                            <a
+                                                href="{{ route('usuarios.edit', $usuario) }}"
+                                                class="md-icon-btn"
+                                                title="Editar {{ $usuario->name }}"
+                                                aria-label="Editar {{ $usuario->name }}"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                                                </svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </section>
         </div>
     </div>
 </x-app-layout>

@@ -51,7 +51,7 @@
         x-transition:leave-end="opacity-0"
         x-cloak
         style="display: none;"
-        class="absolute start-0 top-full mt-2 w-60 rounded-xl bg-white p-1.5 shadow-lg shadow-gray-900/10 ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10 z-50"
+        class="absolute start-0 top-full mt-2 w-60 rounded-2xl bg-white p-1.5 shadow-e3 ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10 z-50"
     >
         {{ $slot }}
     </div>

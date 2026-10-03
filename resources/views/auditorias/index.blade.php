@@ -1,268 +1,172 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Auditoría del sistema
-        </h2>
+        <div>
+            <h2 class="md-title">Auditoría del sistema</h2>
+
+            <p class="md-subtitle mt-0.5">Rastro de las acciones realizadas sobre los datos.</p>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8">
+        <div class="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
+            <x-alerta />
 
-            <!-- Filtros -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+            {{-- Filtros --}}
+            <section class="md-card p-5">
+                <form method="GET" action="{{ route('auditoria.index') }}">
+                    <div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-2 lg:grid-cols-5">
+                        <div>
+                            <label for="fecha_desde" class="md-label">Fecha desde</label>
 
-                    <form method="GET" action="{{ route('auditoria.index') }}">
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-
-                            <div>
-                                <label
-                                    for="fecha_desde"
-                                    class="block font-medium text-sm"
-                                >
-                                    Fecha desde
-                                </label>
-
-                                <input
-                                    type="date"
-                                    name="fecha_desde"
-                                    id="fecha_desde"
-                                    value="{{ $fechaDesde }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                                >
-                            </div>
-
-                            <div>
-                                <label
-                                    for="fecha_hasta"
-                                    class="block font-medium text-sm"
-                                >
-                                    Fecha hasta
-                                </label>
-
-                                <input
-                                    type="date"
-                                    name="fecha_hasta"
-                                    id="fecha_hasta"
-                                    value="{{ $fechaHasta }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                                >
-                            </div>
-
-                            <div>
-                                <label
-                                    for="usuario_id"
-                                    class="block font-medium text-sm"
-                                >
-                                    Usuario
-                                </label>
-
-                                <select
-                                    name="usuario_id"
-                                    id="usuario_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                                >
-                                    <option value="">
-                                        Todos los usuarios
-                                    </option>
-
-                                    @foreach ($usuarios as $usuario)
-                                        <option
-                                            value="{{ $usuario->id }}"
-                                            @selected($usuarioId == $usuario->id)
-                                        >
-                                            {{ $usuario->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div>
-                                <label
-                                    for="modulo"
-                                    class="block font-medium text-sm"
-                                >
-                                    Módulo
-                                </label>
-
-                                <select
-                                    name="modulo"
-                                    id="modulo"
-                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                                >
-                                    <option value="">
-                                        Todos los módulos
-                                    </option>
-
-                                    @foreach ($modulos as $item)
-                                        <option
-                                            value="{{ $item }}"
-                                            @selected($modulo === $item)
-                                        >
-                                            {{ $item }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div>
-                                <label
-                                    for="accion"
-                                    class="block font-medium text-sm"
-                                >
-                                    Acción
-                                </label>
-
-                                <select
-                                    name="accion"
-                                    id="accion"
-                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                                >
-                                    <option value="">
-                                        Todas las acciones
-                                    </option>
-
-                                    @foreach ($acciones as $item)
-                                        <option
-                                            value="{{ $item }}"
-                                            @selected($accion === $item)
-                                        >
-                                            {{ $item }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
+                            <input
+                                type="date"
+                                name="fecha_desde"
+                                id="fecha_desde"
+                                value="{{ $fechaDesde }}"
+                                class="md-field mt-1.5"
+                            >
                         </div>
 
-                        <div class="flex items-center gap-3 mt-6">
+                        <div>
+                            <label for="fecha_hasta" class="md-label">Fecha hasta</label>
 
-                            <button
-                                type="submit"
-                                class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+                            <input
+                                type="date"
+                                name="fecha_hasta"
+                                id="fecha_hasta"
+                                value="{{ $fechaHasta }}"
+                                class="md-field mt-1.5"
                             >
-                                Buscar
-                            </button>
-
-                            <a
-                                href="{{ route('auditoria.index') }}"
-                                class="px-4 py-2 text-gray-600 dark:text-gray-300"
-                            >
-                                Limpiar filtros
-                            </a>
-
                         </div>
 
-                    </form>
+                        <div>
+                            <label for="usuario_id" class="md-label">Usuario</label>
 
-                </div>
-            </div>
+                            <select name="usuario_id" id="usuario_id" class="md-field mt-1.5">
+                                <option value="">Todos</option>
 
-            <!-- Resultados -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+                                @foreach ($usuarios as $usuario)
+                                    <option value="{{ $usuario->id }}" @selected($usuarioId == $usuario->id)>
+                                        {{ $usuario->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">
-                            Registros encontrados:
-                            {{ $auditorias->count() }}
-                        </h3>
+                        <div>
+                            <label for="modulo" class="md-label">Módulo</label>
+
+                            <select name="modulo" id="modulo" class="md-field mt-1.5">
+                                <option value="">Todos</option>
+
+                                @foreach ($modulos as $item)
+                                    <option value="{{ $item }}" @selected($modulo === $item)>
+                                        {{ $item }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="accion" class="md-label">Acción</label>
+
+                            <select name="accion" id="accion" class="md-field mt-1.5">
+                                <option value="">Todas</option>
+
+                                @foreach ($acciones as $item)
+                                    <option value="{{ $item }}" @selected($accion === $item)>
+                                        {{ $item }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
-                    @if ($auditorias->isEmpty())
+                    <div class="mt-5 flex flex-wrap items-center gap-3">
+                        <button type="submit" class="md-btn md-btn-md md-btn-filled">Filtrar</button>
 
-                        <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-md">
-                            No se encontraron registros de auditoría.
-                        </div>
+                        @if (request()->hasAny(['fecha_desde', 'fecha_hasta', 'usuario_id', 'modulo', 'accion']))
+                            <a href="{{ route('auditoria.index') }}" class="md-btn md-btn-md md-btn-text">
+                                Limpiar filtros
+                            </a>
+                        @endif
+                    </div>
+                </form>
+            </section>
 
-                    @else
+            {{-- Resultados --}}
+            <section class="md-card overflow-hidden">
+                <div class="md-section flex flex-wrap items-center justify-between gap-3">
+                    <h3 class="md-section-title">Registros encontrados</h3>
 
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full">
-
-                                <thead>
-                                    <tr class="border-b border-gray-200 dark:border-gray-700">
-
-                                        <th class="px-4 py-3 text-left">
-                                            Fecha
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Usuario
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Módulo
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Acción
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Modelo
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            ID
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Descripción
-                                        </th>
-
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-
-                                    @foreach ($auditorias as $auditoria)
-
-                                        <tr class="border-b border-gray-200 dark:border-gray-700 align-top">
-
-                                            <td class="px-4 py-3 whitespace-nowrap">
-                                                {{ $auditoria->created_at->format('d/m/Y H:i:s') }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $auditoria->usuario?->name ?? 'Sistema' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $auditoria->modulo }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $auditoria->accion }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $auditoria->modelo ?? '-' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $auditoria->modelo_id ?? '-' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $auditoria->descripcion ?? '-' }}
-                                            </td>
-
-                                        </tr>
-
-                                    @endforeach
-
-                                </tbody>
-
-                            </table>
-                        </div>
-
-                    @endif
-
+                    <span class="md-badge">{{ $auditorias->count() }}</span>
                 </div>
-            </div>
 
+                @if ($auditorias->isEmpty())
+                    <x-estado-vacio
+                        titulo="Sin registros"
+                        :descripcion="request()->hasAny(['fecha_desde', 'fecha_hasta', 'usuario_id', 'modulo', 'accion'])
+                            ? 'No se encontraron registros con los filtros aplicados.'
+                            : 'Todavía no hay actividad registrada en el sistema.'"
+                    >
+                        <x-slot:accion>
+                            @if (request()->hasAny(['fecha_desde', 'fecha_hasta', 'usuario_id', 'modulo', 'accion']))
+                                <a href="{{ route('auditoria.index') }}" class="md-btn md-btn-sm md-btn-outlined">
+                                    Limpiar filtros
+                                </a>
+                            @endif
+                        </x-slot:accion>
+                    </x-estado-vacio>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="md-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Fecha</th>
+                                    <th scope="col">Usuario</th>
+                                    <th scope="col">Módulo</th>
+                                    <th scope="col">Acción</th>
+                                    <th scope="col">Modelo</th>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Descripción</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach ($auditorias as $auditoria)
+                                    <tr>
+                                        <td class="whitespace-nowrap tabular-nums text-gray-500 dark:text-gray-400">
+                                            {{ $auditoria->created_at->format('d/m/Y H:i:s') }}
+                                        </td>
+
+                                        <td class="font-medium text-gray-900 dark:text-white">
+                                            {{ $auditoria->usuario?->name ?? 'Sistema' }}
+                                        </td>
+
+                                        <td>
+                                            <span class="md-chip bg-gray-100 text-gray-700 dark:bg-gray-700/70 dark:text-gray-200">
+                                                {{ $auditoria->modulo }}
+                                            </span>
+                                        </td>
+
+                                        <td>{{ $auditoria->accion }}</td>
+
+                                        <td class="font-mono text-xs">{{ $auditoria->modelo ?? '—' }}</td>
+
+                                        <td class="font-mono text-xs">{{ $auditoria->modelo_id ?? '—' }}</td>
+
+                                        <td class="max-w-md">
+                                            <span class="line-clamp-2" title="{{ $auditoria->descripcion ?? '' }}">
+                                                {{ $auditoria->descripcion ?? '—' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </section>
         </div>
     </div>
 </x-app-layout>
