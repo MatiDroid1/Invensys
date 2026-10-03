@@ -6,77 +6,51 @@
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
+        <!-- Name -->
         <div>
-            <label for="name" class="md-label">Nombre</label>
-
-            <input
-                type="text"
-                name="name"
-                id="name"
-                value="{{ old('name') }}"
-                required
-                autofocus
-                autocomplete="name"
-                class="md-field"
-            >
-
-            <x-input-error :messages="$errors->get('name')" class="md-error" />
+            <x-input-label for="name" value="Nombre" />
+            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+            <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
-        <div class="mt-5">
-            <label for="email" class="md-label">Correo electrónico</label>
-
-            <input
-                type="email"
-                name="email"
-                id="email"
-                value="{{ old('email') }}"
-                required
-                autocomplete="username"
-                class="md-field"
-            >
-
-            <x-input-error :messages="$errors->get('email')" class="md-error" />
+        <!-- Email Address -->
+        <div class="mt-4">
+            <x-input-label for="email" value="Correo electrónico" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <div class="mt-5">
-            <label for="password" class="md-label">Contraseña</label>
+        <!-- Password -->
+        <div class="mt-4">
+            <x-input-label for="password" value="Contraseña" />
 
-            <input
-                type="password"
-                name="password"
-                id="password"
-                required
-                autocomplete="new-password"
-                class="md-field"
-            >
+            <x-text-input id="password" class="block mt-1 w-full"
+                            type="password"
+                            name="password"
+                            required autocomplete="new-password" />
 
-            <x-input-error :messages="$errors->get('password')" class="md-error" />
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <div class="mt-5">
-            <label for="password_confirmation" class="md-label">Confirmar contraseña</label>
+        <!-- Confirm Password -->
+        <div class="mt-4">
+            <x-input-label for="password_confirmation" value="Confirmar contraseña" />
 
-            <input
-                type="password"
-                name="password_confirmation"
-                id="password_confirmation"
-                required
-                autocomplete="new-password"
-                class="md-field"
-            >
+            <x-text-input id="password_confirmation" class="block mt-1 w-full"
+                            type="password"
+                            name="password_confirmation" required autocomplete="new-password" />
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="md-error" />
+            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <a href="{{ route('login') }}" class="text-sm text-indigo-600 hover:underline dark:text-indigo-400">
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end mt-6">
+            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
                 ¿Ya tienes una cuenta?
             </a>
 
-            <button type="submit" class="md-btn md-btn-md md-btn-filled justify-center">
+            <x-primary-button class="sm:ms-4 w-full sm:w-auto">
                 Crear cuenta
-            </button>
+            </x-primary-button>
         </div>
     </form>
 </x-guest-layout>

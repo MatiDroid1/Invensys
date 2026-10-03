@@ -3,22 +3,22 @@
         Verifica tu correo electrónico
     </x-slot>
 
-    <p class="mb-5 text-sm text-gray-600 dark:text-gray-400">
+    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
         ¡Gracias por registrarte! Antes de comenzar, confirma tu correo electrónico haciendo clic en el
         enlace que te acabamos de enviar. Si no lo recibiste, con gusto te enviamos otro.
-    </p>
+    </div>
 
     @if (session('status') == 'verification-link-sent')
-        <div class="mb-5 rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-200">
+        <div class="mb-4 p-4 text-sm font-medium text-green-800 bg-green-50 border border-green-200 rounded-md dark:bg-green-900/30 dark:text-green-200 dark:border-green-800">
             Se envió un nuevo enlace de verificación al correo electrónico que registraste.
         </div>
     @endif
 
-    <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         <form method="POST" action="{{ route('logout') }}">
             @csrf
 
-            <button type="submit" class="md-btn md-btn-md md-btn-text">
+            <button type="submit" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
                 Cerrar sesión
             </button>
         </form>
@@ -26,9 +26,9 @@
         <form method="POST" action="{{ route('verification.send') }}">
             @csrf
 
-            <button type="submit" class="md-btn md-btn-md md-btn-filled">
+            <x-primary-button class="w-full sm:w-auto">
                 Reenviar correo de verificación
-            </button>
+            </x-primary-button>
         </form>
     </div>
 </x-guest-layout>
