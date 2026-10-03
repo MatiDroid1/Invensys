@@ -5,6 +5,15 @@
 # Este archivo cierra esa puerta: lo único que se puede pedir por web es /public.
 
 # ----------------------------------------------------------------------
+# Sin listado de carpetas
+# ----------------------------------------------------------------------
+# Sin esto, abrir http://localhost/Invensys/ mostraba la tabla de archivos del
+# proyecto: se ve la estructura completa (rutas, migraciones, nombres de vistas).
+<IfModule mod_negotiation.c>
+    Options -Indexes -MultiViews
+</IfModule>
+
+# ----------------------------------------------------------------------
 # Archivos sensibles en la raíz
 # ----------------------------------------------------------------------
 <FilesMatch "^\.?env|^\.env\..*|^composer\.(json|lock)$|^package(-lock)?\.json$|^vite\.config\.(js|ts)$|^phpunit\.xml$|^artisan$|^\.gitignore$|^\.editorconfig$">
@@ -26,9 +35,25 @@
     # El patrón es relativo a esta carpeta, así que estas rutas no se sirven
     # desde la raíz del proyecto; los recursos públicos viven en /public.
     RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|node_modules|\.git)/ - [F,L]
+
+    # Escribir la carpeta a mano es lo natural ("http://localhost/Invensys/"), y
+    # aquí no hay nada que mostrar. Se manda a /public/, que es donde vive el
+    # front controller.
+    #
+    # El destino tiene que ser una ruta absoluta: con "public/" Apache arma una
+    # URL a partir del DocumentRoot y sale algo como
+    # "http://localhost/C:/xampp/htdocs/Invensys/public/", que no existe.
+    #
+    # "Invensys" es el nombre de la carpeta. Si el proyecto se copia con otro
+    # nombre, hay que cambiarlo acá (y en APP_URL del .env).
+    RewriteRule ^$ /Invensys/public/ [R=302,L]
 </IfModule>
 
 # Recurso de respaldo: si mod_rewrite no está disponible, se niegan igual.
 <IfModule !mod_rewrite.c>
     RedirectMatch 404 ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|node_modules|\.git)/
+
+    # Sin mod_rewrite no hay forma de mandar /Invensys/ a /Invensys/public/:
+    # una redirección con ruta absoluta es lo único que queda.
+    RedirectMatch 302 ^$ /Invensys/public/
 </IfModule>
