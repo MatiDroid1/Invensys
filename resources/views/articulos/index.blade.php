@@ -17,7 +17,39 @@
         </div>
     </x-slot>
 
-    <div class="md-page md-page-body space-y-6">
+    <div
+        class="md-page md-page-body space-y-6"
+        x-data="{ nombre: '', accion: '' }"
+        x-on:confirmar-desactivacion.window="nombre = $event.detail.nombre; accion = $event.detail.accion"
+    >
+        {{-- Un solo modal para toda la tabla: se rellena con el artículo elegido
+             desde la fila, en lugar de imprimir un confirm() del navegador por
+             cada fila. --}}
+        <x-modal name="desactivar-articulo" maxWidth="md">
+            <form method="POST" x-bind:action="accion">
+                @csrf
+                @method('DELETE')
+
+                <div class="p-6">
+                    <h2 class="md-section-title">Desactivar artículo</h2>
+
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        <span class="font-medium text-gray-900 dark:text-gray-100" x-text="nombre"></span>
+                        dejará de aparecer en los formularios de movimientos. Su historial no se elimina.
+                    </p>
+                </div>
+
+                <div class="flex flex-col-reverse gap-3 bg-gray-50 px-6 py-4 dark:bg-gray-800/60 sm:flex-row sm:justify-end">
+                    <button type="button" class="md-btn md-btn-text" x-on:click="$dispatch('close')">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="md-btn md-btn-danger">
+                        Desactivar
+                    </button>
+                </div>
+            </form>
+        </x-modal>
         <x-alerta />
 
         {{-- Filtros --}}
@@ -220,22 +252,17 @@
                                             Editar
                                         </a>
 
-                                        @if ($articulo->activo)
-                                            <form
-                                                method="POST"
-                                                action="{{ route('articulos.destroy', $articulo) }}"
-                                                onsubmit="return confirm('¿Está seguro de desactivar este artículo? No se eliminarán sus movimientos.');"
+@if ($articulo->activo)
+                                            <button
+                                                type="button"
+                                                class="md-btn md-btn-text md-btn-sm !text-red-600 dark:!text-red-300"
+                                                @click="$dispatch('confirmar-desactivacion', {
+                                                    nombre: @js($articulo->nombre),
+                                                    accion: @js(route('articulos.destroy', $articulo))
+                                                })"
                                             >
-                                                @csrf
-                                                @method('DELETE')
-
-                                                <button
-                                                    type="submit"
-                                                    class="md-btn md-btn-text md-btn-sm !text-red-600 dark:!text-red-300"
-                                                >
-                                                    Desactivar
-                                                </button>
-                                            </form>
+                                                Desactivar
+                                            </button>
                                         @endif
                                     </div>
                                 </td>

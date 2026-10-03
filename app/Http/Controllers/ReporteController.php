@@ -103,9 +103,7 @@ class ReporteController extends Controller
             ? 'stock_bajo_minimo_'.now()->format('Y-m-d_H-i-s').'.csv'
             : 'stock_actual_'.now()->format('Y-m-d_H-i-s').'.csv';
 
-        $csv = fopen('php://temp', 'r+');
-
-        fputcsv($csv, [
+        $lineas = [[
             'Código',
             'Artículo',
             'Categoría',
@@ -114,29 +112,22 @@ class ReporteController extends Controller
             'Stock mínimo',
             'Stock máximo',
             'Estado',
-        ]);
+        ]];
 
         foreach ($articulos as $articulo) {
-            fputcsv($csv, [
+            $lineas[] = [
                 $articulo->codigo,
                 $articulo->nombre,
                 $articulo->categoria?->nombre,
                 $articulo->unidadMedida?->nombre,
-                (float) $articulo->stock_calculado,
-                $articulo->stock_minimo,
-                $articulo->stock_maximo,
+                $this->numeroEs($articulo->stock_calculado),
+                $this->numeroEs($articulo->stock_minimo),
+                $this->numeroEs($articulo->stock_maximo),
                 $articulo->activo ? 'Activo' : 'Inactivo',
-            ]);
+            ];
         }
 
-        rewind($csv);
-        $contenido = stream_get_contents($csv);
-        fclose($csv);
-
-        return response($contenido, 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$nombreArchivo}\"",
-        ]);
+        return $this->respuestaCsv($lineas, $nombreArchivo);
     }
 
     public function movimientos(Request $request)
@@ -211,9 +202,7 @@ class ReporteController extends Controller
 
         $nombreArchivo = 'movimientos_'.now()->format('Y-m-d_H-i-s').'.csv';
 
-        $csv = fopen('php://temp', 'r+');
-
-        fputcsv($csv, [
+        $lineas = [[
             'Fecha',
             'Hora',
             'Artículo (código)',
@@ -223,34 +212,27 @@ class ReporteController extends Controller
             'Persona',
             'Usuario',
             'Referencia',
-        ]);
+        ]];
 
         foreach ($movimientos as $movimiento) {
             $fechaMovimiento = $movimiento->fecha_movimiento;
 
-            fputcsv($csv, [
+            $lineas[] = [
                 $fechaMovimiento?->format('d/m/Y'),
                 $fechaMovimiento?->format('H:i'),
                 $movimiento->articulo?->codigo,
                 $movimiento->articulo?->nombre,
                 $movimiento->tipo,
-                (float) $movimiento->cantidad,
+                $this->numeroEs($movimiento->cantidad),
                 $movimiento->persona
                     ? trim($movimiento->persona->nombre.' '.$movimiento->persona->apellido)
                     : null,
                 $movimiento->usuario?->name,
                 $movimiento->referencia,
-            ]);
+            ];
         }
 
-        rewind($csv);
-        $contenido = stream_get_contents($csv);
-        fclose($csv);
-
-        return response($contenido, 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$nombreArchivo}\"",
-        ]);
+        return $this->respuestaCsv($lineas, $nombreArchivo);
     }
 
     public function entregasPersona(Request $request)
@@ -306,9 +288,7 @@ class ReporteController extends Controller
 
         $nombreArchivo = 'entregas_por_persona_'.now()->format('Y-m-d_H-i-s').'.csv';
 
-        $csv = fopen('php://temp', 'r+');
-
-        fputcsv($csv, [
+        $lineas = [[
             'Persona',
             'Rut',
             'Fecha',
@@ -319,7 +299,7 @@ class ReporteController extends Controller
             'Cantidad',
             'Usuario',
             'Referencia',
-        ]);
+        ]];
 
         foreach ($personas as $persona) {
             $movimientos = Movimiento::query()
@@ -347,7 +327,7 @@ class ReporteController extends Controller
             foreach ($movimientos as $movimiento) {
                 $fechaMovimiento = $movimiento->fecha_movimiento;
 
-                fputcsv($csv, [
+                $lineas[] = [
                     trim($persona->nombre.' '.$persona->apellido),
                     $persona->rut,
                     $fechaMovimiento?->format('d/m/Y'),
@@ -355,20 +335,57 @@ class ReporteController extends Controller
                     $movimiento->articulo?->codigo,
                     $movimiento->articulo?->nombre,
                     $movimiento->tipo,
-                    (float) $movimiento->cantidad,
+                    $this->numeroEs($movimiento->cantidad),
                     $movimiento->usuario?->name,
                     $movimiento->referencia,
-                ]);
+                ];
             }
         }
 
-        rewind($csv);
-        $contenido = stream_get_contents($csv);
-        fclose($csv);
+        return $this->respuestaCsv($lineas, $nombreArchivo);
+    }
 
-        return response($contenido, 200, [
+    /**
+     * Arma el CSV para Excel en español.
+     *
+     * `fputcsv` con sus valores por defecto escribe coma como separador, salto
+     * `\n` y sin marca de orden de bytes: abierto en Excel en español eso
+     * significa una sola columna con todo el archivo amontonado, acentos rotos
+     * y las filas pegadas en un renglón. Aquí se escribe a mano con `;`, CRLF y
+     * BOM UTF-8.
+     *
+     * @param  array<int, array<int, mixed>>  $lineas
+     */
+    private function respuestaCsv(array $lineas, string $nombreArchivo)
+    {
+        $contenido = '';
+
+        foreach ($lineas as $campos) {
+            $contenido .= implode(';', array_map(function ($campo) {
+                return '"'.str_replace('"', '""', (string) $campo).'"';
+            }, $campos))."\r\n";
+        }
+
+        return response("\xEF\xBB\xBF".$contenido, 200, [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$nombreArchivo}\"",
         ]);
+    }
+
+    /**
+     * Cantidad en formato español: punto de miles y coma decimal.
+     *
+     * Los decimales de relleno se omiten cuando el valor es entero, para que
+     * `12` no aparezca como `12,00` en un campo de cantidad.
+     */
+    private function numeroEs($valor, int $decimales = 2): string
+    {
+        $numero = (float) $valor;
+
+        if ($decimales > 0 && fmod($numero, 1.0) === 0.0) {
+            $decimales = 0;
+        }
+
+        return number_format($numero, $decimales, ',', '.');
     }
 }
