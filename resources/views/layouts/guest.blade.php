@@ -19,30 +19,30 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gray-100 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
-        <div class="flex min-h-screen flex-col items-center justify-center px-4 pt-6 sm:pt-0">
-            <div class="flex flex-col items-center gap-2">
-                <a href="{{ route('dashboard') }}" class="md-icon-btn h-20 w-20 text-gray-400 dark:text-gray-500">
-                    <x-application-logo class="h-14 w-14 fill-current" />
-                </a>
+<body class="font-sans text-gray-900 antialiased">
+    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
+        <div class="px-4">
+            <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-2">
+                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
 
                 <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">
                     {{ config('app.name', 'Invensys') }}
                 </span>
-            </div>
+            </a>
+        </div>
 
-            <div class="mt-6 w-full px-6 py-6 sm:max-w-md">
-                <div class="md-card p-6 sm:p-8">
-                    @isset($title)
-                        <h1 class="md-title">{{ $title }}</h1>
+        <div class="w-full px-4 sm:max-w-md">
+            <div class="md-card p-6 sm:p-8">
+                @isset($title)
+                    <h1 class="md-title mb-5">
+                        {{ $title }}
+                    </h1>
+                @endisset
 
-                        <div class="md-divider my-6"></div>
-                    @endisset
-
-                    {{ $slot }}
-                </div>
+                {{ $slot }}
             </div>
         </div>
-    </body>
+    </div>
+</body>
 
 </html>
