@@ -9,7 +9,7 @@
         </p>
     </header>
 
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-5">
         @csrf
         @method('put')
 
@@ -32,7 +32,7 @@
         </div>
 
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <x-primary-button class="w-full sm:w-auto">Guardar</x-primary-button>
+            <button type="submit" class="md-btn md-btn-md md-btn-filled">Guardar</button>
 
             @if (session('status') === 'password-updated')
                 <p
@@ -40,7 +40,7 @@
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600 dark:text-gray-400"
+                    class="text-sm text-emerald-600 dark:text-emerald-400"
                 >Guardado.</p>
             @endif
         </div>

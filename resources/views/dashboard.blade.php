@@ -53,6 +53,8 @@
                 </div>
             </div>
 
+                @endif
+            </section>
         </div>
 
         {{-- Stock bajo --}}

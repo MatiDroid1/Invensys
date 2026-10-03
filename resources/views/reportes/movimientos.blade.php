@@ -121,6 +121,12 @@
                         </select>
                     </div>
 
+                            <option value="ENTRADA" @selected($tipo === 'ENTRADA')>Entrada</option>
+                            <option value="SALIDA" @selected($tipo === 'SALIDA')>Salida</option>
+                            <option value="AJUSTE_POSITIVO" @selected($tipo === 'AJUSTE_POSITIVO')>Ajuste positivo</option>
+                            <option value="AJUSTE_NEGATIVO" @selected($tipo === 'AJUSTE_NEGATIVO')>Ajuste negativo</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="mt-6 flex flex-wrap items-center gap-3">

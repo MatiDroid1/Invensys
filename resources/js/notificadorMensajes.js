@@ -60,6 +60,13 @@ export default function notificadorMensajes(config = {}) {
             // El navegador exige una interacción del usuario antes de permitir
             // audio o notificaciones del sistema.
             //
+            // Este paso es SILENCIOSO a propósito: desbloquear el audio no es una
+            // notificación, así que no debe sonar nada. Antes, el primer clic o
+            // pulsación de cada página emitía un pitido de confirmación y el
+            // usuario oía un ruido en cada interacción. Ahora el pitido sale solo
+            // de `recibir()` (mensajes nuevos) y de `alternarSonido()`, cuando el
+            // usuario activa el sonido de forma explícita.
+            //
             // La escucha NO se retira en el primer toque: se queda hasta que el
             // AudioContext queda realmente en marcha. Antes se rendía tras el
             // primer clic, y como el contexto se recrea en cada navegación,
@@ -69,19 +76,26 @@ export default function notificadorMensajes(config = {}) {
         },
 
         escucharDesbloqueo() {
+            let pending = false;
+
             const despertar = async () => {
-                this.audioBloqueado = !(await avisoSonoro.desbloquear());
+                // `pointerdown` y `keydown` llegan casi a la vez en un clic.
+                // Sin este cerrojo se llamaría dos veces a `desbloquear()` y la
+                // carrera podía dejar el AudioContext a medias.
+                if (pending) {
+                    return;
+                }
+
+                pending = true;
+
+                try {
+                    this.audioBloqueado = !(await avisoSonoro.desbloquear());
+                } finally {
+                    pending = false;
+                }
 
                 if (!this.audioBloqueado) {
                     this.retirarDesbloqueo();
-
-                    // Confirmación: si acaba de activarse, se deja un pitido
-                    // para que el usuario sepa que ya quedó habilitado.
-                    if (this.sonido && this._bloqueadoPrevio) {
-                        avisoSonoro.pitir();
-                    }
-
-                    this._bloqueadoPrevio = false;
                 }
 
                 if (this.permiso === 'default') {
@@ -90,7 +104,6 @@ export default function notificadorMensajes(config = {}) {
             };
 
             this._despertar = despertar;
-            this._bloqueadoPrevio = true;
 
             window.addEventListener('pointerdown', despertar);
             window.addEventListener('keydown', despertar);

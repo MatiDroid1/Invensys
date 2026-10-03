@@ -48,20 +48,22 @@ $maxWidth = [
     x-show="show"
     class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
     style="display: {{ $show ? 'block' : 'none' }};"
->
-    <div
-        x-show="show"
-        class="fixed inset-0 transform transition-all"
-        x-on:click="show = false"
-        x-transition:enter="ease-out duration-300"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="ease-in duration-200"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
     >
-        <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
-    </div>
+        <div
+            x-show="show"
+            class="fixed inset-0 transform transition-all"
+            x-on:click="show = false"
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+        >
+            {{-- El velo se difumina en vez de quedar como una placa gris: en
+                 Material el fondo se atenúa, no se tapa. --}}
+            <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-[2px]"></div>
+        </div>
 
     <div
         x-show="show"
@@ -75,4 +77,3 @@ $maxWidth = [
     >
         {{ $slot }}
     </div>
-</div>

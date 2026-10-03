@@ -17,15 +17,15 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans antialiased bg-gray-50 text-gray-900">
+<body class="bg-gray-50 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
 
     {{-- Encabezado --}}
     <header class="md-appbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-                    <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    <span class="font-semibold text-lg">Invensys</span>
+                    <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-100" />
+                    <span class="text-lg font-semibold">Invensys</span>
                 </a>
 
                 <div class="flex items-center gap-2">
@@ -43,15 +43,6 @@
                         >
                             Iniciar sesión
                         </a>
-
-                        <!-- @if (Route::has('register'))
-                            <a
-                                href="{{ route('register') }}"
-                                class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md hover:bg-gray-700"
-                            >
-                                Crear cuenta
-                            </a>
-                        @endif -->
                     @endauth
                 </div>
             </div>
@@ -60,7 +51,7 @@
 
     {{-- Portada --}}
     <main>
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
             <div class="max-w-3xl">
                 <span
                     class="md-badge md-badge-info"
@@ -68,17 +59,17 @@
                     Control de inventario
                 </span>
 
-                <h1 class="mt-6 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+                <h1 class="mt-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
                     Inventario ordenado, decisiones al día
                 </h1>
 
-                <p class="mt-6 text-lg text-gray-600">
+                <p class="mt-6 text-lg text-gray-600 dark:text-gray-300">
                     Invensys centraliza el stock de tus artículos en un solo lugar: registra entradas,
                     salidas y ajustes, consulta el Kardex de cada producto y genera reportes con la
                     trazabilidad de cada operación.
                 </p>
 
-                <div class="mt-10 flex flex-col sm:flex-row gap-3">
+                <div class="mt-10 flex flex-col gap-3 sm:flex-row">
                     @auth
                         <a
                             href="{{ route('dashboard') }}"
@@ -112,13 +103,12 @@
                     Módulos
                 </h2>
 
-                <p class="mt-4 max-w-2xl text-gray-600">
+                <p class="mt-4 max-w-2xl text-gray-600 dark:text-gray-300">
                     Todo el ciclo de vida del inventario, desde el alta de un artículo hasta su
                     kardex histórico.
                 </p>
 
-                <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
+                <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     @php
                         $modulos = [
                             [
@@ -149,7 +139,7 @@
                             [
                                 'titulo' => 'Auditoría',
                                 'descripcion' => 'Cada alta, edición y movimiento queda registrado con usuario, fecha y detalle del cambio.',
-                                'icono' => 'M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.746 3.746 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.746 3.746 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z',
+                                'icono' => 'M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.746 3.746 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.746 3.746 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.745 3.745 0 011.043 3.296A3.745 3.745 0 0121 12z',
                             ],
                         ];
                     @endphp
@@ -170,12 +160,11 @@
                                 {{ $modulo['titulo'] }}
                             </h3>
 
-                            <p class="mt-2 text-sm text-gray-600">
+                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                                 {{ $modulo['descripcion'] }}
                             </p>
                         </div>
                     @endforeach
-
                 </div>
             </div>
         </section>

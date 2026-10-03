@@ -9,6 +9,24 @@ use Illuminate\Http\Request;
 
 class ReporteController extends Controller
 {
+    /**
+     * Configuración común de las descargas CSV.
+     *
+     * El separador es punto y coma porque es el que espera Excel en
+     * configuración regional española: con la coma, un texto que contenga una
+     * coma se abre en columnas de más y los decimales con punto se parten.
+     *
+     * El BOM es lo que hace que Excel entienda que el archivo es UTF-8. Sin él
+     * abre el CSV con la codificación ANSI del sistema y los acentos salen
+     * descodificados, aunque el Content-Type y el propio archivo sean UTF-8
+     * correctos.
+     */
+    private const CSV_SEPARADOR = ';';
+
+    private const CSV_FIN_DE_LINEA = "\r\n";
+
+    private const CSV_BOM = "\xEF\xBB\xBF";
+
     public function stock(Request $request)
     {
         $articulos = Articulo::query()
@@ -369,6 +387,7 @@ class ReporteController extends Controller
         return response("\xEF\xBB\xBF".$contenido, 200, [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$nombreArchivo}\"",
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
         ]);
     }
 

@@ -47,6 +47,8 @@
                         </button>
                     </div>
 
+                        Consultar Kardex
+                    </button>
                 </div>
             </form>
         </section>

@@ -6,7 +6,11 @@
                     href="{{ route('articulos.index') }}"
                     class="md-btn md-btn-text md-btn-sm"
                 >
-                    &larr; Artículos
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+
+                    Artículos
                 </a>
 
                 <h2 class="md-title mt-1">
@@ -18,11 +22,15 @@
                 </p>
             </div>
 
-            <div class="flex flex-col gap-2 sm:flex-row">
+            <div class="flex flex-wrap gap-2">
                 <a
                     href="{{ route('articulos.edit', $articulo) }}"
                     class="md-btn md-btn-filled"
                 >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                    </svg>
+
                     Editar
                 </a>
 
