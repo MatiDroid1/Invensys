@@ -1,25 +1,23 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="md-title">Acerca de Invensys</h2>
+        <h2 class="md-title">
+            Acerca de Invensys
+        </h2>
     </x-slot>
 
-    <div class="py-8">
-        <div class="mx-auto max-w-4xl space-y-6 px-4 sm:px-6 lg:px-8">
+    <div class="md-page md-page-body">
+        <div class="max-w-4xl space-y-5">
+
+            <!-- Propósito -->
             <section class="md-card p-6 sm:p-8">
-                <div class="flex items-start gap-4">
-                    <span class="md-icon-btn shrink-0 bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
-                        <x-application-logo class="h-6 w-6 fill-current" />
-                    </span>
+                <div>
+                    <div class="flex items-start gap-4">
+                        <span class="inline-flex items-center justify-center shrink-0 w-12 h-12 rounded-lg bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300">
+                            <x-application-logo class="w-6 h-6 fill-current" />
+                        </span>
 
-                    <div class="min-w-0">
-                        <h3 class="md-section-title">Qué es Invensys</h3>
-
-                        <p class="mt-3 leading-relaxed text-gray-600 dark:text-gray-300">
-                            Invensys es el sistema de control de inventario de la empresa. Nació de una
-                            necesidad concreta: llevar el control de artículos, entradas, salidas y
-                            ajustes en un solo lugar, saber siempre cuánto hay de cada cosa y
-                            responder <em>quién</em> hizo cada cambio y <em>cuándo</em>.
-                        </p>
+                        <div>
+                            <h3 class="md-section-title">Qué es Invensys</h3>
 
                         <p class="mt-3 leading-relaxed text-gray-600 dark:text-gray-300">
                             Antes esto se anotaba en una planilla. La planilla no sabe si dos personas
@@ -31,8 +29,12 @@
                 </div>
             </section>
 
+            <!-- Qué resuelve -->
             <section class="md-card p-6 sm:p-8">
-                <h3 class="md-section-title">Qué resuelve</h3>
+                <div>
+                    <h3 class="md-section-title">
+                        Qué resuelve
+                    </h3>
 
                 <dl class="mt-5 space-y-5">
                     <div class="flex gap-4">
@@ -99,8 +101,12 @@
                 </dl>
             </section>
 
+            <!-- Cómo está construido -->
             <section class="md-card p-6 sm:p-8">
-                <h3 class="md-section-title">Cómo está construido</h3>
+                <div>
+                    <h3 class="md-section-title">
+                        Cómo está construido
+                    </h3>
 
                 <p class="mt-3 leading-relaxed text-gray-600 dark:text-gray-400">
                     Invensys sigue el patrón <strong class="text-gray-900 dark:text-gray-100">MVC</strong>:
@@ -111,43 +117,44 @@
                     auditoría — y FormRequests para validar la entrada antes de que llegue al modelo.
                 </p>
 
-                <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                    <div class="rounded-2xl border border-gray-100 p-4 dark:border-gray-700/70">
-                        <p class="font-medium text-gray-900 dark:text-gray-100">Laravel 12</p>
+                    <div class="mt-6 grid gap-4 sm:grid-cols-2">
+                        <div class="md-card-plain p-4">
+                            <p class="font-medium text-gray-900 dark:text-gray-100">Laravel 12</p>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                PHP 8, Eloquent y Blade. MySQL como base de datos.
+                            </p>
+                        </div>
 
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            PHP 8, Eloquent y Blade. MySQL como base de datos.
-                        </p>
-                    </div>
+                        <div class="md-card-plain p-4">
+                            <p class="font-medium text-gray-900 dark:text-gray-100">Tailwind + Alpine</p>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                Interfaz sin recargas, con modo claro y oscuro.
+                            </p>
+                        </div>
 
-                    <div class="rounded-2xl border border-gray-100 p-4 dark:border-gray-700/70">
-                        <p class="font-medium text-gray-900 dark:text-gray-100">Tailwind + Alpine</p>
+                        <div class="md-card-plain p-4">
+                            <p class="font-medium text-gray-900 dark:text-gray-100">Roles y auditoría</p>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                Administradores gestionan usuarios y configuración; el resto opera el inventario.
+                            </p>
+                        </div>
 
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            Interfaz sin recargas, con modo claro y oscuro.
-                        </p>
-                    </div>
-
-                    <div class="rounded-2xl border border-gray-100 p-4 dark:border-gray-700/70">
-                        <p class="font-medium text-gray-900 dark:text-gray-100">Roles y auditoría</p>
-
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            Administradores gestionan usuarios y configuración; el resto opera el inventario.
-                        </p>
-                    </div>
-
-                    <div class="rounded-2xl border border-gray-100 p-4 dark:border-gray-700/70">
-                        <p class="font-medium text-gray-900 dark:text-gray-100">Pruebas automáticas</p>
-
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            La suite verifica inventario, mensajería, permisos y vistas antes de cada entrega.
-                        </p>
+                        <div class="md-card-plain p-4">
+                            <p class="font-medium text-gray-900 dark:text-gray-100">Pruebas automáticas</p>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                La suite verifica inventario, mensajería, permisos y vistas antes de cada entrega.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section class="rounded-3xl border border-amber-200 bg-amber-50 p-6 dark:border-amber-800/70 dark:bg-amber-500/10 sm:p-8">
-                <h3 class="md-section-title text-amber-900 dark:text-amber-200">Alcance y límites</h3>
+            <!-- Alcance -->
+            <section class="rounded-2xl border border-amber-200 bg-amber-50 dark:border-amber-800/70 dark:bg-amber-500/10">
+                <div class="p-6 sm:p-8">
+                    <h3 class="md-section-title text-amber-900 dark:text-amber-200">
+                        Alcance y límites
+                    </h3>
 
                 <p class="mt-3 leading-relaxed text-amber-800 dark:text-amber-300">
                     Invensys cubre inventario y comunicación interna.
@@ -163,8 +170,12 @@
                 </p>
             </section>
 
+            <!-- Equipo -->
             <section class="md-card p-6 sm:p-8">
-                <h3 class="md-section-title">Equipo</h3>
+                <div>
+                    <h3 class="md-section-title">
+                        Equipo
+                    </h3>
 
                 <p class="mt-3 leading-relaxed text-gray-600 dark:text-gray-400">
                     Invensys es mantenido internamente por el equipo de soporte. Las incidencias,
@@ -175,7 +186,10 @@
             </section>
 
             <div class="flex justify-end">
-                <a href="{{ route('dashboard') }}" class="md-btn md-btn-md md-btn-filled">
+                <a
+                    href="{{ route('dashboard') }}"
+                    class="md-btn md-btn-filled"
+                >
                     Volver al panel
                 </a>
             </div>

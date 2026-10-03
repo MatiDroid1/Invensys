@@ -31,16 +31,15 @@
                 </span>
             </div>
 
-            <div class="mt-6 w-full px-6 py-6 sm:max-w-md">
-                <div class="md-card p-6 sm:p-8">
-                    @isset($title)
-                        <h1 class="md-title">{{ $title }}</h1>
+        <div class="w-full px-4 sm:max-w-md">
+            <div class="md-card p-6 sm:p-8">
+                @isset($title)
+                    <h1 class="md-title mb-5">
+                        {{ $title }}
+                    </h1>
+                @endisset
 
-                        <div class="md-divider my-6"></div>
-                    @endisset
-
-                    {{ $slot }}
-                </div>
+                {{ $slot }}
             </div>
         </div>
     </body>

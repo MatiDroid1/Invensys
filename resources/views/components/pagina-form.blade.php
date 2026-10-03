@@ -1,89 +1,39 @@
 @props([
-    'titulo',
-    'ruta',
-    'rutaListado',
-    'metodo' => 'POST',
-    'textoAccion' => 'Guardar',
-    'textoVolver' => 'Volver al listado',
-    'ancho' => 'max-w-4xl',
+    'action' => null,
+    'method' => 'POST',
+    'ancho' => 'max-w-3xl',
 ])
 
 {{--
-    Contenedor de las pantallas de alta y edición.
+    Esqueleto de las pantallas de alta y edición.
 
-    Antes cada create/edit repetía el mismo esqueleto (cabecera con "volver",
-    tarjeta blanca, formulario, botón guardar y cancelar): seis archivos con
-    diferencias de espaciado entre uno y otro. Aquí el esqueleto está una vez y
-    cada pantalla pone solo sus campos.
+    Estas pantallas se repetían enteras en cada `create` y `edit`: mismo `div`
+    blanco, mismo `p-4 sm:p-8`, mismos botones al pie. Lo único que cambia entre
+    pares es el título y el botón, así que el esqueleto vive una sola vez.
 
-    El bloque de errores del formulario va aquí porque se repetía igual en todas
-    y era la única parte que se veía igual en todas: una lista de viñetas rojas
-    arriba del todo.
+    `ancho` limita la columna de campos a un ancho cómodo de leer. El bloque
+    queda alineado a la izquierda dentro del contenedor de página (no
+    centrado), para que el título de la cabecera y el primer campo compartan el
+    mismo margen en todas las pantallas.
 --}}
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <h2 class="md-title">{{ $titulo }}</h2>
+<form method="POST" action="{{ $action }}" {{ $attributes->except('class') }}>
+    @csrf
 
-            <div class="flex flex-wrap items-center gap-2">
-                {{-- Acción secundaria opcional de la cabecera (p. ej. "Ver detalle"). --}}
-                {{ $extras ?? '' }}
+    @if (strtoupper($method) !== 'POST')
+        @method($method)
+    @endif
 
-                <a href="{{ $rutaListado }}" class="md-btn md-btn-sm md-btn-outlined">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                    </svg>
+    <div class="md-page md-page-body">
+        <div class="{{ $ancho }} space-y-5">
+            <x-alerta />
 
-                    {{ $textoVolver }}
-                </a>
+            <section class="md-card p-5 sm:p-6">
+                {{ $slot }}
+            </section>
+
+            <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+                {{ $acciones }}
             </div>
         </div>
-    </x-slot>
-
-    <div class="py-8">
-        <div class="mx-auto {{ $ancho }} px-4 sm:px-6 lg:px-8">
-            <section class="md-card p-6">
-                @isset($descripcion)
-                    <div class="mb-6 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:bg-gray-700/40 dark:text-gray-300">
-                        {{ $descripcion }}
-                    </div>
-                @endisset
-
-                @if ($errors->any())
-                    <div class="mb-6 rounded-2xl bg-red-50 px-4 py-3 dark:bg-red-500/10">
-                        <p class="text-sm font-semibold text-red-800 dark:text-red-200">
-                            Revisa estos {{ $errors->count() }}
-                            {{ $errors->count() === 1 ? 'campo' : 'campos' }}:
-                        </p>
-
-                        <ul class="mt-1 space-y-0.5 text-sm text-red-700 dark:text-red-300">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <form method="POST" action="{{ $ruta }}">
-                    @csrf
-
-                    @if ($metodo !== 'POST')
-                        @method($metodo)
-                    @endif
-
-                    {{ $slot }}
-
-                    <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
-                        <button type="submit" class="md-btn md-btn-md md-btn-filled">
-                            {{ $textoAccion }}
-                        </button>
-
-                        <a href="{{ $rutaListado }}" class="md-btn md-btn-md md-btn-outlined">
-                            Cancelar
-                        </a>
-                    </div>
-                </form>
-            </section>
-        </div>
     </div>
-</x-app-layout>
+</form>

@@ -20,9 +20,9 @@
 <body class="bg-gray-50 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
 
     {{-- Encabezado --}}
-    <header class="border-b border-gray-200 bg-white dark:border-gray-700/70 dark:bg-gray-800">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="flex h-16 items-center justify-between">
+    <header class="md-appbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
                     <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-100" />
                     <span class="text-lg font-semibold">Invensys</span>
@@ -30,11 +30,17 @@
 
                 <div class="flex items-center gap-2">
                     @auth
-                        <a href="{{ route('dashboard') }}" class="md-btn md-btn-sm md-btn-text">
+                        <a
+                            href="{{ route('dashboard') }}"
+                            class="md-btn md-btn-sm md-btn-text"
+                        >
                             Ir al panel
                         </a>
                     @else
-                        <a href="{{ route('login') }}" class="md-btn md-btn-sm md-btn-text">
+                        <a
+                            href="{{ route('login') }}"
+                            class="md-btn md-btn-sm md-btn-text"
+                        >
                             Iniciar sesión
                         </a>
                     @endauth
@@ -47,7 +53,11 @@
     <main>
         <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
             <div class="max-w-3xl">
-                <span class="md-badge">Control de inventario</span>
+                <span
+                    class="md-badge md-badge-info"
+                >
+                    Control de inventario
+                </span>
 
                 <h1 class="mt-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
                     Inventario ordenado, decisiones al día
@@ -61,16 +71,25 @@
 
                 <div class="mt-10 flex flex-col gap-3 sm:flex-row">
                     @auth
-                        <a href="{{ route('dashboard') }}" class="md-btn md-btn-lg md-btn-filled">
+                        <a
+                            href="{{ route('dashboard') }}"
+                            class="md-btn md-btn-lg md-btn-filled"
+                        >
                             Abrir el panel
                         </a>
                     @else
-                        <a href="{{ route('login') }}" class="md-btn md-btn-lg md-btn-filled">
+                        <a
+                            href="{{ route('login') }}"
+                            class="md-btn md-btn-lg md-btn-filled"
+                        >
                             Iniciar sesión
                         </a>
                     @endauth
 
-                    <a href="#modulos" class="md-btn md-btn-lg md-btn-outlined">
+                    <a
+                        href="#modulos"
+                        class="md-btn md-btn-lg md-btn-outlined"
+                    >
                         Conocer el sistema
                     </a>
                 </div>
@@ -78,9 +97,11 @@
         </section>
 
         {{-- Módulos --}}
-        <section id="modulos" class="border-y border-gray-200 bg-white py-16 dark:border-gray-700/70 dark:bg-gray-800 sm:py-20">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold tracking-tight">Módulos</h2>
+        <section id="modulos" class="border-y border-gray-100 bg-white py-16 dark:border-gray-700/70 dark:bg-gray-800 sm:py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold tracking-tight">
+                    Módulos
+                </h2>
 
                 <p class="mt-4 max-w-2xl text-gray-600 dark:text-gray-300">
                     Todo el ciclo de vida del inventario, desde el alta de un artículo hasta su
@@ -124,16 +145,18 @@
                     @endphp
 
                     @foreach ($modulos as $modulo)
-                        <div class="md-card p-6 transition hover:shadow-e2">
-                            <div class="md-icon-btn w-11 h-11 bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
-                                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5"
+                        <div
+                            class="md-card-plain p-6 transition-colors hover:border-indigo-200 dark:hover:border-indigo-500/40"
+                        >
+                            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5"
                                     viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="{{ $modulo['icono'] }}" />
                                 </svg>
                             </div>
 
-                            <h3 class="mt-5 text-lg font-semibold">
+                            <h3 class="md-section-title mt-5">
                                 {{ $modulo['titulo'] }}
                             </h3>
 
@@ -148,9 +171,9 @@
     </main>
 
     {{-- Pie --}}
-    <footer class="border-t border-gray-200 bg-white dark:border-gray-700/70 dark:bg-gray-800">
-        <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-            <p class="text-center text-sm text-gray-500 dark:text-gray-400">
+    <footer class="border-t border-gray-100 bg-white dark:border-gray-700/70 dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <p class="text-center text-sm text-gray-500">
                 &copy; {{ now()->year }} {{ config('app.name', 'Invensys') }}.
                 Sistema de control de inventario.
             </p>
