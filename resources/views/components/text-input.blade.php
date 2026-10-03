@@ -1,3 +1,10 @@
 @props(['disabled' => false])
 
-<input @disabled($disabled) {{ $attributes->merge(['class' => 'border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm']) }}>
+{{--
+    Campo de texto.
+
+    Antes cada formulario repetía `border-gray-300 shadow-sm rounded-md` con
+    combinaciones distintas de focus. Ahora todos los campos pasan por `.md-field`
+    y el halo de foco es el mismo en toda la aplicación.
+--}}
+<input @disabled($disabled) {{ $attributes->merge(['class' => 'md-field']) }}>

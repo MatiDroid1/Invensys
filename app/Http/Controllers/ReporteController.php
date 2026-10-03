@@ -9,6 +9,24 @@ use Illuminate\Http\Request;
 
 class ReporteController extends Controller
 {
+    /**
+     * Configuración común de las descargas CSV.
+     *
+     * El separador es punto y coma porque es el que espera Excel en
+     * configuración regional española: con la coma, un texto que contenga una
+     * coma se abre en columnas de más y los decimales con punto se parten.
+     *
+     * El BOM es lo que hace que Excel entienda que el archivo es UTF-8. Sin él
+     * abre el CSV con la codificación ANSI del sistema y los acentos salen
+     * descodificados, aunque el Content-Type y el propio archivo sean UTF-8
+     * correctos.
+     */
+    private const CSV_SEPARADOR = ';';
+
+    private const CSV_FIN_DE_LINEA = "\r\n";
+
+    private const CSV_BOM = "\xEF\xBB\xBF";
+
     public function stock(Request $request)
     {
         $articulos = Articulo::query()
@@ -114,7 +132,7 @@ class ReporteController extends Controller
             'Stock mínimo',
             'Stock máximo',
             'Estado',
-        ]);
+        ], self::CSV_SEPARADOR, '"', '\\', self::CSV_FIN_DE_LINEA);
 
         foreach ($articulos as $articulo) {
             fputcsv($csv, [
@@ -122,21 +140,14 @@ class ReporteController extends Controller
                 $articulo->nombre,
                 $articulo->categoria?->nombre,
                 $articulo->unidadMedida?->nombre,
-                (float) $articulo->stock_calculado,
-                $articulo->stock_minimo,
-                $articulo->stock_maximo,
+                $this->numeroEs($articulo->stock_calculado),
+                $this->numeroEs($articulo->stock_minimo),
+                $this->numeroEs($articulo->stock_maximo),
                 $articulo->activo ? 'Activo' : 'Inactivo',
-            ]);
+            ], self::CSV_SEPARADOR, '"', '\\', self::CSV_FIN_DE_LINEA);
         }
 
-        rewind($csv);
-        $contenido = stream_get_contents($csv);
-        fclose($csv);
-
-        return response($contenido, 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$nombreArchivo}\"",
-        ]);
+        return $this->descargarCsv($csv, $nombreArchivo);
     }
 
     public function movimientos(Request $request)
@@ -223,7 +234,7 @@ class ReporteController extends Controller
             'Persona',
             'Usuario',
             'Referencia',
-        ]);
+        ], self::CSV_SEPARADOR, '"', '\\', self::CSV_FIN_DE_LINEA);
 
         foreach ($movimientos as $movimiento) {
             $fechaMovimiento = $movimiento->fecha_movimiento;
@@ -234,23 +245,16 @@ class ReporteController extends Controller
                 $movimiento->articulo?->codigo,
                 $movimiento->articulo?->nombre,
                 $movimiento->tipo,
-                (float) $movimiento->cantidad,
+                $this->numeroEs($movimiento->cantidad),
                 $movimiento->persona
                     ? trim($movimiento->persona->nombre.' '.$movimiento->persona->apellido)
                     : null,
                 $movimiento->usuario?->name,
                 $movimiento->referencia,
-            ]);
+            ], self::CSV_SEPARADOR, '"', '\\', self::CSV_FIN_DE_LINEA);
         }
 
-        rewind($csv);
-        $contenido = stream_get_contents($csv);
-        fclose($csv);
-
-        return response($contenido, 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$nombreArchivo}\"",
-        ]);
+        return $this->descargarCsv($csv, $nombreArchivo);
     }
 
     public function entregasPersona(Request $request)
@@ -319,7 +323,7 @@ class ReporteController extends Controller
             'Cantidad',
             'Usuario',
             'Referencia',
-        ]);
+        ], self::CSV_SEPARADOR, '"', '\\', self::CSV_FIN_DE_LINEA);
 
         foreach ($personas as $persona) {
             $movimientos = Movimiento::query()
@@ -355,20 +359,44 @@ class ReporteController extends Controller
                     $movimiento->articulo?->codigo,
                     $movimiento->articulo?->nombre,
                     $movimiento->tipo,
-                    (float) $movimiento->cantidad,
+                    $this->numeroEs($movimiento->cantidad),
                     $movimiento->usuario?->name,
                     $movimiento->referencia,
-                ]);
+                ], self::CSV_SEPARADOR, '"', '\\', self::CSV_FIN_DE_LINEA);
             }
         }
 
+        return $this->descargarCsv($csv, $nombreArchivo);
+    }
+
+    /**
+     * Formatea un número con la convención española: coma decimal y punto de
+     * millares. Sin esto Excel abre "12.50" como texto o lo interpreta con el
+     * separador equivocado.
+     */
+    private function numeroEs($valor): string
+    {
+        if ($valor === null || $valor === '') {
+            return '';
+        }
+
+        return number_format((float) $valor, 2, ',', '.');
+    }
+
+    /**
+     * Cierra el CSV y lo devuelve como descarga, anteponiendo el BOM para que
+     * Excel reconozca el UTF-8.
+     */
+    private function descargarCsv($csv, string $nombreArchivo)
+    {
         rewind($csv);
         $contenido = stream_get_contents($csv);
         fclose($csv);
 
-        return response($contenido, 200, [
+        return response(self::CSV_BOM.$contenido, 200, [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$nombreArchivo}\"",
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
         ]);
     }
 }

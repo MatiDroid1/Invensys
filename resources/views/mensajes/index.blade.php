@@ -1,178 +1,157 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Mensajes
-            </h2>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="md-title">Mensajes</h2>
 
-            <a
-                href="{{ route('mensajes.create') }}"
-                class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
-            >
+                <p class="md-subtitle mt-0.5">Conversaciones con el resto de usuarios.</p>
+            </div>
+
+            <a href="{{ route('mensajes.create') }}" class="md-btn md-btn-md md-btn-filled">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+
                 Nuevo mensaje
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8">
+        <div class="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
+            <x-alerta />
 
-            @if (session('success'))
-                <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-md">
-                    {{ session('success') }}
-                </div>
-            @endif
-
+            {{--
+                Lo primero que hay que resolver es lo pendiente, así que el bloque
+                va arriba del listado y con el borde rojo que ya usaba: es la
+                única zona de la pantalla que exige una acción.
+            --}}
             @if ($sinResponder->isNotEmpty())
+                <section class="md-card overflow-hidden border-l-4 border-red-500">
+                    <div class="md-section flex flex-wrap items-center justify-between gap-3">
+                        <h3 class="md-section-title text-red-600 dark:text-red-400">Sin responder</h3>
 
-                <div class="mb-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-red-500">
-                    <div class="p-6">
+                        <span class="md-badge md-badge-danger">
+                            {{ $sinResponder->count() }}
+                            {{ $sinResponder->count() === 1 ? 'conversación' : 'conversaciones' }}
+                        </span>
+                    </div>
 
-                        <h3 class="font-semibold text-lg text-red-600 mb-4">
-                            Sin responder
-                            <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
-                                ({{ $sinResponder->count() }}
-                                {{ $sinResponder->count() === 1 ? 'conversación' : 'conversaciones' }})
-                            </span>
-                        </h3>
+                    <ul class="md-divider">
+                        @foreach ($sinResponder as $conversacion)
+                            @php
+                                $otro = $conversacion->interlocutor(auth()->user());
+                                $ultimo = $conversacion->ultimoMensaje;
+                            @endphp
 
-                        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-                            @foreach ($sinResponder as $conversacion)
-                                @php
-                                    $otro = $conversacion->interlocutor(auth()->user());
-                                    $ultimo = $conversacion->ultimoMensaje;
-                                @endphp
-
-                                <li class="py-3">
-                                    <a
-                                        href="{{ route('mensajes.show', $conversacion) }}"
-                                        class="flex justify-between items-center gap-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md px-2 py-1"
-                                    >
-                                        <div class="min-w-0">
-                                            <div class="font-medium text-gray-900 dark:text-gray-100">
-                                                {{ $otro->name }}
-                                            </div>
-
-                                            <div class="text-sm text-gray-500 dark:text-gray-400 truncate">
-                                                {{ $ultimo?->cuerpo ?? 'Conversación sin mensajes' }}
-                                            </div>
+                            <li class="md-divider last:border-b-0">
+                                <a
+                                    href="{{ route('mensajes.show', $conversacion) }}"
+                                    class="flex items-center justify-between gap-4 px-5 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/25"
+                                >
+                                    <div class="min-w-0">
+                                        <div class="font-medium text-gray-900 dark:text-white">
+                                            {{ $otro->name }}
                                         </div>
 
-                                        <div class="flex items-center gap-3 shrink-0">
-                                            <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                                {{ $ultimo?->created_at->format('d/m/Y H:i') }}
-                                            </span>
+                                        <div class="truncate text-sm text-gray-500 dark:text-gray-400">
+                                            {{ $ultimo?->cuerpo ?? 'Conversación sin mensajes' }}
+                                        </div>
+                                    </div>
 
-                                            <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-red-600 text-white text-xs font-bold">
+                                    <div class="flex shrink-0 items-center gap-3">
+                                        <span class="whitespace-nowrap text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $ultimo?->created_at->format('d/m/Y H:i') }}
+                                        </span>
+
+                                        @if ($conversacion->mensajes_no_leidos > 0)
+                                            <span class="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-red-600 px-2 text-xs font-bold text-white">
                                                 {{ $conversacion->mensajes_no_leidos }}
                                             </span>
-                                        </div>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-
-                    </div>
-                </div>
-
+                                        @endif
+                                    </div>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
             @endif
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+            <section class="md-card overflow-hidden">
+                @if ($conversaciones->isEmpty())
+                    <x-estado-vacio
+                        titulo="Sin conversaciones"
+                        descripcion="No tienes conversaciones todavía."
+                    >
+                        <x-slot:accion>
+                            <a href="{{ route('mensajes.create') }}" class="md-btn md-btn-md md-btn-filled">
+                                Escribir el primer mensaje
+                            </a>
+                        </x-slot:accion>
+                    </x-estado-vacio>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="md-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Con</th>
+                                    <th scope="col">Último mensaje</th>
+                                    <th scope="col">Fecha</th>
+                                    <th scope="col">Estado</th>
+                                </tr>
+                            </thead>
 
-                    @if ($conversaciones->isEmpty())
+                            <tbody>
+                                @foreach ($conversaciones as $conversacion)
+                                    @php
+                                        $otro = $conversacion->interlocutor(auth()->user());
+                                        $ultimo = $conversacion->ultimoMensaje;
+                                    @endphp
 
-                        <p>No tienes conversaciones todavía.</p>
+                                    <tr>
+                                        <td class="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                            <a
+                                                href="{{ route('mensajes.show', $conversacion) }}"
+                                                class="text-indigo-600 hover:underline dark:text-indigo-300"
+                                            >
+                                                {{ $otro->name }}
+                                            </a>
+                                        </td>
 
-                    @else
-
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full">
-
-                                <thead>
-                                    <tr class="border-b border-gray-200 dark:border-gray-700">
-
-                                        <th class="px-4 py-3 text-left">
-                                            Con
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Último mensaje
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Fecha
-                                        </th>
-
-                                        <th class="px-4 py-3 text-left">
-                                            Estado
-                                        </th>
-
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-
-                                    @foreach ($conversaciones as $conversacion)
-                                        @php
-                                            $otro = $conversacion->interlocutor(auth()->user());
-                                            $ultimo = $conversacion->ultimoMensaje;
-                                        @endphp
-
-                                        <tr class="border-b border-gray-200 dark:border-gray-700 align-top">
-
-                                            <td class="px-4 py-3 font-medium whitespace-nowrap">
-                                                <a
-                                                    href="{{ route('mensajes.show', $conversacion) }}"
-                                                    class="text-blue-600 hover:underline"
-                                                >
-                                                    {{ $otro->name }}
-                                                </a>
-                                            </td>
-
-                                            <td class="px-4 py-3 max-w-md">
-                                                @if ($ultimo)
+                                        <td class="max-w-md">
+                                            @if ($ultimo)
+                                                <span class="line-clamp-2" title="{{ $ultimo->cuerpo }}">
                                                     @if ($ultimo->fueEnviadoPor(auth()->id()))
                                                         <span class="text-gray-500 dark:text-gray-400">Tú: </span>
                                                     @endif
+
                                                     {{ $ultimo->cuerpo }}
-                                                @else
-                                                    <span class="text-gray-500 dark:text-gray-400">
-                                                        Conversación sin mensajes
-                                                    </span>
-                                                @endif
-                                            </td>
+                                                </span>
+                                            @else
+                                                <span class="text-gray-400 dark:text-gray-500">Conversación sin mensajes</span>
+                                            @endif
+                                        </td>
 
-                                            <td class="px-4 py-3 whitespace-nowrap">
-                                                {{ $ultimo?->created_at->format('d/m/Y H:i') ?? '—' }}
-                                            </td>
+                                        <td class="whitespace-nowrap tabular-nums text-gray-500 dark:text-gray-400">
+                                            {{ $ultimo?->created_at->format('d/m/Y H:i') ?? '—' }}
+                                        </td>
 
-                                            <td class="px-4 py-3 whitespace-nowrap">
-                                                @if ($conversacion->mensajes_no_leidos > 0)
-                                                    <span class="text-red-600 font-semibold">
-                                                        {{ $conversacion->mensajes_no_leidos }} sin leer
-                                                    </span>
-                                                @else
-                                                    <span class="text-green-600 font-semibold">
-                                                        Al día
-                                                    </span>
-                                                @endif
-                                            </td>
-
-                                        </tr>
-
-                                    @endforeach
-
-                                </tbody>
-
-                            </table>
-                        </div>
-
-                    @endif
-
-                </div>
-            </div>
-
+                                        <td class="whitespace-nowrap">
+                                            @if ($conversacion->mensajes_no_leidos > 0)
+                                                <span class="md-badge md-badge-danger">
+                                                    {{ $conversacion->mensajes_no_leidos }} sin leer
+                                                </span>
+                                            @else
+                                                <span class="md-badge md-badge-success">Al día</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </section>
         </div>
     </div>
 </x-app-layout>

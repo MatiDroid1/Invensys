@@ -1,93 +1,104 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Personas
-            </h2>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="md-title">Personas</h2>
 
-            <a
-                href="{{ route('personas.create') }}"
-                class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
-            >
+                <p class="md-subtitle mt-0.5">Destinatarios de las salidas de inventario.</p>
+            </div>
+
+            <a href="{{ route('personas.create') }}" class="md-btn md-btn-md md-btn-filled">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+
                 Nueva persona
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8">
+        <div class="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
+            <x-alerta />
 
-            @if (session('success'))
-                <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-md">
-                    {{ session('success') }}
-                </div>
-            @endif
+            <section class="md-card overflow-hidden">
+                @if ($personas->isEmpty())
+                    <x-estado-vacio
+                        titulo="Sin personas"
+                        descripcion="No hay personas registradas."
+                    >
+                        <x-slot:accion>
+                            <a href="{{ route('personas.create') }}" class="md-btn md-btn-md md-btn-filled">
+                                Registrar la primera persona
+                            </a>
+                        </x-slot:accion>
+                    </x-estado-vacio>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="md-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col">Identificador</th>
+                                    <th scope="col">Correo</th>
+                                    <th scope="col">Área</th>
+                                    <th scope="col">Cargo</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col" class="text-right">Acciones</th>
+                                </tr>
+                            </thead>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+                            <tbody>
+                                @foreach ($personas as $persona)
+                                    <tr>
+                                        <td class="font-medium text-gray-900 dark:text-white">
+                                            {{ $persona->nombre_completo }}
+                                        </td>
 
-                    @if ($personas->isEmpty())
-                        <p>No hay personas registradas.</p>
-                    @else
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full">
-                                <thead>
-                                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                                        <th class="px-4 py-3 text-left">Nombre</th>
-                                        <th class="px-4 py-3 text-left">Identificador</th>
-                                        <th class="px-4 py-3 text-left">Correo</th>
-                                        <th class="px-4 py-3 text-left">Área</th>
-                                        <th class="px-4 py-3 text-left">Cargo</th>
-                                        <th class="px-4 py-3 text-left">Estado</th>
-                                        <th class="px-4 py-3 text-left">Acciones</th>
-                                    </tr>
-                                </thead>
+                                        <td class="font-mono text-xs">{{ $persona->identificador ?? '—' }}</td>
 
-                                <tbody>
-                                    @foreach ($personas as $persona)
-                                        <tr class="border-b border-gray-200 dark:border-gray-700">
-                                            <td class="px-4 py-3">
-                                                {{ $persona->nombre_completo }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $persona->identificador ?? '-' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $persona->email ?? '-' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $persona->area ?? '-' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $persona->cargo ?? '-' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $persona->activo ? 'Activo' : 'Inactivo' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                <a
-                                                    href="{{ route('personas.edit', $persona) }}"
-                                                    class="text-blue-600 hover:underline"
-                                                >
-                                                    Editar
+                                        <td>
+                                            @if ($persona->email)
+                                                <a href="mailto:{{ $persona->email }}" class="text-indigo-600 hover:underline dark:text-indigo-300">
+                                                    {{ $persona->email }}
                                                 </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
 
-                </div>
-            </div>
+                                        <td>{{ $persona->area ?? '—' }}</td>
+                                        <td>{{ $persona->cargo ?? '—' }}</td>
 
+                                        <td>
+                                            <span @class([
+                                                'md-badge',
+                                                'md-badge-success' => $persona->activo,
+                                                'md-badge-warning' => ! $persona->activo,
+                                            ])>
+                                                {{ $persona->activo ? 'Activo' : 'Inactivo' }}
+                                            </span>
+                                        </td>
+
+                                        <td class="text-right">
+                                            <a
+                                                href="{{ route('personas.edit', $persona) }}"
+                                                class="md-icon-btn"
+                                                title="Editar {{ $persona->nombre_completo }}"
+                                                aria-label="Editar {{ $persona->nombre_completo }}"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                                                </svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </section>
         </div>
     </div>
 </x-app-layout>
