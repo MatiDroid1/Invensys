@@ -1,12 +1,8 @@
 <section>
     <header>
-        <h2 class="md-section-title">
-            Actualizar contraseña
-        </h2>
+        <h2 class="md-section-title">Actualizar contraseña</h2>
 
-        <p class="md-subtitle mt-1">
-            Usa una contraseña larga y aleatoria para mantener tu cuenta segura.
-        </p>
+        <p class="md-subtitle mt-0.5">Usa una contraseña larga y aleatoria para mantener tu cuenta segura.</p>
     </header>
 
     <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-5">
@@ -14,21 +10,45 @@
         @method('put')
 
         <div>
-            <x-input-label for="update_password_current_password" value="Contraseña actual" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+            <label for="update_password_current_password" class="md-label">Contraseña actual</label>
+
+            <input
+                type="password"
+                name="current_password"
+                id="update_password_current_password"
+                autocomplete="current-password"
+                class="md-field"
+            >
+
+            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="md-error" />
         </div>
 
         <div>
-            <x-input-label for="update_password_password" value="Nueva contraseña" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
+            <label for="update_password_password" class="md-label">Nueva contraseña</label>
+
+            <input
+                type="password"
+                name="password"
+                id="update_password_password"
+                autocomplete="new-password"
+                class="md-field"
+            >
+
+            <x-input-error :messages="$errors->updatePassword->get('password')" class="md-error" />
         </div>
 
         <div>
-            <x-input-label for="update_password_password_confirmation" value="Confirmar contraseña" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
+            <label for="update_password_password_confirmation" class="md-label">Confirmar contraseña</label>
+
+            <input
+                type="password"
+                name="password_confirmation"
+                id="update_password_password_confirmation"
+                autocomplete="new-password"
+                class="md-field"
+            >
+
+            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="md-error" />
         </div>
 
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
