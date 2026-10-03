@@ -1,12 +1,8 @@
 <section>
     <header>
-        <h2 class="md-section-title">
-            Información del perfil
-        </h2>
+        <h2 class="md-section-title">Información del perfil</h2>
 
-        <p class="md-subtitle mt-1">
-            Actualiza el nombre y el correo electrónico de tu cuenta.
-        </p>
+        <p class="md-subtitle mt-0.5">Actualiza el nombre y el correo electrónico de tu cuenta.</p>
     </header>
 
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
@@ -18,15 +14,36 @@
         @method('patch')
 
         <div>
-            <x-input-label for="name" value="Nombre" />
-            <x-text-input id="name" name="name" type="text" class="mt-1" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+            <label for="name" class="md-label">Nombre</label>
+
+            <input
+                type="text"
+                name="name"
+                id="name"
+                value="{{ old('name', $user->name) }}"
+                required
+                autofocus
+                autocomplete="name"
+                class="md-field"
+            >
+
+            <x-input-error :messages="$errors->get('name')" class="md-error" />
         </div>
 
         <div>
-            <x-input-label for="email" value="Correo electrónico" />
-            <x-text-input id="email" name="email" type="email" class="mt-1" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+            <label for="email" class="md-label">Correo electrónico</label>
+
+            <input
+                type="email"
+                name="email"
+                id="email"
+                value="{{ old('email', $user->email) }}"
+                required
+                autocomplete="username"
+                class="md-field"
+            >
+
+            <x-input-error :messages="$errors->get('email')" class="md-error" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                 <div class="mt-3 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-200">

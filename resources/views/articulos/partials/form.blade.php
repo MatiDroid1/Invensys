@@ -1,6 +1,5 @@
 @php
     $esEdicion = isset($articulo);
-    $claseInput = 'md-field mt-1';
 @endphp
 
 {{--
@@ -18,7 +17,7 @@
             id="codigo"
             name="codigo"
             type="text"
-            class="mt-1"
+            class="md-field"
             :value="old('codigo', $esEdicion ? $articulo->codigo : '')"
             maxlength="50"
             placeholder="Ej: MED-001"
@@ -37,7 +36,7 @@
             id="nombre"
             name="nombre"
             type="text"
-            class="mt-1"
+            class="md-field"
             :value="old('nombre', $esEdicion ? $articulo->nombre : '')"
             maxlength="150"
             required
@@ -94,7 +93,7 @@
             name="descripcion"
             id="descripcion"
             rows="3"
-            class="md-field mt-1"
+            class="md-field"
             placeholder="Detalle opcional del artículo"
         >{{ old('descripcion', $esEdicion ? $articulo->descripcion : '') }}</textarea>
 
@@ -109,16 +108,14 @@
             id="stock_minimo"
             name="stock_minimo"
             type="number"
-            class="mt-1"
+            class="md-field"
             :value="old('stock_minimo', $esEdicion ? $articulo->stock_minimo : 0)"
             min="0"
             step="0.01"
             required
         />
 
-        <p class="md-hint">
-            Umbral usado para generar la alerta de stock bajo.
-        </p>
+        <p class="md-hint">Umbral usado para generar la alerta de stock bajo.</p>
 
         <x-input-error :messages="$errors->get('stock_minimo')" class="md-error" />
     </div>

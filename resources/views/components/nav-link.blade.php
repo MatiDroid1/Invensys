@@ -1,16 +1,16 @@
-@props(['active' => false])
+@props(['active'])
 
-{{--
-    Elemento de navegación de la barra superior.
-
-    Antes llevaba el subrayado de Jetstream (`border-b-2` con `pt-1`), que
-    además de ser de otro sistema visual se alineaba peor que los desplegables
-    vizinhos: cada enlace quedaba con una altura y una línea base distintas.
-    Ahora todos los destinos son cápsulas de la misma altura y el destino activo
-    se marca con el fondo tonal, sin garisear nada.
---}}
 @php
-    $classes = 'md-nav-item' . ($active ? ' md-nav-item-active' : '');
+    /*
+     * La entrada activa ya no se marca con una línea inferior de dos píxeles
+     * sino con una "pastilla" de fondo. Con ocho entradas en la barra esa línea
+     * competía con los separadores y la única referencia de dónde estaba el
+     * usuario era una raya difícil de ver; la pastilla además deja el mismo
+     * peso visual que usan los desplegables y el menú móvil.
+     */
+    $classes = ($active ?? false)
+        ? 'inline-flex items-center rounded-lg px-3 py-2 text-sm font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300'
+        : 'inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white';
 @endphp
 
 <a {{ $attributes->merge(['class' => $classes]) }}>

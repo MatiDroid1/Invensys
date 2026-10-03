@@ -17,7 +17,7 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body>
+    <body class="font-sans antialiased">
         {{-- El notificador vive en el layout para que funcione en artículos,
              movimientos, kardex, reportes y cualquier otra pantalla.
              En el chat no se monta porque el hilo ya se encarga de pintarlo. --}}
@@ -33,28 +33,22 @@
                 })"
                 x-init="iniciar()"
             @endif
-            class="min-h-screen"
+            class="min-h-screen bg-gray-100 dark:bg-gray-900"
         >
             @include('layouts.navigation')
 
-            {{--
-                Cabecera de la página.
-
-                Antes era una banda blanca con `shadow` debajo de la barra de
-                navegación: dos superficies blancas apiladas con una sombra en el
-                medio, que es lo que producía la sensación de "doble techo".
-                Ahora la cabecera es la continuación de la barra (mismo fondo, sin
-                sombra, separada por un filete) y comparte con ella el mismo
-                ancho y el mismo padding lateral.
-            --}}
+            {{-- Sin z-index a propósito: la barra de navegación es fija (z-40) y
+                 el encabezado solo lleva `shadow`. Con un z-index propio, el
+                 encabezado quedaría por encima de la barra al desplazarse. --}}
             @isset($header)
-                <header class="md-page-header">
-                    <div class="md-page py-5">
+                <header class="bg-white dark:bg-gray-800 shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
             @endisset
 
+            <!-- Page Content -->
             <main>
                 {{ $slot }}
             </main>
