@@ -93,6 +93,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/auditoria', [AuditoriaController::class, 'index'])
         ->middleware('admin')
         ->name('auditoria.index');
+    
 
     // Debe declararse antes de /mensajes/{conversacion} para que "nueva" no
     // se interprete como el identificador de una conversación.

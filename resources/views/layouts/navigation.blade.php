@@ -91,6 +91,7 @@
                         <a href="{{ route('categorias.index') }}" class="md-menu-item">Categorías</a>
                         <a href="{{ route('unidades-medida.index') }}" class="md-menu-item">Unidades de medida</a>
                         <a href="{{ route('contacto.index') }}" class="md-menu-item">Contacto</a>
+                        <a href="{{ route('auditoria.index') }}" class="md-menu-item">Auditoría</a>
                     @endif
 
                     <div class="md-divider my-1.5"></div>
