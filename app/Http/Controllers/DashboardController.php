@@ -24,36 +24,7 @@ class DashboardController extends Controller
             [$inicioMes, $finMes]
         )->count();
 
-        $articulosConStock = Articulo::query()
-            ->select('articulos.*')
-            ->selectSub(
-                Movimiento::selectRaw("
-                    COALESCE(
-                        SUM(
-                            CASE
-                                WHEN tipo IN ('ENTRADA', 'AJUSTE_POSITIVO') THEN cantidad
-                                WHEN tipo IN ('SALIDA', 'AJUSTE_NEGATIVO') THEN -cantidad
-                                ELSE 0
-                            END
-                        ),
-                        0
-                    )
-                ")
-                    ->whereColumn(
-                        'movimientos.articulo_id',
-                        'articulos.id'
-                    ),
-                'stock_calculado'
-            )
-            ->where('activo', true)
-            ->get();
-
-        $articulosStockBajo = $articulosConStock
-            ->filter(function ($articulo) {
-                return (float) $articulo->stock_calculado
-                    <= (float) $articulo->stock_minimo;
-            })
-            ->values();
+        $articulosStockBajo = Articulo::stockBajo();
 
         $ultimosMovimientos = Movimiento::with([
             'articulo',

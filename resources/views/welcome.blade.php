@@ -20,7 +20,7 @@
 <body class="font-sans antialiased bg-gray-50 text-gray-900">
 
     {{-- Encabezado --}}
-    <header class="bg-white border-b border-gray-200">
+    <header class="md-appbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
@@ -32,14 +32,14 @@
                     @auth
                         <a
                             href="{{ route('dashboard') }}"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+                            class="md-btn md-btn-sm md-btn-text"
                         >
                             Ir al panel
                         </a>
                     @else
                         <a
                             href="{{ route('login') }}"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+                            class="md-btn md-btn-sm md-btn-text"
                         >
                             Iniciar sesión
                         </a>
@@ -63,7 +63,7 @@
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
             <div class="max-w-3xl">
                 <span
-                    class="inline-flex items-center px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-700 bg-indigo-100 rounded-full"
+                    class="md-badge md-badge-info"
                 >
                     Control de inventario
                 </span>
@@ -82,14 +82,14 @@
                     @auth
                         <a
                             href="{{ route('dashboard') }}"
-                            class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-700"
+                            class="md-btn md-btn-lg md-btn-filled"
                         >
                             Abrir el panel
                         </a>
                     @else
                         <a
                             href="{{ route('login') }}"
-                            class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-700"
+                            class="md-btn md-btn-lg md-btn-filled"
                         >
                             Iniciar sesión
                         </a>
@@ -97,7 +97,7 @@
 
                     <a
                         href="#modulos"
-                        class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                        class="md-btn md-btn-lg md-btn-outlined"
                     >
                         Conocer el sistema
                     </a>
@@ -106,7 +106,7 @@
         </section>
 
         {{-- Módulos --}}
-        <section id="modulos" class="py-16 sm:py-20 bg-white border-y border-gray-200">
+        <section id="modulos" class="border-y border-gray-100 bg-white py-16 dark:border-gray-700/70 dark:bg-gray-800 sm:py-20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 class="text-3xl font-bold tracking-tight">
                     Módulos
@@ -156,9 +156,9 @@
 
                     @foreach ($modulos as $modulo)
                         <div
-                            class="p-6 bg-gray-50 rounded-xl border border-gray-200 transition hover:border-gray-300 hover:shadow-sm"
+                            class="md-card-plain p-6 transition-colors hover:border-indigo-200 dark:hover:border-indigo-500/40"
                         >
-                            <div class="flex items-center justify-center w-11 h-11 text-white bg-gray-800 rounded-lg">
+                            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5"
                                     viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -166,7 +166,7 @@
                                 </svg>
                             </div>
 
-                            <h3 class="mt-5 text-lg font-semibold">
+                            <h3 class="md-section-title mt-5">
                                 {{ $modulo['titulo'] }}
                             </h3>
 
@@ -182,7 +182,7 @@
     </main>
 
     {{-- Pie --}}
-    <footer class="bg-white border-t border-gray-200">
+    <footer class="border-t border-gray-100 bg-white dark:border-gray-700/70 dark:bg-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <p class="text-center text-sm text-gray-500">
                 &copy; {{ now()->year }} {{ config('app.name', 'Invensys') }}.

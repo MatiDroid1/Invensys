@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\URL;
 
 test('login screen can be rendered', function () {
     $response = $this->get('/login');
@@ -17,7 +18,14 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertRedirect(route('dashboard'));
+});
+
+test('login redirect preserves the application subdirectory', function () {
+    URL::forceRootUrl('http://192.168.1.10/Invensys/public');
+
+    expect(route('dashboard'))
+        ->toBe('http://192.168.1.10/Invensys/public/dashboard');
 });
 
 test('users can not authenticate with invalid password', function () {
@@ -37,5 +45,5 @@ test('users can logout', function () {
     $response = $this->actingAs($user)->post('/logout');
 
     $this->assertGuest();
-    $response->assertRedirect('/');
+    $response->assertRedirect(route('login'));
 });

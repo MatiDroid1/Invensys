@@ -1,6 +1,6 @@
 @php
     $esEdicion = isset($articulo);
-    $claseInput = 'mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 focus:border-indigo-500 focus:ring-indigo-500';
+    $claseInput = 'md-field mt-1';
 @endphp
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
@@ -13,7 +13,7 @@
             id="codigo"
             name="codigo"
             type="text"
-            class="mt-1 block w-full"
+            class="mt-1"
             :value="old('codigo', $esEdicion ? $articulo->codigo : '')"
             maxlength="50"
             placeholder="Ej: MED-001"
@@ -32,7 +32,7 @@
             id="nombre"
             name="nombre"
             type="text"
-            class="mt-1 block w-full"
+            class="mt-1"
             :value="old('nombre', $esEdicion ? $articulo->nombre : '')"
             maxlength="150"
             required
@@ -99,7 +99,7 @@
             name="descripcion"
             id="descripcion"
             rows="3"
-            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 focus:border-indigo-500 focus:ring-indigo-500"
+            class="md-field mt-1"
             placeholder="Detalle opcional del artículo"
         >{{ old('descripcion', $esEdicion ? $articulo->descripcion : '') }}</textarea>
 
@@ -114,14 +114,14 @@
             id="stock_minimo"
             name="stock_minimo"
             type="number"
-            class="mt-1 block w-full"
+            class="mt-1"
             :value="old('stock_minimo', $esEdicion ? $articulo->stock_minimo : 0)"
             min="0"
             step="0.01"
             required
         />
 
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p class="md-hint">
             Umbral usado para generar la alerta de stock bajo.
         </p>
 

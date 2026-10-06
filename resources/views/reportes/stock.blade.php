@@ -1,146 +1,139 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <div class="flex items-center justify-between">
+            <h2 class="md-title">
                 Reporte de stock
             </h2>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="md-page md-page-body space-y-6">
+        <section class="md-card mx-auto w-full max-w-3xl p-5 sm:p-6">
+            <form method="GET" action="{{ route('reportes.stock') }}">
+                <label class="inline-flex items-center">
+                    <input
+                        type="checkbox"
+                        name="solo_bajo_minimo"
+                        value="1"
+                        @checked($soloBajoMinimo)
+                        onchange="this.form.submit()"
+                        class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900"
+                    >
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <span class="ms-2 text-sm text-gray-700 dark:text-gray-300">
+                        Mostrar solo artículos bajo mínimo
+                    </span>
+                </label>
+            </form>
 
-                    <form method="GET" action="{{ route('reportes.stock') }}">
-                        <label class="inline-flex items-center">
-                            <input
-                                type="checkbox"
-                                name="solo_bajo_minimo"
-                                value="1"
-                                @checked($soloBajoMinimo)
-                                onchange="this.form.submit()"
-                                class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                            >
+            <div class="mt-5">
+                <a
+                    href="{{ route('reportes.stock.csv', request()->query()) }}"
+                    class="md-btn md-btn-filled"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
 
-                            <span class="ms-2">
-                                Mostrar solo artículos bajo mínimo
-                            </span>
-                        </label>
-                    </form>
-
-                </div>
+                    Descargar CSV
+                </a>
             </div>
+        </section>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+        <section class="md-card">
+            @if ($articulos->isEmpty())
 
-                    @if ($articulos->isEmpty())
+                <x-estado-vacio
+                    :descripcion="'No hay artículos que mostrar.'"
+                />
 
-                        <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-md">
-                            No hay artículos que mostrar.
-                        </div>
+            @else
 
-                    @else
+                <x-tabla>
+                    <thead>
+                        <tr class="md-tr">
+                            <th scope="col" class="md-th">
+                                Código
+                            </th>
 
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full">
+                            <th scope="col" class="md-th">
+                                Artículo
+                            </th>
 
-                                <thead>
-                                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                                        <th class="px-4 py-3 text-left">
-                                            Código
-                                        </th>
+                            <th scope="col" class="md-th">
+                                Categoría
+                            </th>
 
-                                        <th class="px-4 py-3 text-left">
-                                            Artículo
-                                        </th>
+                            <th scope="col" class="md-th">
+                                Unidad
+                            </th>
 
-                                        <th class="px-4 py-3 text-left">
-                                            Categoría
-                                        </th>
+                            <th scope="col" class="md-th md-th-num">
+                                Stock actual
+                            </th>
 
-                                        <th class="px-4 py-3 text-left">
-                                            Unidad
-                                        </th>
+                            <th scope="col" class="md-th md-th-num">
+                                Stock mínimo
+                            </th>
 
-                                        <th class="px-4 py-3 text-right">
-                                            Stock actual
-                                        </th>
+                            <th scope="col" class="md-th">
+                                Estado
+                            </th>
+                        </tr>
+                    </thead>
 
-                                        <th class="px-4 py-3 text-right">
-                                            Stock mínimo
-                                        </th>
+                    <tbody>
+                        @foreach ($articulos as $articulo)
+                            @php
+                                $stockActual = (float) $articulo->stock_calculado;
+                                $stockMinimo = (float) $articulo->stock_minimo;
+                                $stockBajo = $stockActual <= $stockMinimo;
+                            @endphp
 
-                                        <th class="px-4 py-3 text-left">
-                                            Estado
-                                        </th>
-                                    </tr>
-                                </thead>
+                            <tr class="md-tr">
+                                <td class="md-td font-mono text-gray-500 dark:text-gray-400">
+                                    {{ $articulo->codigo }}
+                                </td>
 
-                                <tbody>
+                                <td class="md-td md-td-strong">
+                                    <span class="md-td-clip" title="{{ $articulo->nombre }}">
+                                        {{ $articulo->nombre }}
+                                    </span>
+                                </td>
 
-                                    @foreach ($articulos as $articulo)
+                                <td class="md-td">
+                                    {{ $articulo->categoria->nombre }}
+                                </td>
 
-                                        @php
-                                            $stockActual = (float) $articulo->stock_calculado;
-                                            $stockMinimo = (float) $articulo->stock_minimo;
-                                            $stockBajo = $stockActual <= $stockMinimo;
-                                        @endphp
+                                <td class="md-td">
+                                    {{ $articulo->unidadMedida->nombre }}
+                                </td>
 
-                                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                                <td class="md-td md-td-num font-semibold">
+                                    {{ number_format($stockActual, 2, ',', '.') }}
+                                </td>
 
-                                            <td class="px-4 py-3">
-                                                {{ $articulo->codigo }}
-                                            </td>
+                                <td class="md-td md-td-num">
+                                    {{ number_format($stockMinimo, 2, ',', '.') }}
+                                </td>
 
-                                            <td class="px-4 py-3 font-medium">
-                                                {{ $articulo->nombre }}
-                                            </td>
+                                <td class="md-td">
+                                    @if ($stockBajo)
+                                        <span class="md-badge md-badge-danger">
+                                            Bajo mínimo
+                                        </span>
+                                    @else
+                                        <span class="md-badge md-badge-success">
+                                            Normal
+                                        </span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </x-tabla>
 
-                                            <td class="px-4 py-3">
-                                                {{ $articulo->categoria->nombre }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                {{ $articulo->unidadMedida->nombre }}
-                                            </td>
-
-                                            <td class="px-4 py-3 text-right font-semibold">
-                                                {{ number_format($stockActual, 2, ',', '.') }}
-                                            </td>
-
-                                            <td class="px-4 py-3 text-right">
-                                                {{ number_format($stockMinimo, 2, ',', '.') }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                @if ($stockBajo)
-                                                    <span class="text-red-600 font-semibold">
-                                                        Bajo mínimo
-                                                    </span>
-                                                @else
-                                                    <span class="text-green-600 font-semibold">
-                                                        Normal
-                                                    </span>
-                                                @endif
-                                            </td>
-
-                                        </tr>
-
-                                    @endforeach
-
-                                </tbody>
-
-                            </table>
-                        </div>
-
-                    @endif
-
-                </div>
-            </div>
-
-        </div>
+            @endif
+        </section>
     </div>
 </x-app-layout>

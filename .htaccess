@@ -1,0 +1,41 @@
+﻿# Invensys se sirve desde /public, pero la raíz web de XAMPP es C:\xampp\htdocs.
+#
+# Esto deja accesibles desde el navegador el .env (con APP_KEY y la contraseña de
+# la base de datos), el código fuente, las migraciones y el log de la aplicación.
+# Este archivo cierra esa puerta: lo único que se puede pedir por web es /public.
+
+# ----------------------------------------------------------------------
+# Sin listado de carpetas
+# ----------------------------------------------------------------------
+<IfModule mod_negotiation.c>
+    Options -Indexes -MultiViews
+</IfModule>
+
+# ----------------------------------------------------------------------
+# Archivos sensibles en la raíz
+# ----------------------------------------------------------------------
+<FilesMatch "^\.?env|^\.env\..*|^composer\.(json|lock)$|^package(-lock)?\.json$|^vite\.config\.(js|ts)$|^phpunit\.xml$|^artisan$|^\.gitignore$|^\.editorconfig$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# ----------------------------------------------------------------------
+# Bloqueo directo a directorios sensibles
+# ----------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} ^/(\.env|app|bootstrap|config|database|resources|routes|storage|tests|vendor|node_modules|\.git) [NC]
+    RewriteRule ^ - [F,L]
+</IfModule>
+
+# Recurso de respaldo: si mod_rewrite no está disponible, se niegan igual.
+<IfModule !mod_rewrite.c>
+    RedirectMatch 404 ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|node_modules|\.git)/
+</IfModule>
+
+# app|bootstrap|database|routes|storage|tests|vendor

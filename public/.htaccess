@@ -5,6 +5,13 @@
 
     RewriteEngine On
 
+    # En Windows, Apache puede entregar la portada aunque /Invensys se solicite
+    # en minúsculas. Laravel reutiliza esa capitalización al generar sus enlaces,
+    # pero las reescrituras de rutas dejan de resolverlas. Normaliza la URL antes
+    # de que Laravel procese las rutas y preserve la sesión.
+    RewriteCond %{REQUEST_URI} !^/Invensys/public/
+    RewriteRule ^(.*)$ /Invensys/public/$1 [R=302,L,NC]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

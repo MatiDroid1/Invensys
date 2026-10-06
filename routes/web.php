@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\AcercaController;
 use App\Http\Controllers\ArticuloController;
+use App\Http\Controllers\ArticuloImportacionController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\ConversacionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DiagnosticoController;
 use App\Http\Controllers\KardexController;
 use App\Http\Controllers\MensajeController;
 use App\Http\Controllers\MovimientoController;
@@ -25,9 +28,25 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/acerca', AcercaController::class)
+        ->name('acerca');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Importación masiva: se declara antes de la resource de artículos para
+    // que "importar" no se interprete como el id de un artículo.
+    Route::get('/articulos/importar', [ArticuloImportacionController::class, 'create'])
+        ->middleware('admin')
+        ->name('articulos.importar.create');
+    Route::post('/articulos/importar', [ArticuloImportacionController::class, 'store'])
+        ->middleware('admin')
+        ->name('articulos.importar.store');
+    Route::get('/articulos/importar/plantilla', [ArticuloImportacionController::class, 'plantilla'])
+        ->middleware('admin')
+        ->name('articulos.importar.plantilla');
+
     Route::resource('articulos', ArticuloController::class);
     Route::resource('movimientos', MovimientoController::class)
         ->only(['index', 'create', 'store']);
@@ -44,6 +63,8 @@ Route::middleware('auth')->group(function () {
         ->except(['show']);
     Route::get('/kardex', [KardexController::class, 'index'])
         ->name('kardex.index');
+    Route::get('/kardex/pdf', [KardexController::class, 'pdf'])
+        ->name('kardex.pdf');
     Route::resource('categorias', CategoriaController::class)
         ->except(['show']);
     Route::resource('unidades-medida', UnidadMedidaController::class)
@@ -53,10 +74,16 @@ Route::middleware('auth')->group(function () {
         ->middleware('admin');
     Route::get('/reportes/stock', [ReporteController::class, 'stock'])
         ->name('reportes.stock');
+    Route::get('/reportes/stock.csv', [ReporteController::class, 'stockCsv'])
+        ->name('reportes.stock.csv');
     Route::get('/reportes/movimientos', [ReporteController::class, 'movimientos'])
         ->name('reportes.movimientos');
+    Route::get('/reportes/movimientos.csv', [ReporteController::class, 'movimientosCsv'])
+        ->name('reportes.movimientos.csv');
     Route::get('/reportes/entregas-persona', [ReporteController::class, 'entregasPersona'])
         ->name('reportes.entregas-persona');
+    Route::get('/reportes/entregas-persona.csv', [ReporteController::class, 'entregasPersonaCsv'])
+        ->name('reportes.entregas-persona.csv');
     Route::get(
         'movimientos/ajuste/create',
         [MovimientoController::class, 'createAjuste']
@@ -83,6 +110,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/auditoria', [AuditoriaController::class, 'index'])
         ->middleware('admin')
         ->name('auditoria.index');
+    Route::get('/auditoria.csv', [AuditoriaController::class, 'indexCsv'])
+        ->middleware('admin')
+        ->name('auditoria.csv');
+
+    Route::get('/diagnostico', DiagnosticoController::class)
+        ->middleware('admin')
+        ->name('diagnostico');
 
     // Debe declararse antes de /mensajes/{conversacion} para que "nueva" no
     // se interprete como el identificador de una conversación.
@@ -102,6 +136,7 @@ Route::middleware('auth')->group(function () {
         ->name('mensajes.index');
 
     Route::post('/mensajes', [ConversacionController::class, 'store'])
+        ->middleware('throttle:10,1')
         ->name('mensajes.store');
 
     Route::get('/mensajes/{conversacion}', [ConversacionController::class, 'show'])
@@ -111,6 +146,7 @@ Route::middleware('auth')->group(function () {
         ->name('mensajes.listado');
 
     Route::post('/mensajes/{conversacion}/listado', [MensajeController::class, 'store'])
+        ->middleware('throttle:30,1')
         ->name('mensajes.enviar');
 });
 

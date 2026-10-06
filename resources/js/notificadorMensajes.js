@@ -5,7 +5,7 @@ import avisoSonoro from './avisoSonoro';
  *
  * Se monta en el layout, asi que esta activo en cualquier pantalla
  * (articulos, movimientos, kardex, reportes...). Sondea el servidor cada
- * 15 segundos y, si llego un mensaje de otra persona:
+ * 3 segundos y, si llego un mensaje de otra persona:
  *
  *   - sube el contador rojo de la barra de navegacion,
  *   - muestra un avisoemergente dentro de la pagina,
@@ -20,7 +20,7 @@ export default function notificadorMensajes(config = {}) {
         urlEstado: config.urlEstado ?? '',
         urlSonido: config.urlSonido ?? '',
         sonido: Boolean(config.sonido),
-        intervaloSegundos: config.intervalo ?? 15,
+        intervaloSegundos: config.intervalo ?? 3,
 
         cursor: null,
         sinResponder: Number(config.sinResponder ?? 0),
@@ -30,6 +30,7 @@ export default function notificadorMensajes(config = {}) {
         avisoVence: null,
         permiso: 'default',
         error: '',
+        audioBloqueado: true,
 
         intervalo: null,
 
@@ -58,26 +59,86 @@ export default function notificadorMensajes(config = {}) {
 
             // El navegador exige una interacción del usuario antes de permitir
             // audio o notificaciones del sistema.
-            const despertar = () => {
-                avisoSonoro.desbloquear();
+            //
+            // Este paso es SILENCIOSO a propósito: desbloquear el audio no es una
+            // notificación, así que no debe sonar nada. Antes, el primer clic o
+            // pulsación de cada página emitía un pitido de confirmación y el
+            // usuario oía un ruido en cada interacción. Ahora el pitido sale solo
+            // de `recibir()` (mensajes nuevos) y de `alternarSonido()`, cuando el
+            // usuario activa el sonido de forma explícita.
+            //
+            // La escucha NO se retira en el primer toque: se queda hasta que el
+            // AudioContext queda realmente en marcha. Antes se rendía tras el
+            // primer clic, y como el contexto se recrea en cada navegación,
+            // el sonido quedaba bloqueado hasta que el usuario volviera a
+            // tocar algo en esa página concreta.
+            this.escucharDesbloqueo();
+        },
+
+        escucharDesbloqueo() {
+            let pending = false;
+
+            const despertar = async () => {
+                // `pointerdown` y `keydown` llegan casi a la vez en un clic.
+                // Sin este cerrojo se llamaría dos veces a `desbloquear()` y la
+                // carrera podía dejar el AudioContext a medias.
+                if (pending) {
+                    return;
+                }
+
+                pending = true;
+
+                try {
+                    this.audioBloqueado = !(await avisoSonoro.desbloquear());
+                } finally {
+                    pending = false;
+                }
+
+                if (!this.audioBloqueado) {
+                    this.retirarDesbloqueo();
+                }
 
                 if (this.permiso === 'default') {
                     this.leerPermiso();
                 }
-
-                window.removeEventListener('pointerdown', despertar);
-                window.removeEventListener('keydown', despertar);
             };
+
+            this._despertar = despertar;
 
             window.addEventListener('pointerdown', despertar);
             window.addEventListener('keydown', despertar);
         },
 
-        async sondear() {
+        retirarDesbloqueo() {
+            if (!this._despertar) {
+                return;
+            }
+
+            window.removeEventListener('pointerdown', this._despertar);
+            window.removeEventListener('keydown', this._despertar);
+            this._despertar = null;
+        },
+
+        /**
+         * Una pasada del sondeo.
+         *
+         * `conBandeja` pide también el resumen de conversaciones. El sondeo
+         * cada 3 segundos lo deja fuera porque esa consulta trae relaciones y
+         * conteos: solo hace falta cuando el usuario abre el desplegable.
+         */
+        async sondear(conBandeja = false) {
             try {
-                const respuesta = await window.axios.get(this.urlEstado, {
-                    params: this.cursor === null ? {} : { desde: this.cursor },
-                });
+                const parametros = {};
+
+                if (this.cursor !== null) {
+                    parametros.desde = this.cursor;
+                }
+
+                if (conBandeja) {
+                    parametros.bandeja = 1;
+                }
+
+                const respuesta = await window.axios.get(this.urlEstado, { params: parametros });
 
                 const datos = respuesta.data;
 
@@ -118,9 +179,15 @@ export default function notificadorMensajes(config = {}) {
         },
 
         avisoSonoro(cantidad) {
-            if (this.sonido && avisoSonoro.disponible) {
-                avisoSonoro.pitirVarios(cantidad);
+            if (!this.sonido || !avisoSonoro.soportado) {
+                return;
             }
+
+            avisoSonoro.pitirVarios(cantidad).then((sono) => {
+                // Si el navegador lo bloqueó, se muestra el aviso para que el
+                // usuario sepa que un clic basta con habilitarlo.
+                this.audioBloqueado = !sono;
+            });
         },
 
         mostrarAviso(nuevos) {
@@ -214,7 +281,12 @@ export default function notificadorMensajes(config = {}) {
             }
 
             if (this.sonido) {
-                avisoSonoro.pitir();
+                // Este clic es una interacción válida, así que aquí sí debería
+                // quedar desbloqueado. De paso se confirma al usuario con un
+                // pitido que se oye de inmediato.
+                avisoSonoro.pitir().then((sono) => {
+                    this.audioBloqueado = !sono;
+                });
             }
 
             window.axios.post(this.urlSonido, { sonido: this.sonido }).catch(() => {});
@@ -231,11 +303,12 @@ export default function notificadorMensajes(config = {}) {
 
         async marcarLeidas() {
             // Al abrir la bandeja dejamos de molestar: el siguiente sondeo ya
-            // contara esos mensajes como leídos por el chat.
+            // contara esos mensajes como leídos por el chat. Aprovecha para
+            // traer la lista de conversaciones, que no viaja en el sondeo normal.
             this.aviso = null;
             clearTimeout(this.avisoVence);
 
-            await this.sondear();
+            await this.sondear(true);
         },
     };
 }

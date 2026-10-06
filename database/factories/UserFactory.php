@@ -31,7 +31,23 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'sonido_mensajes' => true,
+
+            // Explícito a propósito. MySQL aplica el default de la columna,
+            // pero SQLite no lo hace y el usuario quedaba con `activo` en
+            // null, que el middleware de sesión activa leía como
+            // desactivado. Un factory no debería depender del default.
+            'activo' => true,
         ];
+    }
+
+    /**
+     * Usuario desactivado, para probar que pierde el acceso.
+     */
+    public function inactivo(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'activo' => false,
+        ]);
     }
 
     /**
