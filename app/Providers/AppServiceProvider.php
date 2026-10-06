@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Articulo;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.app', function ($view) {
             $view->with('mensajesNoLeidos', auth()->check()
                 ? auth()->user()->mensajesNoLeidos()
+                : 0);
+
+            // El badge de stock bajo se muestra en la barra de navegación.
+            $view->with('alertasStock', auth()->check()
+                ? Articulo::stockBajo()->count()
                 : 0);
         });
     }

@@ -5,15 +5,26 @@
                 Artículos
             </h2>
 
-            <a
-                href="{{ route('articulos.create') }}"
-                class="md-btn md-btn-filled"
-            >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                Nuevo artículo
-            </a>
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                @if (Auth::user()->isAdmin())
+                    <a
+                        href="{{ route('articulos.importar.create') }}"
+                        class="md-btn md-btn-outlined"
+                    >
+                        Importar CSV
+                    </a>
+                @endif
+
+                <a
+                    href="{{ route('articulos.create') }}"
+                    class="md-btn md-btn-filled"
+                >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Nuevo artículo
+                </a>
+            </div>
         </div>
     </x-slot>
 

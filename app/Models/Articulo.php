@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class Articulo extends Model
 {
@@ -61,5 +62,45 @@ class Articulo extends Model
             ) AS stock
         ")
             ->value('stock');
+    }
+
+    /**
+     * Artículos activos cuyo stock calculado es igual o inferior al mínimo.
+     *
+     * El stock se resuelve en una sola consulta con la suma de movimientos,
+     * en lugar de recorrer cada artículo con `stock_actual`.
+     *
+     * @return Collection<int, Articulo>
+     */
+    public static function stockBajo()
+    {
+        return static::query()
+            ->select('articulos.*')
+            ->selectSub(
+                Movimiento::selectRaw("
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN tipo IN ('ENTRADA', 'AJUSTE_POSITIVO') THEN cantidad
+                                WHEN tipo IN ('SALIDA', 'AJUSTE_NEGATIVO') THEN -cantidad
+                                ELSE 0
+                            END
+                        ),
+                        0
+                    )
+                ")
+                    ->whereColumn(
+                        'movimientos.articulo_id',
+                        'articulos.id'
+                    ),
+                'stock_calculado'
+            )
+            ->where('activo', true)
+            ->get()
+            ->filter(function ($articulo) {
+                return (float) $articulo->stock_calculado
+                    <= (float) $articulo->stock_minimo;
+            })
+            ->values();
     }
 }

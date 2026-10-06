@@ -37,9 +37,18 @@
                     Panel
                 </x-nav-link>
 
-                <x-nav-link :href="route('articulos.index')" :active="request()->routeIs('articulos.*')">
-                    Artículos
-                </x-nav-link>
+                <span class="relative inline-flex">
+                    <x-nav-link :href="route('articulos.index')" :active="request()->routeIs('articulos.*')">
+                        Artículos
+                    </x-nav-link>
+
+                    <span
+                        title="Artículos con stock igual o inferior al mínimo"
+                        class="absolute -end-1.5 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-bold text-white ring-2 ring-white dark:ring-gray-800 {{ ($alertasStock ?? 0) === 0 ? 'hidden' : '' }}"
+                    >
+                        {{ $alertasStock ?? 0 }}
+                    </span>
+                </span>
 
                 <x-nav-dropdown :active="request()->routeIs('movimientos.*')">
                     <x-slot:trigger>Movimientos</x-slot:trigger>
@@ -92,6 +101,7 @@
                         <a href="{{ route('unidades-medida.index') }}" class="md-menu-item">Unidades de medida</a>
                         <a href="{{ route('contacto.index') }}" class="md-menu-item">Contacto</a>
                         <a href="{{ route('auditoria.index') }}" class="md-menu-item">Auditoría</a>
+                        <a href="{{ route('diagnostico') }}" class="md-menu-item">Diagnóstico</a>
                     @endif
 
                     <div class="md-divider my-1.5"></div>
@@ -357,6 +367,11 @@
 
             <x-responsive-nav-link :href="route('articulos.index')" :active="request()->routeIs('articulos.*')">
                 Artículos
+                @if (($alertasStock ?? 0) > 0)
+                    <span class="ms-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-bold text-white">
+                        {{ $alertasStock }}
+                    </span>
+                @endif
             </x-responsive-nav-link>
 
             <p class="md-menu-title pt-3">Movimientos</p>

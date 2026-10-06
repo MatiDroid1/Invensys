@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Articulo;
 use App\Models\Movimiento;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class KardexController extends Controller
@@ -14,6 +15,35 @@ class KardexController extends Controller
             ->orderBy('nombre')
             ->get();
 
+        [$articulo, $movimientos] = $this->prepararKardex($request);
+
+        return view('kardex.index', compact(
+            'articulos',
+            'articulo',
+            'movimientos'
+        ));
+    }
+
+    public function pdf(Request $request)
+    {
+        $request->validate([
+            'articulo_id' => ['required', 'exists:articulos,id'],
+        ]);
+
+        [$articulo, $movimientos] = $this->prepararKardex($request);
+
+        $nombreArchivo = 'kardex_'.$articulo->codigo.'_'.now()->format('Y-m-d_H-i-s').'.pdf';
+
+        $pdf = Pdf::loadView('kardex.pdf', [
+            'articulo' => $articulo,
+            'movimientos' => $movimientos,
+        ]);
+
+        return $pdf->download($nombreArchivo);
+    }
+
+    private function prepararKardex(Request $request): array
+    {
         $articulo = null;
         $movimientos = collect();
         $saldo = 0;
@@ -57,10 +87,6 @@ class KardexController extends Controller
             });
         }
 
-        return view('kardex.index', compact(
-            'articulos',
-            'articulo',
-            'movimientos'
-        ));
+        return [$articulo, $movimientos];
     }
 }

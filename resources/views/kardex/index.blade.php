@@ -100,6 +100,26 @@
             </section>
 
             <section class="md-card">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <div class="md-section-title">
+                            Historial de movimientos
+                        </div>
+                        <div class="md-subtitle">
+                            {{ $movimientos->count() }} movimiento(s) registrado(s)
+                        </div>
+                    </div>
+
+                    <a
+                        href="{{ route('kardex.pdf', ['articulo_id' => $articulo->id]) }}"
+                        class="md-btn md-btn-filled w-full sm:w-auto"
+                    >
+                        Descargar PDF
+                    </a>
+                </div>
+            </section>
+
+            <section class="md-card">
                 @if ($movimientos->isEmpty())
 
                     <x-estado-vacio :descripcion="'Este artículo no tiene movimientos registrados.'" />
