@@ -685,4 +685,4 @@ composer install --no-dev --dry-run
 
 ## Licencia
 
-Este proyecto está bajo la licencia **MIT**. Eres libre de usarlo, modificarlo y distribuirlo.
+Proyecto con fines educativos.
