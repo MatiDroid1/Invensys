@@ -478,4 +478,4 @@ Edítalo en *Administración → Usuarios* y cambia su rol a `admin`.
 
 ## Licencia
 
-Este proyecto está bajo la licencia **MIT**. Eres libre de usarlo, modificarlo y distribuirlo.
+Proyecto con fines educativos.
