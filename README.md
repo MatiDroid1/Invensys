@@ -680,9 +680,3 @@ composer install --no-dev --dry-run
 - [ ] Assets compilados
 - [ ] HTTPS activo
 - [ ] Copia de seguridad de MySQL configurada
-
----
-
-## Licencia
-
-Este proyecto está bajo la licencia **MIT**. Eres libre de usarlo, modificarlo y distribuirlo.
