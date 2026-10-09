@@ -270,7 +270,7 @@
                                                 @click="$dispatch('confirmar-desactivacion', {
                                                     nombre: @js($articulo->nombre),
                                                     accion: @js(route('articulos.destroy', $articulo))
-                                                })"
+                                                }); $dispatch('open-modal', 'desactivar-articulo')"
                                             >
                                                 Desactivar
                                             </button>

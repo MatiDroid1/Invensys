@@ -2,8 +2,7 @@
 
 @if (auth()->check())
     <div
-        x-data="{ abierto: false }"
-        x-show="abierto"
+        x-show="hayNovedad"
         x-cloak
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0 translate-y-4"
@@ -36,7 +35,7 @@
 
                     <button
                         type="button"
-                        @click="abierto = false"
+                        @click="descartarAviso()"
                         class="md-icon-btn -me-1.5 -mt-1 h-8 w-8"
                         aria-label="Cerrar aviso"
                     >
@@ -50,7 +49,7 @@
                     <template x-if="aviso.url">
                         <a
                             :href="aviso.url"
-                            @click="abierto = false"
+                            @click="descartarAviso()"
                             class="flex-1 bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
                         >
                             Abrir conversación
@@ -59,7 +58,7 @@
 
                     <a
                         href="{{ route('mensajes.index') }}"
-                        @click="abierto = false"
+                        @click="descartarAviso()"
                         class="flex-1 px-4 py-2.5 text-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                         Ver bandeja

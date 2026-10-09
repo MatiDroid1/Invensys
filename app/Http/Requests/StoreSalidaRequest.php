@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreSalidaRequest extends FormRequest
 {
@@ -16,12 +17,12 @@ class StoreSalidaRequest extends FormRequest
         return [
             'articulo_id' => [
                 'required',
-                'exists:articulos,id',
+                Rule::exists('articulos', 'id')->where('activo', true),
             ],
 
             'persona_id' => [
                 'required',
-                'exists:personas,id',
+                Rule::exists('personas', 'id')->where('activo', true),
             ],
 
             'cantidad' => [

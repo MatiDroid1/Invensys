@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreMovimientoRequest extends FormRequest
 {
@@ -16,7 +17,7 @@ class StoreMovimientoRequest extends FormRequest
         return [
             'articulo_id' => [
                 'required',
-                'exists:articulos,id',
+                Rule::exists('articulos', 'id')->where('activo', true),
             ],
             'cantidad' => [
                 'required',

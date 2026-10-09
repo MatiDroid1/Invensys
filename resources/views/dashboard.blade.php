@@ -7,49 +7,89 @@
 
     <div class="md-page md-page-body space-y-6">
         {{-- Indicadores principales --}}
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 
             <div class="md-stat">
-                <div class="md-overline">
-                    Artículos activos
-                </div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div class="md-overline">
+                            Artículos activos
+                        </div>
 
-                <div class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
-                    {{ $articulosActivos }}
+                        <div class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+                            {{ $articulosActivos }}
+                        </div>
+                    </div>
+
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                        </svg>
+                    </span>
                 </div>
             </div>
 
             <div class="md-stat">
-                <div class="md-overline">
-                    Personas activas
-                </div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div class="md-overline">
+                            Personas activas
+                        </div>
 
-                <div class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
-                    {{ $personasActivas }}
+                        <div class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+                            {{ $personasActivas }}
+                        </div>
+                    </div>
+
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                        </svg>
+                    </span>
                 </div>
             </div>
 
             <div class="md-stat">
-                <div class="md-overline">
-                    Movimientos este mes
-                </div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div class="md-overline">
+                            Movimientos este mes
+                        </div>
 
-                <div class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
-                    {{ $movimientosMes }}
+                        <div class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+                            {{ $movimientosMes }}
+                        </div>
+                    </div>
+
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                        </svg>
+                    </span>
                 </div>
             </div>
 
             <div class="md-stat">
-                <div class="md-overline">
-                    Stock bajo
-                </div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div class="md-overline">
+                            Stock bajo
+                        </div>
 
-                <div @class([
-                    'mt-2 text-3xl font-bold',
-                    'text-red-600' => $articulosStockBajo->count() > 0,
-                    'text-green-600' => $articulosStockBajo->count() === 0,
-                ])>
-                    {{ $articulosStockBajo->count() }}
+                        <div @class([
+                            'mt-2 text-3xl font-bold',
+                            'text-red-600' => $articulosStockBajo->count() > 0,
+                            'text-green-600' => $articulosStockBajo->count() === 0,
+                        ])>
+                            {{ $articulosStockBajo->count() }}
+                        </div>
+                    </div>
+
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                    </span>
                 </div>
             </div>
 

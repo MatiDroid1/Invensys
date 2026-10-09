@@ -210,9 +210,15 @@ export default function notificadorMensajes(config = {}) {
             clearTimeout(this.avisoVence);
             this.avisoVence = setTimeout(() => {
                 this.aviso = null;
-            }, 12000);
+            }, 8000);
 
             this.notificarEscritorio(remitente, texto, this.aviso.url);
+        },
+
+        /** Cierra el aviso flotante de inmediato, desde el propio aviso. */
+        descartarAviso() {
+            this.aviso = null;
+            clearTimeout(this.avisoVence);
         },
 
         /**
