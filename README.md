@@ -662,7 +662,3 @@ composer install --no-dev --dry-run
 - [ ] Copia de seguridad de MySQL configurada
 
 ---
-
-## Licencia
-
-Proyecto con fines educativos.
