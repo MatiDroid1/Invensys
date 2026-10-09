@@ -476,6 +476,3 @@ Edítalo en *Administración → Usuarios* y cambia su rol a `admin`.
 
 ---
 
-## Licencia
-
-Proyecto con fines educativos.
