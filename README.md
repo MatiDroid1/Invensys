@@ -603,5 +603,3 @@ composer install --no-dev --dry-run
 
 ---
 
-## Licencia
-Proyecto con fines educativos.
