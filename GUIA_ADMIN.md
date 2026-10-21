@@ -67,7 +67,9 @@ Reglas importantes:
 | Auditoría | Más → Administración → Auditoría → Exportar CSV | CSV con filtros |
 
 Todos los CSV abren directo en Excel en español (separador `;` y acentos
-correctos).
+correctos). Si un texto empieza con `=`, `+`, `-` o `@` (cosas que Excel
+interpretaría como fórmula), se le antepone un apóstrofo para que se muestre
+como texto y no se ejecute.
 
 ## 5. Auditoría
 

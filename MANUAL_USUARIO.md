@@ -94,10 +94,9 @@ Un usuario **desactivado no puede iniciar sesión** aunque tenga la contraseña 
 
 La diferencia práctica: el menú **Administración** solo le aparece al administrador.
 
-> **Nota sobre seguridad:** las categorías y las unidades de medida no tienen restricción
-> de administrador, solo se ocultan del menú. Cualquier usuario que escriba la dirección
-> directamente puede llegar a ellas. Si necesitas que solo el administrador acceda, hay
-> que agregar el middleware `admin` a esas rutas.
+> **Nota sobre seguridad:** las categorías y las unidades de medida están reservadas al
+> administrador. Un usuario normal que escriba la dirección directamente recibe un error
+> 403, igual que en el módulo de Administración.
 
 ### Sesión
 
@@ -223,8 +222,9 @@ La tabla `Historial` muestra **todos** los movimientos, del más reciente al má
 con: fecha y hora, artículo, tipo, cantidad, persona destinataria, usuario que lo
 registró y referencia.
 
-> Este listado **no tiene filtros ni paginación** y carga todos los registros. Cuando
-> tengas muchos movimientos, usa el **Reporte de movimientos por período** para filtrar.
+> Este listado **no tiene filtros** y está paginado (50 registros por página, en orden del
+> más reciente al más antiguo). Cuando quieras acotar un rango de fechas, usa el **Reporte
+> de movimientos por período**.
 
 ### Los tres formularios de registro
 
@@ -380,6 +380,9 @@ Marca al usuario como inactivo. **No puede iniciar sesión** desde ese momento.
 
 ## 10. Categorías y unidades de medida
 
+Rutas: `/categorias` y `/unidades-medida`. **Solo administradores**: un usuario normal
+recibe un error 403 si entra por URL directa.
+
 Son catálogos de apoyo. Se usan al crear artículos.
 
 ### Categorías
@@ -439,14 +442,17 @@ entrada por cada acción; no se agrega ni se edita a mano.
 | Usuarios | CREAR, ACTUALIZAR, DESACTIVAR |
 | Contacto | CREAR, ATENDER |
 
-> Las unidades de medida **no** generan entradas de auditoría.
+> Las unidades de medida generan entradas de auditoría con la misma estructura que las
+> categorías.
 
 En una actualización se guarda tanto el **valor anterior** como el **cambio aplicado**, así
 que puedes ver qué exactamente se modificó.
 
 ### Filtros
 
-Fecha desde, fecha hasta, usuario, módulo y acción. Se combinan entre sí.
+Fecha desde, fecha hasta, usuario, módulo y acción. Se combinan entre sí. El listado
+está paginado (50 entradas por página) y el botón **Exportar CSV** descarga el resultado
+completo, sin paginar.
 
 Las contraseñas de los usuarios **nunca** se guardan en la auditoría.
 
@@ -481,6 +487,10 @@ Tres secciones:
 > Al eliminar tu cuenta quedas desactivado y no podrás volver a entrar. Pide a un
 > administrador que la reactive si fuera un error.
 
+> **Excepción:** si ya registraste movimientos, el botón de eliminar cuenta no está
+> disponible. Tu identidad queda asociada a esas operaciones y el historial de inventario
+> es inmutable; un administrador puede desactivarte, pero la cuenta no se elimina.
+
 ---
 
 ## 15. Reglas y límites del sistema
@@ -502,12 +512,11 @@ Conviene conocerlos para evitar sorpresas durante su uso:
 10. **El sistema no genera Excel ni PDF.** Los reportes se leen en pantalla y se pueden
     imprimir con el navegador (por ahora).
 11. **El historial de movimientos no tiene filtros.** Con muchos registros, usa el reporte
-    por período.
-12. **Las categorías y unidades de medida no exigen rol administrador** para acceder por
-    URL directa.
-13. **El registro público de usuarios está habilitado** en `/register`. Cualquiera que
-    conozca la dirección puede crear una cuenta con rol `usuario`. Si el sistema es de
-    uso interno, conviene desactivarlo.
+    por período. La tabla está paginada (50 por página).
+12. **Las categorías y las unidades de medida exigen rol administrador.** Un usuario
+    normal recibe un error 403 si entra por URL directa.
+13. **El registro público de usuarios está deshabilitado** (la ruta `/register` no existe).
+    Las cuentas las crea un administrador desde **Administración → Usuarios**.
 
 ---
 

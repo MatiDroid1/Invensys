@@ -36,7 +36,7 @@ class UsuarioAdminSeeder extends Seeder
 
         $usuario = User::firstOrNew(['email' => $email]);
 
-        $usuario->fill([
+        $usuario->forceFill([
             'name' => env('ADMIN_NAME', 'Administrador'),
             'rol' => 'admin',
             'activo' => true,

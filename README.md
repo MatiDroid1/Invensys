@@ -347,8 +347,8 @@ Consecuencias prácticas:
 | Kardex | `/kardex` | Historial por artículo con saldo acumulado. |
 | Reportes | `/reportes/*` | Stock actual, movimientos por período, entregas por persona. |
 | Usuarios | `/usuarios` | *(solo admin)* Gestión de cuentas y roles. |
-| Categorías | `/categorias` | *(solo admin en el menú)* Catálogo de categorías. |
-| Unidades de medida | `/unidades-medida` | *(solo admin en el menú)* Catálogo de unidades. |
+| Categorías | `/categorias` | *(solo admin)* Catálogo de categorías. |
+| Unidades de medida | `/unidades-medida` | *(solo admin)* Catálogo de unidades. |
 | Contacto | `/contacto` | Solicitud de soporte; la bandeja es *(solo admin)*. |
 | Auditoría | `/auditoria` | *(solo admin)* Registro de operaciones. |
 | Perfil | `/profile` | Datos de cuenta, contraseña y eliminación. |
@@ -369,12 +369,13 @@ El sistema tiene dos roles, definidos en la columna `rol` de la tabla `users`:
 
 El acceso restringido se controla con el middleware `admin`
 (`app/Http/Middleware/EnsureUserIsAdmin.php`), que devuelve un **HTTP 403** si el usuario no es
-administrador. Está aplicado a las rutas `usuarios.*`, `auditoria.index`, `contacto.index` y
-`contacto.atender`.
+administrador. Está aplicado a las rutas `usuarios.*`, `categorias.*`, `unidades-medida.*`,
+`articulos.importar.*`, `auditoria.*`, `contacto.index`, `contacto.atender` y `diagnostico`.
 
-> **Nota:** las rutas de `categorias` y `unidades-medida` solo se ocultan del menú para los usuarios
-> no administradores, pero no están protegidas con el middleware. Si necesitas restringirlas,
-> añade `->middleware('admin')` a ambas en `routes/web.php`.
+Además de la autorización por rol, el sistema protege la sesión de un usuario desactivado
+(`EnsureUserIsActive`), limita los intentos de login y aplica *throttling* a los endpoints de
+mensajería y contacto. Los usuarios con movimientos registrados no pueden eliminar su propia
+cuenta: el historial de inventario es inmutable.
 
 ---
 
@@ -382,7 +383,6 @@ administrador. Está aplicado a las rutas `usuarios.*`, `auditoria.index`, `cont
 
 ```
 app/
-├── AuditoriaService.php              Registro centralizado de auditoría
 ├── Http/
 │   ├── Controllers/                   Controladores del sistema
 │   │   └── Auth/                      Controladores de autenticación (Breeze)
@@ -392,6 +392,7 @@ app/
 │   └── ...
 ├── Models/                            Articulo, Movimiento, Persona, Categoria, ...
 ├── Services/
+│   ├── AuditoriaService.php           Registro centralizado de auditoría
 │   └── MovimientoService.php          Entradas, salidas y ajustes con validación de stock
 └── View/Components/                   AppLayout, GuestLayout
 

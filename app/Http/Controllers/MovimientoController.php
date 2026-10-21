@@ -21,7 +21,8 @@ class MovimientoController extends Controller
             'persona',
         ])
             ->orderByDesc('fecha_movimiento')
-            ->get();
+            ->paginate(50)
+            ->withQueryString();
 
         return view('movimientos.index', compact('movimientos'));
     }
@@ -61,7 +62,9 @@ class MovimientoController extends Controller
 
     public function createSalida(Request $request)
     {
-        $articulos = Articulo::where('activo', true)
+        $articulos = Articulo::query()
+            ->conStock()
+            ->where('activo', true)
             ->orderBy('nombre')
             ->get();
 
@@ -104,7 +107,9 @@ class MovimientoController extends Controller
 
     public function createAjuste(Request $request)
     {
-        $articulos = Articulo::where('activo', true)
+        $articulos = Articulo::query()
+            ->conStock()
+            ->where('activo', true)
             ->orderBy('nombre')
             ->get();
 

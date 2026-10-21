@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\UnidadMedida;
+use App\Services\AuditoriaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class UnidadMedidaController extends Controller
 {
+    public function __construct(
+        private AuditoriaService $auditoriaService
+    ) {}
+
     public function index()
     {
         $unidadesMedida = UnidadMedida::orderBy('nombre')->get();
@@ -36,24 +42,31 @@ class UnidadMedidaController extends Controller
             ],
         ]);
 
-        UnidadMedida::create($datos);
+        DB::transaction(function () use ($datos, $request) {
+            $unidadMedida = UnidadMedida::create($datos);
+
+            $this->auditoriaService->registrar(
+                modulo: 'unidades-medida',
+                accion: 'CREAR',
+                modelo: $unidadMedida,
+                descripcion: 'Unidad de medida creada.',
+                datos: $datos,
+                usuarioId: $request->user()->id,
+            );
+        });
 
         return redirect()
             ->route('unidades-medida.index')
             ->with('success', 'Unidad de medida creada correctamente.');
     }
 
-    public function edit(string $id)
+    public function edit(UnidadMedida $unidadMedida)
     {
-        $unidadMedida = UnidadMedida::findOrFail($id);
-
         return view('unidades-medida.edit', compact('unidadMedida'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, UnidadMedida $unidadMedida)
     {
-        $unidadMedida = UnidadMedida::findOrFail($id);
-
         $datos = $request->validate([
             'nombre' => [
                 'required',
@@ -73,20 +86,55 @@ class UnidadMedidaController extends Controller
             ],
         ]);
 
-        $unidadMedida->update($datos);
+        $antes = $unidadMedida->only([
+            'nombre',
+            'abreviatura',
+            'activo',
+        ]);
+
+        DB::transaction(function () use ($unidadMedida, $datos, $antes, $request) {
+            $unidadMedida->update($datos);
+
+            $cambios = $unidadMedida->getChanges();
+
+            unset($cambios['updated_at']);
+
+            $this->auditoriaService->registrar(
+                modulo: 'unidades-medida',
+                accion: 'ACTUALIZAR',
+                modelo: $unidadMedida,
+                descripcion: 'Unidad de medida actualizada.',
+                datos: [
+                    'antes' => $antes,
+                    'cambios' => $cambios,
+                ],
+                usuarioId: $request->user()->id,
+            );
+        });
 
         return redirect()
             ->route('unidades-medida.index')
             ->with('success', 'Unidad de medida actualizada correctamente.');
     }
 
-    public function destroy(string $id)
+    public function destroy(UnidadMedida $unidadMedida, Request $request)
     {
-        $unidadMedida = UnidadMedida::findOrFail($id);
+        DB::transaction(function () use ($unidadMedida, $request) {
+            $unidadMedida->update([
+                'activo' => false,
+            ]);
 
-        $unidadMedida->update([
-            'activo' => false,
-        ]);
+            $this->auditoriaService->registrar(
+                modulo: 'unidades-medida',
+                accion: 'DESACTIVAR',
+                modelo: $unidadMedida,
+                descripcion: 'Unidad de medida desactivada.',
+                datos: [
+                    'activo' => false,
+                ],
+                usuarioId: $request->user()->id,
+            );
+        });
 
         return redirect()
             ->route('unidades-medida.index')

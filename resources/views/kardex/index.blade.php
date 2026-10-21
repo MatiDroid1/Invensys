@@ -6,6 +6,7 @@
     </x-slot>
 
     <div class="md-page md-page-body space-y-6">
+        <x-alerta />
         <section class="md-card mx-auto w-full max-w-3xl p-5 sm:p-6">
             <form method="GET" action="{{ route('kardex.index') }}">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-end">

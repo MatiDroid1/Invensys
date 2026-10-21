@@ -6,6 +6,7 @@
     </x-slot>
 
     <div class="md-page md-page-body space-y-6">
+        <x-alerta />
         {{-- Filtros --}}
         <section class="md-card mx-auto w-full max-w-5xl p-5 sm:p-6">
             <form method="GET" action="{{ route('reportes.movimientos') }}">

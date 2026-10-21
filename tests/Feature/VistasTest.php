@@ -139,18 +139,35 @@ test('las vistas de personas, categorías y unidades se renderizan', function ()
     [$articulo, $categoria, $unidad, $persona] = catalogoCompleto();
 
     $usuario = User::factory()->create();
+    $admin = User::factory()->create(['rol' => 'admin']);
 
     $this->actingAs($usuario)->get(route('personas.index'))->assertOk();
     $this->actingAs($usuario)->get(route('personas.create'))->assertOk();
     $this->actingAs($usuario)->get(route('personas.edit', $persona))->assertOk();
 
-    $this->actingAs($usuario)->get(route('categorias.index'))->assertOk();
-    $this->actingAs($usuario)->get(route('categorias.create'))->assertOk();
-    $this->actingAs($usuario)->get(route('categorias.edit', $categoria))->assertOk();
+    $this->actingAs($admin)->get(route('categorias.index'))->assertOk();
+    $this->actingAs($admin)->get(route('categorias.create'))->assertOk();
+    $this->actingAs($admin)->get(route('categorias.edit', $categoria))->assertOk();
 
-    $this->actingAs($usuario)->get(route('unidades-medida.index'))->assertOk();
-    $this->actingAs($usuario)->get(route('unidades-medida.create'))->assertOk();
-    $this->actingAs($usuario)->get(route('unidades-medida.edit', $unidad->id))->assertOk();
+    $this->actingAs($admin)->get(route('unidades-medida.index'))->assertOk();
+    $this->actingAs($admin)->get(route('unidades-medida.create'))->assertOk();
+    $this->actingAs($admin)->get(route('unidades-medida.edit', $unidad))->assertOk();
+});
+
+test('los catálogos de categorías y unidades son solo para administradores', function () {
+    [$articulo, $categoria, $unidad] = catalogoCompleto();
+
+    $usuario = User::factory()->create(['rol' => 'usuario']);
+
+    $this->actingAs($usuario)->get(route('categorias.index'))->assertForbidden();
+    $this->actingAs($usuario)->get(route('categorias.create'))->assertForbidden();
+    $this->actingAs($usuario)->get(route('categorias.edit', $categoria))->assertForbidden();
+    $this->actingAs($usuario)->delete(route('categorias.destroy', $categoria))->assertForbidden();
+
+    $this->actingAs($usuario)->get(route('unidades-medida.index'))->assertForbidden();
+    $this->actingAs($usuario)->get(route('unidades-medida.create'))->assertForbidden();
+    $this->actingAs($usuario)->get(route('unidades-medida.edit', $unidad))->assertForbidden();
+    $this->actingAs($usuario)->delete(route('unidades-medida.destroy', $unidad))->assertForbidden();
 });
 
 test('la vista de kardex se renderiza con y sin artículo', function () {

@@ -48,6 +48,21 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
+        // El historial de inventario es inmutable: un usuario con movimientos
+        // no puede borrarse porque la clave foránea de `movimientos` lo impide.
+        // Se comprueba antes de cerrar la sesión para no dejar al usuario fuera
+        // y, a la vez, evitar un error 500 al intentar el DELETE.
+        if ($user->movimientos()->exists()) {
+            return Redirect::route('profile.edit')->with(
+                'error',
+                'No se puede eliminar la cuenta porque tiene movimientos registrados. '
+                .'Solicita a un administrador que la desactive.'
+            );
+        }
+
+        // El logout debe ir antes del borrado: al cerrar la sesión Laravel rota
+        // el token "recordarme" y guarda el modelo. Si el usuario ya no
+        // existiera, ese guardado lo volvería a insertar.
         Auth::logout();
 
         $user->delete();

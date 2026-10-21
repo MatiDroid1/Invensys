@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\AuditoriaService;
 use App\Models\Persona;
+use App\Services\AuditoriaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;

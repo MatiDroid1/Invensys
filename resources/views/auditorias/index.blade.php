@@ -121,13 +121,13 @@
                         Aplicar filtros
                     </button>
 
-                    <a href="{{ route('auditoria.index') }}" class="md-btn md-btn-ghost">
+                    <a href="{{ route('auditoria.index') }}" class="md-btn md-btn-outlined">
                         Limpiar filtros
                     </a>
 
                     <a
                         href="{{ route('auditoria.csv', request()->query()) }}"
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900 hover:opacity-90"
+                        class="md-btn md-btn-filled"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -195,6 +195,12 @@
                         @endforeach
                     </tbody>
                 </x-tabla>
+
+                @if ($auditorias->hasPages())
+                    <div class="border-t border-gray-100 px-5 py-4 dark:border-gray-700/70">
+                        {{ $auditorias->links() }}
+                    </div>
+                @endif
             @endif
         </section>
     </div>

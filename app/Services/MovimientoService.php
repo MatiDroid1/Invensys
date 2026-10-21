@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\AuditoriaService;
 use App\Models\Articulo;
 use App\Models\Movimiento;
 use Illuminate\Support\Facades\DB;
@@ -85,18 +84,7 @@ class MovimientoService
                 ->firstOrFail();
 
             $stockActual = $articulo->movimientos()
-                ->selectRaw("
-                    COALESCE(
-                        SUM(
-                            CASE
-                                WHEN tipo IN ('ENTRADA', 'AJUSTE_POSITIVO') THEN cantidad
-                                WHEN tipo IN ('SALIDA', 'AJUSTE_NEGATIVO') THEN -cantidad
-                                ELSE 0
-                            END
-                        ),
-                        0
-                    ) AS stock
-                ")
+                ->selectRaw(Articulo::EXPRESION_STOCK.' AS stock')
                 ->value('stock');
 
             if ($cantidad > (float) $stockActual) {
@@ -158,18 +146,7 @@ class MovimientoService
 
             if ($tipo === 'AJUSTE_NEGATIVO') {
                 $stockActual = $articulo->movimientos()
-                    ->selectRaw("
-                        COALESCE(
-                            SUM(
-                                CASE
-                                    WHEN tipo IN ('ENTRADA', 'AJUSTE_POSITIVO') THEN cantidad
-                                    WHEN tipo IN ('SALIDA', 'AJUSTE_NEGATIVO') THEN -cantidad
-                                    ELSE 0
-                                END
-                            ),
-                            0
-                        ) AS stock
-                    ")
+                    ->selectRaw(Articulo::EXPRESION_STOCK.' AS stock')
                     ->value('stock');
 
                 if ($cantidad > (float) $stockActual) {

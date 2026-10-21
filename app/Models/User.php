@@ -23,8 +23,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'rol',
-        'activo',
         'sonido_mensajes',
     ];
 
@@ -71,6 +69,11 @@ class User extends Authenticatable
     public function mensajes(): HasMany
     {
         return $this->hasMany(Mensaje::class);
+    }
+
+    public function movimientos(): HasMany
+    {
+        return $this->hasMany(Movimiento::class, 'usuario_id');
     }
 
     /**

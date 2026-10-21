@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\AuditoriaService;
+use App\Services\AuditoriaService;
 use App\Services\ImportacionArticulosService;
 use Illuminate\Http\Request;
 
 class ArticuloImportacionController extends Controller
 {
     public function __construct(
-        private ImportacionArticulosService $importador
+        private ImportacionArticulosService $importador,
+        private AuditoriaService $auditoriaService
     ) {}
 
     /**
@@ -30,6 +31,7 @@ class ArticuloImportacionController extends Controller
                 'required',
                 'file',
                 'mimes:csv,txt',
+                'extensions:csv,txt',
                 'max:1024',
             ],
         ]);
@@ -40,7 +42,7 @@ class ArticuloImportacionController extends Controller
 
         $resultado = $this->importador->importar($contenido);
 
-        app(AuditoriaService::class)->registrar(
+        $this->auditoriaService->registrar(
             'articulos',
             'IMPORTAR_CSV',
             null,

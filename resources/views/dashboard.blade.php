@@ -6,6 +6,7 @@
     </x-slot>
 
     <div class="md-page md-page-body space-y-6">
+        <x-alerta />
         {{-- Indicadores principales --}}
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 

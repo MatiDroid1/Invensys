@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\AuditoriaService;
 use App\Models\User;
+use App\Services\AuditoriaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -44,7 +44,8 @@ class UsuarioController extends Controller
         unset($datosAuditoria['password']);
 
         DB::transaction(function () use ($data, $datosAuditoria, $request) {
-            $usuario = User::create($data);
+            $usuario = (new User)->forceFill($data);
+            $usuario->save();
 
             $this->auditoriaService->registrar(
                 modulo: 'usuarios',
@@ -81,6 +82,12 @@ class UsuarioController extends Controller
             'activo' => ['nullable', 'boolean'],
         ]);
 
+        if ($usuario->id === $request->user()->id && ! $request->boolean('activo')) {
+            return redirect()
+                ->route('usuarios.index')
+                ->with('error', 'No puedes desactivarte a ti mismo.');
+        }
+
         $antes = $usuario->only([
             'name',
             'email',
@@ -97,7 +104,7 @@ class UsuarioController extends Controller
         $data['activo'] = $request->boolean('activo');
 
         DB::transaction(function () use ($usuario, $data, $antes, $request) {
-            $usuario->update($data);
+            $usuario->forceFill($data)->save();
 
             $cambios = $usuario->getChanges();
 

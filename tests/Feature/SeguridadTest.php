@@ -141,3 +141,30 @@ test('el archivo htaccess no es ignorado por git', function () {
 
     expect(trim((string) $salida))->toBe('');
 });
+
+test('un administrador no puede desactivarse a si mismo desde el boton eliminar', function () {
+    $admin = User::factory()->create(['rol' => 'admin', 'activo' => true]);
+
+    $this->actingAs($admin)
+        ->delete(route('usuarios.destroy', $admin))
+        ->assertRedirect(route('usuarios.index'))
+        ->assertSessionHas('error');
+
+    $this->assertTrue($admin->fresh()->activo);
+});
+
+test('un administrador no puede desactivarse a si mismo desde el formulario de edicion', function () {
+    $admin = User::factory()->create(['rol' => 'admin', 'activo' => true]);
+
+    $this->actingAs($admin)
+        ->put(route('usuarios.update', $admin), [
+            'name' => $admin->name,
+            'email' => $admin->email,
+            'rol' => 'admin',
+            'activo' => false,
+        ])
+        ->assertRedirect(route('usuarios.index'))
+        ->assertSessionHas('error');
+
+    $this->assertTrue($admin->fresh()->activo);
+});

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Articulo;
+use App\Models\Movimiento;
 use App\Models\User;
 
 test('profile page is displayed', function () {
@@ -65,6 +67,27 @@ test('user can delete their account', function () {
 
     $this->assertGuest();
     $this->assertNull($user->fresh());
+});
+
+test('un usuario con movimientos no puede eliminar su cuenta', function () {
+    $user = User::factory()->create();
+    $articulo = Articulo::factory()->create();
+
+    Movimiento::create([
+        'articulo_id' => $articulo->id,
+        'tipo' => 'ENTRADA',
+        'cantidad' => 1,
+        'fecha_movimiento' => now(),
+        'usuario_id' => $user->id,
+    ]);
+
+    $this->actingAs($user)
+        ->delete('/profile', ['password' => 'password'])
+        ->assertRedirect('/profile')
+        ->assertSessionHas('error');
+
+    $this->assertNotNull($user->fresh());
+    $this->assertAuthenticatedAs($user);
 });
 
 test('correct password must be provided to delete account', function () {

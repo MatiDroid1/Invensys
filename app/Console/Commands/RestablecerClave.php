@@ -135,7 +135,7 @@ class RestablecerClave extends Command
 
             // Cerrar las sesiones abiertas es lo más importante: si la
             // contraseña se cambia porque se filtró, la sesión de quien la
-            // 获得 sea válida tiene que morir aquí.
+            // que sea válida tiene que morir aquí.
             DB::table('sessions')->where('user_id', $usuario->id)->delete();
 
             // Los tokens de recuperación quedan sin efecto, para que un link

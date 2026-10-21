@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\AuditoriaService;
 use App\Models\Conversacion;
 use App\Models\Mensaje;
 use App\Models\User;
+use App\Services\AuditoriaService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

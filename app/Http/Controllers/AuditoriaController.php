@@ -62,7 +62,7 @@ class AuditoriaController extends Controller
             );
         }
 
-        $auditorias = $query->get();
+        $auditorias = $query->paginate(50)->withQueryString();
 
         $modulos = Auditoria::query()
             ->distinct()

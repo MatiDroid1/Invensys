@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\AuditoriaService;
 use App\Http\Requests\StoreArticuloRequest;
 use App\Http\Requests\UpdateArticuloRequest;
 use App\Models\Articulo;
 use App\Models\Categoria;
-use App\Models\Movimiento;
 use App\Models\UnidadMedida;
+use App\Services\AuditoriaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -25,23 +24,7 @@ class ArticuloController extends Controller
             ->get();
 
         $articulos = Articulo::query()
-            ->select('articulos.*')
-            ->selectSub(
-                Movimiento::selectRaw('
-                    COALESCE(
-                        SUM(
-                            CASE
-                                WHEN tipo IN (\'ENTRADA\', \'AJUSTE_POSITIVO\') THEN cantidad
-                                WHEN tipo IN (\'SALIDA\', \'AJUSTE_NEGATIVO\') THEN -cantidad
-                                ELSE 0
-                            END
-                        ),
-                        0
-                    )
-                ')
-                    ->whereColumn('movimientos.articulo_id', 'articulos.id'),
-                'stock_calculado'
-            )
+            ->conStock()
             ->with(['categoria', 'unidadMedida'])
             ->when($request->filled('q'), function ($query) use ($request) {
                 $termino = trim((string) $request->input('q'));

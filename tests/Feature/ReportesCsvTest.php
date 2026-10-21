@@ -77,3 +77,51 @@ test('los CSV de reportes son compatibles con Excel en español', function () {
         }
     }
 });
+
+test('los CSV neutralizan fórmulas inyectadas por usuarios', function () {
+    $usuario = User::factory()->create();
+    $articulo = Articulo::factory()->create([
+        'nombre' => '=1+1',
+        'codigo' => '=CMD|calc!A1',
+    ]);
+    $persona = Persona::create([
+        'nombre' => 'Ana',
+        'apellido' => 'Pérez',
+        'identificador' => '@SUM(1)',
+        'activo' => true,
+    ]);
+
+    Movimiento::create([
+        'articulo_id' => $articulo->id,
+        'tipo' => 'SALIDA',
+        'cantidad' => 2,
+        'fecha_movimiento' => '2026-10-03 14:30:00',
+        'persona_id' => $persona->id,
+        'usuario_id' => $usuario->id,
+        'referencia' => '=HYPERLINK("http://ejemplo.cl")',
+    ]);
+
+    $respuesta = $this->actingAs($usuario)
+        ->get(route('reportes.stock.csv'))
+        ->assertOk();
+
+    $contenido = mb_convert_encoding(
+        substr($respuesta->getContent(), 2),
+        'UTF-8',
+        'UTF-16LE'
+    );
+
+    // Excel no debe interpretar la celda como fórmula: el apóstrofo inicial
+    // la obliga a tratarse como texto.
+    expect($contenido)->toContain("'=1+1")
+        ->and($contenido)->toContain("'=CMD|calc!A1");
+
+    $contenidoEntregas = mb_convert_encoding(
+        substr($this->actingAs($usuario)->get(route('reportes.entregas-persona.csv'))->getContent(), 2),
+        'UTF-8',
+        'UTF-16LE'
+    );
+
+    expect($contenidoEntregas)->toContain("'@SUM(1)")
+        ->and($contenidoEntregas)->toContain("'=HYPERLINK");
+});

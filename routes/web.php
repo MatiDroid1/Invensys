@@ -66,9 +66,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/kardex/pdf', [KardexController::class, 'pdf'])
         ->name('kardex.pdf');
     Route::resource('categorias', CategoriaController::class)
-        ->except(['show']);
+        ->except(['show'])
+        ->middleware('admin');
     Route::resource('unidades-medida', UnidadMedidaController::class)
-        ->except(['show']);
+        ->parameters(['unidades-medida' => 'unidadMedida'])
+        ->except(['show'])
+        ->middleware('admin');
     Route::resource('usuarios', UsuarioController::class)
         ->except(['show'])
         ->middleware('admin');
@@ -97,6 +100,7 @@ Route::middleware('auth')->group(function () {
         ->name('contacto.create');
 
     Route::post('/contacto', [ContactoController::class, 'store'])
+        ->middleware('throttle:5,1')
         ->name('contacto.store');
 
     Route::get('/contacto/administracion', [ContactoController::class, 'index'])
@@ -127,6 +131,7 @@ Route::middleware('auth')->group(function () {
     // entrantes sin necesidad de abrir el chat. Va antes de
     // /mensajes/{conversacion} para que "estado" no se tome como conversación.
     Route::get('/mensajes/estado', [MensajeController::class, 'estado'])
+        ->middleware('throttle:60,1')
         ->name('mensajes.estado');
 
     Route::patch('/mensajes/sonido', [MensajeController::class, 'sonido'])

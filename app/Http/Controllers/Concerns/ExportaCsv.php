@@ -31,7 +31,7 @@ trait ExportaCsv
 
             foreach ($lineas as $campos) {
                 $campos = array_map(
-                    static fn ($campo) => (string) $campo,
+                    fn ($campo) => $this->neutralizarFormula((string) $campo),
                     $campos
                 );
 
@@ -56,6 +56,26 @@ trait ExportaCsv
             'Content-Type' => 'text/csv; charset=UTF-16LE',
             'Content-Disposition' => "attachment; filename=\"{$nombreArchivo}\"",
         ]);
+    }
+
+    /**
+     * Evita la inyección de fórmulas al abrir el CSV en Excel.
+     *
+     * Excel interpreta como fórmula cualquier celda que empiece por `=`, `+`,
+     * `@`, tabulador o retorno de carro. Un campo como `=HYPERLINK(...)` escrito
+     * por un usuario se ejecutaría al abrir el archivo, así que se antepone un
+     * apóstrofo para que Excel lo trate como texto.
+     */
+    private function neutralizarFormula(string $campo): string
+    {
+        if ($campo === '') {
+            return $campo;
+        }
+
+        $peligroso = preg_match('/^[=+@\t\r]/', $campo) === 1
+            || (str_starts_with($campo, '-') && ! is_numeric($campo));
+
+        return $peligroso ? "'".$campo : $campo;
     }
 
     /**

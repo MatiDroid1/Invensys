@@ -78,9 +78,7 @@
                                 </td>
 
                                 <td class="md-td">
-                                    <span class="md-chip">
-                                        {{ $movimiento->tipo }}
-                                    </span>
+                                    <x-tipo-movimiento :tipo="$movimiento->tipo" />
                                 </td>
 
                                 <td class="md-td md-td-num">
@@ -102,6 +100,12 @@
                         @endforeach
                     </tbody>
                 </x-tabla>
+
+                @if ($movimientos->hasPages())
+                    <div class="border-t border-gray-100 px-5 py-4 dark:border-gray-700/70">
+                        {{ $movimientos->links() }}
+                    </div>
+                @endif
             @endif
         </section>
     </div>

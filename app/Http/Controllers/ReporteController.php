@@ -15,30 +15,11 @@ class ReporteController extends Controller
     public function stock(Request $request)
     {
         $articulos = Articulo::query()
+            ->conStock()
             ->with([
                 'categoria',
                 'unidadMedida',
             ])
-            ->select('articulos.*')
-            ->selectSub(
-                Movimiento::selectRaw("
-                    COALESCE(
-                        SUM(
-                            CASE
-                                WHEN tipo IN ('ENTRADA', 'AJUSTE_POSITIVO') THEN cantidad
-                                WHEN tipo IN ('SALIDA', 'AJUSTE_NEGATIVO') THEN -cantidad
-                                ELSE 0
-                            END
-                        ),
-                        0
-                    )
-                ")
-                    ->whereColumn(
-                        'movimientos.articulo_id',
-                        'articulos.id'
-                    ),
-                'stock_calculado'
-            )
             ->where('activo', true)
             ->orderBy('nombre')
             ->get();
@@ -63,30 +44,11 @@ class ReporteController extends Controller
     public function stockCsv(Request $request)
     {
         $articulos = Articulo::query()
+            ->conStock()
             ->with([
                 'categoria',
                 'unidadMedida',
             ])
-            ->select('articulos.*')
-            ->selectSub(
-                Movimiento::selectRaw("
-                    COALESCE(
-                        SUM(
-                            CASE
-                                WHEN tipo IN ('ENTRADA', 'AJUSTE_POSITIVO') THEN cantidad
-                                WHEN tipo IN ('SALIDA', 'AJUSTE_NEGATIVO') THEN -cantidad
-                                ELSE 0
-                            END
-                        ),
-                        0
-                    )
-                ")
-                    ->whereColumn(
-                        'movimientos.articulo_id',
-                        'articulos.id'
-                    ),
-                'stock_calculado'
-            )
             ->where('activo', true)
             ->orderBy('nombre')
             ->get();
@@ -113,7 +75,6 @@ class ReporteController extends Controller
             'Unidad de medida',
             'Stock actual',
             'Stock mínimo',
-            'Stock máximo',
             'Estado',
         ]];
 
@@ -125,7 +86,6 @@ class ReporteController extends Controller
                 $articulo->unidadMedida?->nombre,
                 $this->numeroEs($articulo->stock_calculado),
                 $this->numeroEs($articulo->stock_minimo),
-                $this->numeroEs($articulo->stock_maximo),
                 $articulo->activo ? 'Activo' : 'Inactivo',
             ];
         }
@@ -284,9 +244,23 @@ class ReporteController extends Controller
         $fechaHasta = $request->input('fecha_hasta');
         $personaId = $request->input('persona_id');
 
-        $personas = Persona::where('activo', true)
-            ->orderBy('nombre')
-            ->orderBy('apellido')
+        $movimientos = Movimiento::query()
+            ->with([
+                'articulo:id,codigo,nombre',
+                'persona:id,nombre,apellido,identificador',
+                'usuario:id,name',
+            ])
+            ->whereNotNull('persona_id')
+            ->when($fechaDesde, function ($query, $fechaDesde) {
+                return $query->whereDate('fecha_movimiento', '>=', $fechaDesde);
+            })
+            ->when($fechaHasta, function ($query, $fechaHasta) {
+                return $query->whereDate('fecha_movimiento', '<=', $fechaHasta);
+            })
+            ->when($personaId, function ($query, $personaId) {
+                return $query->where('persona_id', $personaId);
+            })
+            ->orderBy('fecha_movimiento', 'desc')
             ->get();
 
         $nombreArchivo = 'entregas_por_persona_'.now()->format('Y-m-d_H-i-s').'.csv';
@@ -304,45 +278,22 @@ class ReporteController extends Controller
             'Referencia',
         ]];
 
-        foreach ($personas as $persona) {
-            $movimientos = Movimiento::query()
-                ->with([
-                    'articulo:id,codigo,nombre',
-                    'usuario:id,name',
-                ])
-                ->where('persona_id', $persona->id)
-                ->when($fechaDesde, function ($query, $fechaDesde) {
-                    return $query->whereDate('fecha_movimiento', '>=', $fechaDesde);
-                })
-                ->when($fechaHasta, function ($query, $fechaHasta) {
-                    return $query->whereDate('fecha_movimiento', '<=', $fechaHasta);
-                })
-                ->when($personaId && $personaId == $persona->id, function ($query) {
-                    return $query;
-                })
-                ->orderBy('fecha_movimiento', 'desc')
-                ->get();
+        foreach ($movimientos as $movimiento) {
+            $fechaMovimiento = $movimiento->fecha_movimiento;
+            $persona = $movimiento->persona;
 
-            if ($movimientos->isEmpty()) {
-                continue;
-            }
-
-            foreach ($movimientos as $movimiento) {
-                $fechaMovimiento = $movimiento->fecha_movimiento;
-
-                $lineas[] = [
-                    trim($persona->nombre.' '.$persona->apellido),
-                    $persona->rut,
-                    $fechaMovimiento?->format('d/m/Y'),
-                    $fechaMovimiento?->format('H:i'),
-                    $movimiento->articulo?->codigo,
-                    $movimiento->articulo?->nombre,
-                    $movimiento->tipo,
-                    $this->numeroEs($movimiento->cantidad),
-                    $movimiento->usuario?->name,
-                    $movimiento->referencia,
-                ];
-            }
+            $lineas[] = [
+                $persona ? trim($persona->nombre.' '.$persona->apellido) : null,
+                $persona?->identificador,
+                $fechaMovimiento?->format('d/m/Y'),
+                $fechaMovimiento?->format('H:i'),
+                $movimiento->articulo?->codigo,
+                $movimiento->articulo?->nombre,
+                $movimiento->tipo,
+                $this->numeroEs($movimiento->cantidad),
+                $movimiento->usuario?->name,
+                $movimiento->referencia,
+            ];
         }
 
         return $this->respuestaCsv($lineas, $nombreArchivo);

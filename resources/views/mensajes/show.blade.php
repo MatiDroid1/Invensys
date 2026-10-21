@@ -383,15 +383,7 @@
 
                 <div class="shrink-0 border-t border-gray-100 bg-white p-5 dark:border-gray-700/70 dark:bg-gray-800">
 
-                    @if ($errors->any())
-                        <div class="mb-4 p-4 bg-red-100 text-red-800 rounded-md">
-                            <ul class="list-disc list-inside">
-                                @foreach ($error->all() as $mensajeError)
-                                    <li>{{ $mensajeError }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                    <x-alerta class="mb-4" />
 
                     <div
                         x-show="error"
