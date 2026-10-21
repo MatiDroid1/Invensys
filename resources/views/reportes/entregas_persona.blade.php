@@ -97,7 +97,7 @@
             <div class="flex items-center justify-between px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
                 <h3 class="md-section-title">
                     Entregas encontradas:
-                    <span class="font-normal text-gray-500 dark:text-gray-400">{{ $movimientos->count() }}</span>
+                    <span class="font-normal text-gray-500 dark:text-gray-400">{{ $movimientos->total() }}</span>
                 </h3>
             </div>
 
@@ -138,13 +138,17 @@
 
                                 <td class="md-td">{{ $movimiento->persona?->area ?? '-' }}</td>
 
-                                <td class="md-td">{{ $movimiento->usuario->name }}</td>
+                                <td class="md-td">{{ $movimiento->usuario?->name ?? '-' }}</td>
 
                                 <td class="md-td">{{ $movimiento->referencia ?? '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </x-tabla>
+
+                <div class="md-divider mt-5 px-5 pb-5 pt-5">
+                    {{ $movimientos->links() }}
+                </div>
             @endif
         </section>
     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PerteneceAOrganizacion;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Articulo extends Model
 {
-    use HasFactory;
+    use HasFactory, PerteneceAOrganizacion;
 
     /**
      * Expresión única para calcular el stock a partir de los movimientos.
@@ -33,19 +34,15 @@ class Articulo extends Model
 
     protected $table = 'articulos';
 
-    protected $fillable = [
-        'codigo',
-        'nombre',
-        'descripcion',
-        'categoria_id',
-        'unidad_medida_id',
-        'stock_minimo',
-        'control_individual',
-        'activo',
-    ];
+    /**
+     * Los IDs de organización no deben asignarse desde formularios o requests.
+     */
+    protected $guarded = ['id', 'organizacion_id'];
 
     protected $casts = [
         'stock_minimo' => 'decimal:2',
+        'costo_promedio' => 'decimal:4',
+        'precio_venta' => 'decimal:2',
         'control_individual' => 'boolean',
         'activo' => 'boolean',
     ];
@@ -91,6 +88,65 @@ class Articulo extends Model
         return (float) $this->movimientos()
             ->selectRaw(self::EXPRESION_STOCK.' AS stock')
             ->value('stock');
+    }
+
+    /**
+     * Valor del stock actual al costo promedio del artículo.
+     *
+     * Devuelve null mientras el artículo no tenga costo registrado: así el
+     * reporte muestra "sin valorizar" en lugar de un cero engañoso.
+     */
+    public function getValorInventarioAttribute(): ?float
+    {
+        if ($this->costo_promedio === null) {
+            return null;
+        }
+
+        return round($this->stock_actual * (float) $this->costo_promedio, 2);
+    }
+
+    /**
+     * Margen unitario de venta sobre el costo promedio.
+     *
+     * Null mientras falte el costo o el precio: no tiene sentido un margen a
+     * medias.
+     */
+    public function getMargenAttribute(): ?float
+    {
+        if ($this->costo_promedio === null || $this->precio_venta === null) {
+            return null;
+        }
+
+        return round((float) $this->precio_venta - (float) $this->costo_promedio, 2);
+    }
+
+    /**
+     * Margen como porcentaje del precio de venta.
+     *
+     * Null si no hay margen calculable, o si el precio de venta es cero (no se
+     * puede dividir por cero).
+     */
+    public function getMargenPorcentajeAttribute(): ?float
+    {
+        $margen = $this->margen;
+
+        if ($margen === null || (float) $this->precio_venta === 0.0) {
+            return null;
+        }
+
+        return round($margen / (float) $this->precio_venta * 100, 2);
+    }
+
+    /**
+     * Valor del stock actual al precio de venta.
+     */
+    public function getValorVentaAttribute(): ?float
+    {
+        if ($this->precio_venta === null) {
+            return null;
+        }
+
+        return round($this->stock_actual * (float) $this->precio_venta, 2);
     }
 
     /**

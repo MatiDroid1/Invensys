@@ -2,14 +2,17 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Movimiento;
+use App\Support\Limites;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class StoreSalidaRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return Gate::allows('registrarSalida', Movimiento::class);
     }
 
     public function rules(): array
@@ -27,8 +30,7 @@ class StoreSalidaRequest extends FormRequest
 
             'cantidad' => [
                 'required',
-                'numeric',
-                'gt:0',
+                ...Limites::cantidad(),
             ],
 
             'fecha_movimiento' => [
@@ -45,6 +47,15 @@ class StoreSalidaRequest extends FormRequest
             'observaciones' => [
                 'nullable',
                 'string',
+                'max:1000',
+            ],
+
+            // La genera el formulario: identifica la operación para que un
+            // doble envío no la registre dos veces.
+            'idempotency_key' => [
+                'nullable',
+                'string',
+                'max:64',
             ],
         ];
     }

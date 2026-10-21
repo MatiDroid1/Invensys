@@ -103,6 +103,20 @@
             <td class="etiqueta">Movimientos</td>
             <td>{{ $movimientos->count() }}</td>
         </tr>
+        <tr>
+            <td class="etiqueta">Costo promedio</td>
+            <td>
+                {{ $articulo->costo_promedio !== null
+                    ? number_format((float) $articulo->costo_promedio, 2, ',', '.').' $'
+                    : 'Sin valorizar' }}
+            </td>
+            <td class="etiqueta">Valor del stock</td>
+            <td>
+                {{ $articulo->valor_inventario !== null
+                    ? number_format((float) $articulo->valor_inventario, 2, ',', '.').' $'
+                    : 'Sin valorizar' }}
+            </td>
+        </tr>
     </table>
 
     @if ($movimientos->isEmpty())
@@ -119,6 +133,8 @@
                     <th>Persona</th>
                     <th class="num">Entrada</th>
                     <th class="num">Salida</th>
+                    <th class="num">Costo unit.</th>
+                    <th class="num">Valor</th>
                     <th class="num">Saldo</th>
                 </tr>
             </thead>
@@ -126,7 +142,7 @@
                 @foreach ($movimientos as $movimiento)
                     <tr>
                         <td>{{ $movimiento->fecha_movimiento->format('d/m/Y H:i') }}</td>
-                        <td>{{ $movimiento->tipo }}</td>
+                        <td>{{ $movimiento->tipo_etiqueta }}</td>
                         <td>{{ $movimiento->referencia ?? '-' }}</td>
                         <td>{{ $movimiento->persona?->nombre_completo ?? '-' }}</td>
                         <td class="num">
@@ -134,6 +150,16 @@
                         </td>
                         <td class="num">
                             {{ $movimiento->salida > 0 ? number_format($movimiento->salida, 2, ',', '.') : '-' }}
+                        </td>
+                        <td class="num">
+                            {{ $movimiento->costo_unitario !== null
+                                ? number_format((float) $movimiento->costo_unitario, 2, ',', '.')
+                                : '-' }}
+                        </td>
+                        <td class="num">
+                            {{ $movimiento->valor !== null
+                                ? number_format((float) $movimiento->valor, 2, ',', '.')
+                                : '-' }}
                         </td>
                         <td class="num"><strong>{{ number_format($movimiento->saldo, 2, ',', '.') }}</strong></td>
                     </tr>

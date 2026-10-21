@@ -47,11 +47,48 @@ class UsuarioAdminSeeder extends Seeder
 
             $usuario->email_verified_at = now();
             $usuario->password = Hash::make((string) $password);
+        } else {
+            // La cuenta ya existía: no se toca su contraseña, pero sí se
+            // comprueba que no sea una de las conocidas por estar publicadas
+            // en la documentación. Es el loophole que dejó viva la cuenta con
+            // contraseña "password".
+            $this->advertirClaveInseguraExistente($usuario, $email);
         }
 
         $usuario->save();
 
         $this->command?->info("Usuario administrador listo: {$email}");
+    }
+
+    /**
+     * Contraseñas que aparecen en la documentación o en ejemplos, y que por
+     * tanto cualquiera puede adivinar.
+     *
+     * @return array<int, string>
+     */
+    private function clavesInseguras(): array
+    {
+        return ['password', 'admin', 'admin123', '12345678', 'invensys', 'secret'];
+    }
+
+    /**
+     * Comprueba la contraseña actual de una cuenta que ya existe.
+     *
+     * No se puede deducir del hash, así que se prueba cada candidata conocida
+     * contra el hash guardado.
+     */
+    private function advertirClaveInseguraExistente(User $usuario, string $email): void
+    {
+        foreach ($this->clavesInseguras() as $candidata) {
+            if (! Hash::check($candidata, (string) $usuario->password)) {
+                continue;
+            }
+
+            throw new RuntimeException(
+                "La cuenta {$email} ya existe y su contraseña es de las conocidas. "
+                .'Cámbiala antes de seguir con: php artisan usuario:clave '.$email
+            );
+        }
     }
 
     /**
@@ -64,7 +101,7 @@ class UsuarioAdminSeeder extends Seeder
             throw new RuntimeException('ADMIN_PASSWORD debe tener al menos 8 caracteres.');
         }
 
-        if (in_array(strtolower($password), ['password', 'admin', 'admin123', '12345678'], true)) {
+        if (in_array(strtolower($password), $this->clavesInseguras(), true)) {
             throw new RuntimeException(
                 'ADMIN_PASSWORD es demasiado obvia. Elige una que no se adivine.'
             );

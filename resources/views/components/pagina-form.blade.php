@@ -35,3 +35,34 @@
         </div>
     </div>
 </form>
+
+@once
+    {{-- Evita el doble envío.
+
+         Un clic rápido o un botón que se queda pulsado mientras el servidor
+         procesa puede mandar el formulario dos veces. Aquí se desactiva el
+         botón en cuanto se envía, así que el segundo envío no llega a salir.
+
+         El backend no confía solo en esto: los movimientos de inventario
+         además llevan clave de idempotencia, que es la garantía real. --}}
+    <script>
+        document.addEventListener('submit', function (evento) {
+            const formulario = evento.target;
+
+            if (!(formulario instanceof HTMLFormElement)) {
+                return;
+            }
+
+            if (formulario.dataset.enviado === '1') {
+                evento.preventDefault();
+                return;
+            }
+
+            formulario.dataset.enviado = '1';
+
+            formulario.querySelectorAll('button[type="submit"]').forEach(function (boton) {
+                boton.disabled = true;
+            });
+        });
+    </script>
+@endonce

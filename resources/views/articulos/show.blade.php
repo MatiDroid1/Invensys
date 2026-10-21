@@ -38,7 +38,7 @@
 
     <div class="md-page md-page-body space-y-6">
         {{-- Indicadores --}}
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6 xl:grid-cols-6">
             @php
                 $stock = (float) $articulo->stock_actual;
                 $minimo = (float) $articulo->stock_minimo;
@@ -90,6 +90,32 @@
 
                 <div class="mt-2 text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg">
                     {{ $ultimaSalida ? \Illuminate\Support\Carbon::parse($ultimaSalida)->format('d/m/Y') : '—' }}
+                </div>
+            </div>
+
+            <div class="md-stat">
+                <div class="md-overline">
+                    Costo promedio
+                </div>
+
+                <div class="mt-2 text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg">
+                    <x-dinero :monto="$articulo->costo_promedio !== null ? (float) $articulo->costo_promedio : null" />
+                </div>
+
+                @if ($articulo->precio_venta !== null)
+                    <div class="md-hint">
+                        Venta: {{ number_format((float) $articulo->precio_venta, 2, ',', '.') }} $
+                    </div>
+                @endif
+            </div>
+
+            <div class="md-stat">
+                <div class="md-overline">
+                    Valor del stock
+                </div>
+
+                <div class="mt-2 text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg">
+                    <x-dinero :monto="$articulo->valor_inventario" />
                 </div>
             </div>
         </div>

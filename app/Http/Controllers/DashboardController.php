@@ -26,6 +26,18 @@ class DashboardController extends Controller
 
         $articulosStockBajo = Articulo::stockBajo();
 
+        $articulosValorados = Articulo::query()
+            ->conStock()
+            ->where('activo', true)
+            ->get();
+
+        $articulosConCosto = $articulosValorados
+            ->filter(fn (Articulo $articulo) => $articulo->costo_promedio !== null);
+
+        $valorInventario = $articulosConCosto->sum(
+            fn (Articulo $articulo) => $articulo->valor_inventario
+        );
+
         $ultimosMovimientos = Movimiento::with([
             'articulo',
             'persona',
@@ -41,6 +53,8 @@ class DashboardController extends Controller
             'personasActivas',
             'movimientosMes',
             'articulosStockBajo',
+            'valorInventario',
+            'articulosConCosto',
             'ultimosMovimientos'
         ));
     }

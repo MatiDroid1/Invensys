@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Permiso;
+use App\Services\Permisos;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -54,6 +55,26 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->rol === 'admin';
+    }
+
+    /**
+     * ¿El usuario tiene ese permiso?
+     *
+     * Es la forma canónica de preguntar por autorización dentro del código.
+     * La respuesta sale de `App\Services\Permisos`, que es el único punto
+     * donde se decide el modelo de permisos.
+     */
+    public function puede(Permiso|string $permiso): bool
+    {
+        $permiso = $permiso instanceof Permiso
+            ? $permiso
+            : Permiso::tryFrom($permiso);
+
+        if ($permiso === null) {
+            return false;
+        }
+
+        return app(Permisos::class)->puede($this, $permiso);
     }
 
     public function conversacionesEnviadas(): HasMany

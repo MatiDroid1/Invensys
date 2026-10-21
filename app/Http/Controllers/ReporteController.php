@@ -35,9 +35,14 @@ class ReporteController extends Controller
                 ->values();
         }
 
+        $valorTotal = $articulos->sum(
+            fn ($articulo) => $articulo->valor_inventario ?? 0
+        );
+
         return view('reportes.stock', compact(
             'articulos',
-            'soloBajoMinimo'
+            'soloBajoMinimo',
+            'valorTotal'
         ));
     }
 
@@ -75,6 +80,11 @@ class ReporteController extends Controller
             'Unidad de medida',
             'Stock actual',
             'Stock mínimo',
+            'Costo promedio',
+            'Precio de venta',
+            'Margen unitario',
+            'Margen %',
+            'Valor inventario',
             'Estado',
         ]];
 
@@ -86,9 +96,93 @@ class ReporteController extends Controller
                 $articulo->unidadMedida?->nombre,
                 $this->numeroEs($articulo->stock_calculado),
                 $this->numeroEs($articulo->stock_minimo),
+                $articulo->costo_promedio !== null
+                    ? $this->numeroEs($articulo->costo_promedio)
+                    : null,
+                $articulo->precio_venta !== null
+                    ? $this->numeroEs($articulo->precio_venta)
+                    : null,
+                $articulo->margen !== null
+                    ? $this->numeroEs($articulo->margen)
+                    : null,
+                $articulo->margen_porcentaje !== null
+                    ? $this->numeroEs($articulo->margen_porcentaje)
+                    : null,
+                $articulo->valor_inventario !== null
+                    ? $this->numeroEs($articulo->valor_inventario)
+                    : null,
                 $articulo->activo ? 'Activo' : 'Inactivo',
             ];
         }
+
+        return $this->respuestaCsv($lineas, $nombreArchivo);
+    }
+
+    /**
+     * Inventario valorizado para el contador.
+     *
+     * A diferencia del reporte de stock, aquí solo interesan los artículos con
+     * existencias y costo conocido: es el detalle que respalda el asiento de
+     * inventario a fin de período. El costo es el promedio ponderado; el valor
+     * es cantidad × costo. Se cierra con el total general.
+     */
+    public function inventarioValorizadoCsv(Request $request)
+    {
+        $articulos = Articulo::query()
+            ->conStock()
+            ->with([
+                'categoria',
+                'unidadMedida',
+            ])
+            ->where('activo', true)
+            ->orderBy('nombre')
+            ->get()
+            ->filter(fn ($articulo) => (float) $articulo->stock_calculado > 0
+                && $articulo->costo_promedio !== null)
+            ->values();
+
+        $nombreArchivo = 'inventario_valorizado_'.now()->format('Y-m-d_H-i-s').'.csv';
+
+        $lineas = [[
+            'Código',
+            'Artículo',
+            'Categoría',
+            'Unidad de medida',
+            'Cantidad',
+            'Costo unitario',
+            'Valor',
+        ]];
+
+        $valorTotal = 0.0;
+
+        foreach ($articulos as $articulo) {
+            $cantidad = (float) $articulo->stock_calculado;
+            $costo = (float) $articulo->costo_promedio;
+            $valor = $cantidad * $costo;
+
+            $valorTotal += $valor;
+
+            $lineas[] = [
+                $articulo->codigo,
+                $articulo->nombre,
+                $articulo->categoria?->nombre,
+                $articulo->unidadMedida?->nombre,
+                $this->numeroEs($cantidad),
+                $this->numeroEs($costo),
+                $this->numeroEs($valor),
+            ];
+        }
+
+        $lineas[] = [];
+        $lineas[] = [
+            '',
+            'TOTAL',
+            '',
+            '',
+            '',
+            '',
+            $this->numeroEs($valorTotal),
+        ];
 
         return $this->respuestaCsv($lineas, $nombreArchivo);
     }
@@ -123,7 +217,8 @@ class ReporteController extends Controller
                 return $query->where('tipo', $tipo);
             })
             ->orderBy('fecha_movimiento', 'desc')
-            ->paginate(50);
+            ->paginate(50)
+            ->withQueryString();
 
         return view('reportes.movimientos', compact(
             'movimientos',
@@ -227,7 +322,7 @@ class ReporteController extends Controller
             })
             ->orderBy('fecha_movimiento', 'desc');
 
-        $movimientos = $movimientosQuery->paginate(50);
+        $movimientos = $movimientosQuery->paginate(50)->withQueryString();
 
         return view('reportes.entregas_persona', compact(
             'movimientos',

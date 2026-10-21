@@ -8,7 +8,7 @@
     <div class="md-page md-page-body space-y-6">
         <x-alerta />
         {{-- Indicadores principales --}}
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
 
             <div class="md-stat">
                 <div class="flex items-start justify-between gap-4">
@@ -89,6 +89,36 @@
                     <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                    </span>
+                </div>
+            </div>
+
+            <div class="md-stat">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="min-w-0">
+                        <div class="md-overline">
+                            Valor del inventario
+                        </div>
+
+                        <div class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+                            @if ($articulosConCosto->isEmpty())
+                                <span class="text-gray-400 dark:text-gray-500 text-xl" title="Registra costos en las entradas para valorizar el inventario">—</span>
+                            @else
+                                {{ number_format((float) $valorInventario, 0, ',', '.') }} $
+                            @endif
+                        </div>
+
+                        @if ($articulosConCosto->isNotEmpty())
+                            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {{ $articulosConCosto->count() }} artículo(s) valorizado(s)
+                            </div>
+                        @endif
+                    </div>
+
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </span>
                 </div>

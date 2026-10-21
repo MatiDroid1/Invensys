@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PerteneceAOrganizacion;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,15 +12,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Conversacion extends Model
 {
-    use HasFactory;
+    use HasFactory, PerteneceAOrganizacion;
 
     protected $table = 'conversaciones';
 
-    protected $fillable = [
-        'usuario_emisor_id',
-        'usuario_receptor_id',
-        'ultimo_mensaje_en',
-    ];
+    /**
+     * Los IDs de organización no deben asignarse desde formularios o requests.
+     */
+    protected $guarded = ['id', 'organizacion_id'];
 
     protected $casts = [
         'ultimo_mensaje_en' => 'datetime',

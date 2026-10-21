@@ -27,7 +27,7 @@
                 </label>
             </form>
 
-            <div class="mt-5">
+            <div class="mt-5 flex flex-wrap gap-3">
                 <a
                     href="{{ route('reportes.stock.csv', request()->query()) }}"
                     class="md-btn md-btn-filled"
@@ -37,6 +37,18 @@
                     </svg>
 
                     Descargar CSV
+                </a>
+
+                <a
+                    href="{{ route('reportes.inventario-valorizado.csv') }}"
+                    class="md-btn md-btn-tonal"
+                    title="Inventario con existencias y costo, con total general. Pensado para contabilidad."
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m-6 4h6m-6 4h3M6.75 3.75h10.5A2.25 2.25 0 0119.5 6v12a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 18V6a2.25 2.25 0 012.25-2.25z" />
+                    </svg>
+
+                    Inventario valorizado (contabilidad)
                 </a>
             </div>
         </section>
@@ -75,6 +87,22 @@
 
                             <th scope="col" class="md-th md-th-num">
                                 Stock mínimo
+                            </th>
+
+                            <th scope="col" class="md-th md-th-num">
+                                Costo promedio
+                            </th>
+
+                            <th scope="col" class="md-th md-th-num">
+                                Precio venta
+                            </th>
+
+                            <th scope="col" class="md-th md-th-num">
+                                Margen
+                            </th>
+
+                            <th scope="col" class="md-th md-th-num">
+                                Valor inventario
                             </th>
 
                             <th scope="col" class="md-th">
@@ -118,6 +146,29 @@
                                     {{ number_format($stockMinimo, 2, ',', '.') }}
                                 </td>
 
+                                <td class="md-td md-td-num">
+                                    <x-dinero :monto="$articulo->costo_promedio !== null ? (float) $articulo->costo_promedio : null" />
+                                </td>
+
+                                <td class="md-td md-td-num">
+                                    <x-dinero :monto="$articulo->precio_venta !== null ? (float) $articulo->precio_venta : null" />
+                                </td>
+
+                                <td class="md-td md-td-num">
+                                    @if ($articulo->margen === null)
+                                        <span class="text-gray-400 dark:text-gray-500" title="Falta costo o precio de venta">—</span>
+                                    @else
+                                        <x-dinero :monto="$articulo->margen" />
+                                        <span class="block text-xs text-gray-400 dark:text-gray-500">
+                                            {{ number_format($articulo->margen_porcentaje, 1, ',', '.') }}%
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <td class="md-td md-td-num md-td-strong">
+                                    <x-dinero :monto="$articulo->valor_inventario" />
+                                </td>
+
                                 <td class="md-td">
                                     @if ($stockBajo)
                                         <span class="md-badge md-badge-danger">
@@ -132,6 +183,20 @@
                             </tr>
                         @endforeach
                     </tbody>
+
+                    <tfoot>
+                        <tr class="md-tr">
+                            <td class="md-td md-td-strong" colspan="9">
+                                Valor total del inventario
+                            </td>
+
+                            <td class="md-td md-td-num md-td-strong">
+                                <x-dinero :monto="$valorTotal" />
+                            </td>
+
+                            <td class="md-td"></td>
+                        </tr>
+                    </tfoot>
                 </x-tabla>
 
             @endif

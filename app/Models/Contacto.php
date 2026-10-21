@@ -2,24 +2,21 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PerteneceAOrganizacion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Contacto extends Model
 {
-    use HasFactory;
+    use HasFactory, PerteneceAOrganizacion;
 
     protected $table = 'contactos';
 
-    protected $fillable = [
-        'usuario_id',
-        'nombre',
-        'email',
-        'asunto',
-        'mensaje',
-        'estado',
-    ];
+    /**
+     * Los IDs de organización no deben asignarse desde formularios o requests.
+     */
+    protected $guarded = ['id', 'organizacion_id'];
 
     public function usuario(): BelongsTo
     {

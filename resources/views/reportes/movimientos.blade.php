@@ -161,7 +161,7 @@
             <div class="px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
                 <h3 class="md-section-title">
                     Movimientos encontrados:
-                    {{ $movimientos->count() }}
+                    {{ $movimientos->total() }}
                 </h3>
             </div>
 
@@ -233,7 +233,7 @@
                                 </td>
 
                                 <td class="md-td">
-                                    {{ $movimiento->usuario->name }}
+                                    {{ $movimiento->usuario?->name ?? '-' }}
                                 </td>
 
                                 <td class="md-td">

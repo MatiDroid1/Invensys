@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureOrganizacionActiva;
+use App\Http\Middleware\EnsureUserHasPermission;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Foundation\Application;
@@ -16,11 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'permiso' => EnsureUserHasPermission::class,
+            'organizacion' => EnsureOrganizacionActiva::class,
         ]);
 
         // Se comprueba `activo` en cada request, no solo al iniciar sesión.
         $middleware->web(append: [
             EnsureUserIsActive::class,
+            EnsureOrganizacionActiva::class,
         ]);
 
         // Necesario solo si hay un proxy o balanceador delante. Confiar en

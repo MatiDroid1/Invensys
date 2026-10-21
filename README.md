@@ -22,6 +22,7 @@ operaciones realizadas por los usuarios.
 - [Comandos útiles](#comandos-útiles)
 - [Ejecutar los tests](#ejecutar-los-tests)
 - [Desarrollo](#desarrollo)
+- [Documentación del proyecto](#documentación-del-proyecto)
 - [Preguntas frecuentes](#preguntas-frecuentes)
 - [Licencia](#licencia)
 
@@ -30,12 +31,32 @@ operaciones realizadas por los usuarios.
 ## Características
 
 - **Catálogo de artículos** con código, nombre, descripción, categoría, unidad de medida, stock
-  mínimo y control individual. Búsqueda por texto, filtro por categoría y por estado, con
-  paginación.
-- **Ficha de artículo** con indicadores de stock, últimas entradas y salidas, y los movimientos más
-  recientes.
+  mínimo, precio de venta y control individual. Búsqueda por texto, filtro por categoría y por
+  estado, con paginación.
+- **Valorización de inventario** mediante **costo promedio ponderado**. El costo se registra por
+  entrada (es opcional: un cliente puede operar sin costos) y el sistema recalcula el promedio del
+  artículo. Cada movimiento **congela** su costo unitario, así el histórico no se mueve cuando el
+  promedio cambia. El reporte de stock y el panel muestran el valor total del inventario.
+- **Márgenes** (precio de venta vs. costo promedio) y **exportación de inventario valorizado**
+  pensada para entregar al contador.
+- **Ficha de artículo** con indicadores de stock, costo promedio, valor del stock, últimas entradas
+  y salidas, y los movimientos más recientes.
 - **Movimientos de inventario** de cuatro tipos: `ENTRADA`, `SALIDA`, `AJUSTE_POSITIVO` y
   `AJUSTE_NEGATIVO`.
+- **Idempotencia**: un doble clic o un reintento del navegador nunca deja dos entradas donde
+  había una. Cada formulario de movimiento viaja con una clave única; si la misma clave llega dos
+  veces, la segunda se reconoce y no repite el movimiento.
+- **Anulación de movimientos**: en vez de borrar o editar, se anula. La anulación marca el
+  movimiento original como `ANULADO`, registra el motivo y genera un **movimiento compensatorio**
+  de sentido contrario, de modo que el stock queda como estaba y el historial sigue explicable.
+- **Capas de permisos**: la autorización se decide en un solo lugar
+  (`app/Services/Permisos.php`), no repartida entre controladores y vistas. Cada ruta declara el
+  permiso que exige, y los formularios seadaptan a lo que el usuario puede hacer.
+- **Importación masiva segura**: la importación **no destruye** datos (solo toca las columnas que
+  el archivo trae con valor, nunca reactiva un artículo desactivado), es **atómica** (si algo
+  falla, no deja el catálogo a medias) y se puede **revisar antes de aplicar**.
+- **Límites numéricos**: las cantidades y los precios se validan contra el tamaño real de las
+  columnas, así que un dato desbordado produce un mensaje de validación en vez de un error 500.
 - **Control de stock seguro**: no se permite registrar una salida ni un ajuste negativo mayor al
   stock disponible. La validación se hace dentro de una transacción de base de datos con
   `lockForUpdate()`, por lo que dos operaciones simultáneas no pueden descuadrar el inventario.
@@ -175,6 +196,11 @@ Esto crea todas las tablas y carga:
 - **8 unidades de medida** (Unidad, Caja, Paquete, Resma, Litro, Kilogramo, Metro, Rollo)
 - **1 usuario administrador** (ver sección siguiente)
 
+> Si la cuenta de administrador **ya existía** y su contraseña es una de las conocidas
+> (`password`, `admin`, `admin123`, `12345678`, `invensys`, `secret`), el seeder se detiene y avisa de
+> que hay que rotarla con `php artisan usuario:clave admin@invensys.cl`. Es a propósito: es la
+> forma de que la credencial débil que dejó el diagnóstico no sobreviva a la actualización.
+
 ### 9. Levantar el servidor
 
 ```bash
@@ -263,7 +289,8 @@ ADMIN_PASSWORD=una-clave-larga-y-propia
 | **Contraseña** | la que definiste en `ADMIN_PASSWORD` |
 
 > `ADMIN_PASSWORD` es **obligatoria**. Si falta, el seeder se detiene con un error en vez de crear la
-> cuenta con una contraseña adivinable. También rechaza claves demasiado cortas o evidente.
+> cuenta con una contraseña adivinable. También rechaza claves demasiado cortas o evidente, y
+> comprueba lo mismo en la cuenta de administrador que ya existiera.
 
 No hay registro público: las cuentas se crean desde **Administración → Usuarios**.
 
@@ -365,14 +392,34 @@ El sistema tiene dos roles, definidos en la columna `rol` de la tabla `users`:
 | Rol | Descripción |
 |---|---|
 | `usuario` | Acceso al inventario: artículos, movimientos, personas, kardex y reportes. |
-| `admin` | Todo lo anterior, más usuarios, auditoría y bandeja de contacto. |
+| `admin` | Todo lo anterior, más usuarios, auditoría, catálogo, importación y costos. |
 
-El acceso restringido se controla con el middleware `admin`
-(`app/Http/Middleware/EnsureUserIsAdmin.php`), que devuelve un **HTTP 403** si el usuario no es
-administrador. Está aplicado a las rutas `usuarios.*`, `categorias.*`, `unidades-medida.*`,
-`articulos.importar.*`, `auditoria.*`, `contacto.index`, `contacto.atender` y `diagnostico`.
+### Cómo se decide el acceso
 
-Además de la autorización por rol, el sistema protege la sesión de un usuario desactivado
+La autorización vive en un único lugar: `app/Services/Permisos.php`. A partir de ahí se
+registran un `Gate` por permiso (`Gate::allows('articulos.editar')`) y el middleware
+`permiso:articulos.editar`, para que la comprobación sea la misma en rutas, formularios y
+plantillas. La interfaz además se adapta: el campo de costo no aparece si el usuario no puede
+modificarlo, y no se envía vacío (lo que dispararía el error "campo requerido").
+
+| Permiso | `usuario` | `admin` |
+|---|:---:|:---:|
+| Ver y mantener artículos, personas, movimientos y kardex | Sí | Sí |
+| Registrar entradas, salidas, ajustes y **anular** movimientos | Sí | Sí |
+| Consultar costos (sin poder modificarlos) | Sí | Sí |
+| Exportar a CSV | Sí | Sí |
+| **Modificar costos** (costo unitario y precio de venta) | **No** | Sí |
+| **Administrar** usuarios, categorías, unidades y configuración | **No** | Sí |
+| **Importar** artículos masivamente | **No** | Sí |
+| Ver **auditoría** | **No** | Sí |
+| Bandeja de contacto y diagnóstico | **No** | Sí |
+
+> **¿Por qué un operador no puede tocar los costos?** El costo unitario y el precio de venta
+> falsean la valorización del inventario que se entrega al contador. Un operador sí puede registrar
+> una entrada **sin costo**; lo que no puede es fijar el costo. La comprobación vive en la capa
+> HTTP (`FormRequest`), no en el servicio, porque el servicio también lo usan procesos internos.
+
+Además de la autorización por permiso, el sistema protege la sesión de un usuario desactivado
 (`EnsureUserIsActive`), limita los intentos de login y aplica *throttling* a los endpoints de
 mensajería y contacto. Los usuarios con movimientos registrados no pueden eliminar su propia
 cuenta: el historial de inventario es inmutable.
@@ -383,23 +430,31 @@ cuenta: el historial de inventario es inmutable.
 
 ```
 app/
+├── Enums/
+│   └── Permiso.php                     Vocabulario de permisos (única fuente)
 ├── Http/
 │   ├── Controllers/                   Controladores del sistema
 │   │   └── Auth/                      Controladores de autenticación (Breeze)
 │   ├── Middleware/
-│   │   └── EnsureUserIsAdmin.php      Restringe rutas al rol admin
+│   │   ├── EnsureUserIsAdmin.php      Restringe rutas al rol admin
+│   │   └── EnsureUserHasPermission.php Restringe rutas a un permiso concreto
+│   ├── Policies/                      Policies de Articulo, Movimiento, Persona, ...
 │   ├── Requests/                      Validación de formularios
 │   └── ...
 ├── Models/                            Articulo, Movimiento, Persona, Categoria, ...
 ├── Services/
 │   ├── AuditoriaService.php           Registro centralizado de auditoría
-│   └── MovimientoService.php          Entradas, salidas y ajustes con validación de stock
+│   ├── ImportacionArticulosService.php Importación masiva no destructiva y atómica
+│   ├── MovimientoService.php          Entradas, salidas, ajustes y anulación
+│   └── Permisos.php                   Decide qué puede hacer cada usuario
+├── Support/
+│   └── Limites.php                    Topes numéricos según el tipo de columna
 └── View/Components/                   AppLayout, GuestLayout
 
 resources/
 ├── views/
 │   ├── articulos/                     Listado, alta, edición y ficha
-│   ├── movimientos/                   Historial, entrada, salida y ajuste
+│   ├── movimientos/                   Historial, entrada, salida, ajuste y anulación
 │   ├── personas/  categorias/  usuarios/  unidades-medida/
 │   ├── kardex/  reportes/  auditorias/  contacto/
 │   ├── auth/  profile/                Autenticación y perfil
@@ -423,6 +478,11 @@ tests/
 ├── Feature/
 │   ├── Auth/                          Tests de autenticación (Breeze)
 │   ├── InventarioTest.php             Cálculo de stock y validación de salidas
+│   ├── IdempotenciaMovimientosTest.php Double envío no duplica movimientos
+│   ├── AnulacionMovimientoTest.php    Anulación y movimiento compensatorio
+│   ├── ImportacionSeguraTest.php      Importación no destructiva y atómica
+│   ├── LimitesNumericosTest.php       Topes numéricos en formularios
+│   ├── PermisosTest.php               Qué puede hacer cada rol
 │   ├── VistasTest.php                 Verifica que cada vista se renderiza
 │   └── ProfileTest.php
 └── Unit/
@@ -433,8 +493,8 @@ tests/
 | Tabla | Contenido |
 |---|---|
 | `users` | Usuarios, con `rol` y `activo`. |
-| `articulos` | Catálogo: código, categoría, unidad de medida y stock mínimo. |
-| `movimientos` | Libro mayor del inventario (entradas, salidas y ajustes). |
+| `articulos` | Catálogo: código, categoría, unidad de medida, stock mínimo, costo promedio y precio de venta. |
+| `movimientos` | Libro mayor del inventario (entradas, salidas y ajustes), con el costo unitario congelado por movimiento, la clave de idempotencia y el estado (`CONFIRMADO` / `ANULADO`). |
 | `personas` | Destinatarios de entregas. |
 | `categorias` / `unidad_medidas` | Catálogos auxiliares. |
 | `auditorias` | Traza de operaciones. |
@@ -479,6 +539,14 @@ La suite corre contra **SQLite en memoria**, así que no toca tu base de datos d
 - **Autenticación** (Breeze): registro, login, restablecimiento de contraseña y verificación.
 - **Inventario** (`InventarioTest`): cálculo de stock, entradas, salidas, ajustes, rechazo de
   salidas sin stock disponible y desactivación sin pérdida de historial.
+- **Idempotencia** (`IdempotenciaMovimientosTest`): un doble envío con la misma clave deja un
+  solo movimiento.
+- **Anulación** (`AnulacionMovimientoTest`): el compensatorio, el stock que vuelve a su valor, el
+  motivo obligatorio y la auditoría.
+- **Importación segura** (`ImportacionSeguraTest`): no destruye datos, es atómica, detecta
+  duplicados y la previsualización no toca el catálogo.
+- **Límites** (`LimitesNumericosTest`): los valores fuera de rango dan un mensaje de validación.
+- **Permisos** (`PermisosTest`): qué puede hacer cada rol, y que los costos quedan reservados.
 - **Vistas** (`VistasTest`): que cada pantalla del sistema se renderice correctamente y que las
   rutas de administración estén protegidas.
 
@@ -548,6 +616,18 @@ php artisan vendor:publish --tag=laravel-pagination
 
 ---
 
+## Documentación del proyecto
+
+En `docs/` está el trabajo de fondo que sostiene el sistema:
+
+| Documento | Contenido |
+|---|---|
+| `docs/01_DIAGNOSTICO.md` | Auditoría completa del estado actual: riesgos, deuda técnica y plan por fases. |
+| `docs/02_ARQUITECTURA_MULTIEMPRESA.md` | Diseño del aislamiento por organización (decisiones ADR-001 a ADR-011). |
+| `docs/03_FASE2_FUNDAMENTOS.md` | Informe de la Fase 2: permisos, idempotencia, anulación, importación segura y límites. |
+
+---
+
 ## Preguntas frecuentes
 
 **¿No encuentro la categoría o unidad de medida que necesito?**
@@ -555,9 +635,11 @@ Créala primero en *Administración → Categorías* o *Unidades de medida*. Los
 solo muestran las que están activas.
 
 **¿Cómo corrijo un movimiento mal registrado?**
-Los movimientos no se editan. Registra un ajuste de inventario en sentido contrario desde
-*Movimientos → Ajuste de inventario*, dejando la explicación en el campo de referencia u
-observaciones.
+Desde *Movimientos → Historial*, cada movimiento tiene la acción **Anular**. Al anular se pide
+el motivo, el movimiento original queda marcado como `ANULADO` y se genera un movimiento
+compensatorio en sentido contrario: el stock vuelve a como estaba y queda registrado quién y por
+qué lo anuló. Para una entrada, la anulación se rechaza si ya no hay existencias que compensar,
+en vez de dejar el inventario en negativo.
 
 **Ingresé un artículo pero su stock es 0.**
 Es el comportamiento esperado: el stock se construye con los movimientos. Ve a

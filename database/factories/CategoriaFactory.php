@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Categoria;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @extends Factory<Categoria>
@@ -14,10 +15,40 @@ class CategoriaFactory extends Factory
 
     public function definition(): array
     {
+        $organizacionId = null;
+
+        try {
+            if (DB::getSchemaBuilder()->hasTable('organizaciones')) {
+                $organizacionId = DB::table('organizaciones')->orderBy('id')->value('id');
+            }
+        } catch (\Throwable $e) {
+        }
+
+        if (! $organizacionId) {
+            try {
+                DB::statement('PRAGMA foreign_keys = OFF;');
+                $organizacionId = DB::table('organizaciones')->insertGetId([
+                    'nombre' => 'Organización Principal',
+                    'slug' => 'principal',
+                    'perfil' => 'GENERAL',
+                    'activo' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::statement('PRAGMA foreign_keys = ON;');
+            } catch (\Throwable $e) {
+                try {
+                    DB::statement('PRAGMA foreign_keys = ON;');
+                } catch (\Throwable $ex) {
+                }
+            }
+        }
+
         return [
             'nombre' => fake()->unique()->word(),
             'descripcion' => fake()->sentence(),
             'activo' => true,
+            'organizacion_id' => $organizacionId,
         ];
     }
 }

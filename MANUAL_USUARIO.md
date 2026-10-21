@@ -66,6 +66,54 @@ Ojo con el signo: es **menor o igual**, no menor. Un artículo con stock 5 y mí
 aparece en rojo. El número aparece en rojo en el listado y en el reporte de stock, y se
 cuenta en el Panel.
 
+### Valorización del inventario (costos)
+
+Esta parte es **opcional**. Si no te interesa valorizar el inventario, puedes ignorar todos
+los campos de costo y el sistema funciona igual.
+
+Cuando sí la usas, la regla es:
+
+> **El costo del stock es el promedio ponderado de las entradas que tengan costo.**
+
+En cada entrada de inventario puedes escribir el **costo unitario** de esa mercadería. El
+sistema recalcula el costo promedio del artículo combinando lo que ya tenía con lo nuevo:
+
+```
+Costo promedio nuevo = (stock anterior × costo promedio anterior + cantidad × costo de la entrada)
+                       ────────────────────────────────────────────────────────────────────────
+                                          stock anterior + cantidad
+```
+
+Ejemplo: tienes 10 unidades a $1.000 y recibes 30 unidades a $2.000. El costo promedio pasa
+a $1.750, y el **valor del stock** es 40 × $1.750 = $70.000.
+
+Puntos importantes:
+
+- El costo se registra **por entrada**, no en el artículo. El campo "Costo promedio" del
+  artículo es calculado y **no se puede editar a mano**.
+- Cada movimiento **congela** el costo que tenía vigente cuando se registró. Si el promedio
+  cambia después, el histórico no se altera.
+- Una **salida** descuenta stock al costo vigente, pero **no cambia** el costo promedio.
+- Un **ajuste negativo** tampoco cambia el promedio. Un **ajuste positivo** con costo sí lo
+  recalcula (igual que una entrada).
+- Si nunca registras costos, el artículo queda **sin valorizar** y aparece con un guion (—)
+  en los reportes, en vez de un cero engañoso.
+
+El **valor del inventario** total se ve en el Panel y en el reporte de stock.
+
+### Márgenes
+
+Si cargas el **precio de venta** de un artículo (en el formulario de artículo) y el artículo
+tiene costo promedio, el reporte de stock muestra el **margen**: la diferencia entre el
+precio de venta y el costo, y qué porcentaje representa sobre el precio.
+
+```
+Margen = Precio de venta − Costo promedio
+Margen % = Margen ÷ Precio de venta × 100
+```
+
+Ejemplo: vendes a $1.500 y el costo promedio es $1.000 → margen de $500, que es un 33,3 %.
+
 ---
 
 ## 2. Acceso y roles
@@ -81,22 +129,31 @@ Un usuario **desactivado no puede iniciar sesión** aunque tenga la contraseña 
 
 ### Los dos roles
 
-| | `admin` (Administrador) | `usuario` |
+| | `admin` (Administrador) | `usuario` (Operador) |
 |---|---|---|
 | Ver artículos y movimientos | Sí | Sí |
 | Registrar entradas, salidas y ajustes | Sí | Sí |
+| **Anular movimientos** | Sí | Sí |
 | Kardex y reportes | Sí | Sí |
 | Ver personas | Sí | Sí |
+| Consultar costos (sin poder cambiarlos) | Sí | Sí |
+| **Cambiar costo unitario y precio de venta** | **Sí** | **No** |
 | **Administrar usuarios** | **Sí** | No |
 | **Ver bandeja de contacto** | **Sí** | No |
 | **Ver auditoría** | **Sí** | No |
-| **Administrar categorías y unidades** | Sí | Sí (oculto del menú) |
+| **Importar artículos masivamente** | **Sí** | No |
+| **Administrar categorías y unidades** | **Sí** | No |
 
 La diferencia práctica: el menú **Administración** solo le aparece al administrador.
 
 > **Nota sobre seguridad:** las categorías y las unidades de medida están reservadas al
 > administrador. Un usuario normal que escriba la dirección directamente recibe un error
 > 403, igual que en el módulo de Administración.
+
+> **Sobre los costos:** un operador **sí** puede registrar una entrada, pero **no** puede
+> escribir el costo unitario ni el precio de venta. La razón es práctica: el costo falsea la
+> valorización del inventario que se entrega al contador, así que queda reservado a quien
+> administra. Si no ves el campo de costo, no es un error: es que tu rol no lo modifica.
 
 ### Sesión
 
@@ -157,6 +214,7 @@ Click en el nombre de cualquier artículo para abrir su detalle. Muestra:
 
 - Datos completos, categoría y unidad
 - **Stock actual** y **stock mínimo**, con alerta si está bajo
+- **Costo promedio** y **valor del stock**, si el artículo tiene costos cargados
 - Si el control individual está activado
 - Fecha de la **última entrada** y de la **última salida**
 - Los **15 movimientos más recientes** de ese artículo, con tipo, cantidad, fecha,
@@ -176,6 +234,7 @@ Pulse **Nuevo artículo**. Complete:
 | Categoría | **Sí** | Solo categorías activas |
 | Unidad de medida | **Sí** | Solo unidades activas |
 | Stock mínimo | **Sí** | Número mayor o igual a 0. Si no tienes un mínimo definido, escribe `0` |
+| Precio de venta | No | Número mayor o igual a 0. Opcional. Solo el administrador puede escribirlo |
 | Descripción | No | Texto libre |
 | Control individual | No | Casilla. Ver nota abajo |
 
@@ -213,30 +272,58 @@ Es el corazón del sistema. Ruta: `/movimientos`.
 
 > **Los movimientos no se editan ni se borran. Nunca.**
 
-Si te equivocaste al registrar, la única forma de corregirlo es registrar un **ajuste**
-en sentido contrario. Esto es intencional: el historial debe ser confiable.
+Si te equivocaste al registrar, hay dos formas de corregirlo, y la elección depende de qué
+fue lo que pasó:
+
+- **El movimiento quedó mal registrado** (te equivocaste en la cantidad, en el artículo, en la
+  fecha): se **anula** desde el historial. Véase [Anular un movimiento](#anular-un-movimiento).
+- **La diferencia es real** (un conteo físico que no cuadra, una merma, algo que se perdió): se
+  registra un **ajuste** en sentido contrario, dejándolo en la referencia u observaciones.
+
+Esto es intencional: el historial debe ser confiable.
+
+### Anular un movimiento
+
+En **Movimientos → Historial**, cada movimiento tiene la acción **Anular**. Al pulsarla:
+
+1. Se abre una ventana donde **debes escribir el motivo** (es obligatorio).
+2. El movimiento original queda marcado como **Anulado** y aparece con esa Distintiva en el
+   listado. No se borra: sigue estando, y se puede ver que fue anulado.
+3. El sistema genera un **movimiento compensatorio** en sentido contrario, enlazado al original.
+4. El stock queda **como estaba** antes del movimiento.
+5. La anulación queda registrada en la **Auditoría**: quién, cuándo y por qué.
+
+Dos cosas que conviene saber:
+
+- **No se puede anular dos veces** el mismo movimiento, ni anular un movimiento ya anulado.
+- Si anulas una **entrada** y ya no hay existencias suficientes para compensarla, el sistema
+  **rechaza la anulación** con un mensaje claro, en vez de dejar el inventario en negativo. En
+  ese caso, corrige primero el origen de la diferencia (un ajuste o una salida que faltaba).
 
 ### Historial
 
 La tabla `Historial` muestra **todos** los movimientos, del más reciente al más antiguo,
 con: fecha y hora, artículo, tipo, cantidad, persona destinataria, usuario que lo
-registró y referencia.
+registró y referencia. Los movimientos anulados aparecen con la distintiva **Anulado**.
 
-> Este listado **no tiene filtros** y está paginado (50 registros por página, en orden del
-> más reciente al más antiguo). Cuando quieras acotar un rango de fechas, usa el **Reporte
-> de movimientos por período**.
+> El listado tiene **filtros** (artículo, tipo de movimiento, persona y rango de fechas) y está
+> paginado (50 registros por página, en orden del más reciente al más antiguo). Los filtros se
+> mantienen al cambiar de página.
 
 ### Los tres formularios de registro
 
 Todos piden **cantidad** (mayor que 0) y **fecha del movimiento** (puede ser una fecha
 pasada, para registrar movimientos atrasados). Opcionalmente **referencia** (máx. 100
-caracteres, ej. número de orden de compra) y **observaciones**.
+caracteres, ej. número de orden de compra) y **observaciones**. Las entradas y los ajustes
+positivos además ofrecen el campo **costo unitario** (opcional, ver
+[Valorización del inventario](#valorización-del-inventario-costos)).
 
 #### Nueva entrada — `ENTRADA`
 
 Suma stock. **No pide persona** (no va dirigida a nadie).
 
-Úsala cuando llega mercadería. Campos: artículo, cantidad, fecha, referencia, observaciones.
+Úsala cuando llega mercadería. Campos: artículo, cantidad, **costo unitario** (opcional),
+fecha, referencia, observaciones.
 
 #### Nueva salida — `SALIDA`
 
@@ -252,7 +339,8 @@ referencia, observaciones.
 #### Ajuste de inventario — `AJUSTE_POSITIVO` / `AJUSTE_NEGATIVO`
 
 Corrige el stock sin entrada ni salida real. Campos: artículo, **tipo de ajuste**,
-cantidad, fecha, referencia, observaciones.
+cantidad, **costo unitario** (opcional, solo en ajuste positivo), fecha, referencia,
+observaciones.
 
 - **Ajuste positivo:** para corregir un conteo a la baja, o registrar mercadería
   encontrada. Ejemplo: el conteo físico dio 20 pero el sistema dice 18 → ajuste positivo
@@ -284,12 +372,13 @@ este módulo.
 | Cargo | No | Máx. 100 |
 | Activo | No | Casilla |
 
-El listado ordena por **apellido y luego nombre**. Al desactivar una persona, deja de
-aparecer en el selector de salidas, pero **los movimientos ya registrados conservan el
-vínculo** con ella.
+El listado ordena por **apellido y luego nombre**. En cada fila hay una acción **Desactivar**:
+pregunta confirmación y marca a la persona como inactiva, sin borrar nada. Al desactivar una
+persona, deja de aparecer en el selector de salidas, pero **los movimientos ya registrados
+conservan el vínculo** con ella.
 
 Como los movimientos nunca se borran, desactivar es la única forma de "eliminar" una
-persona, y es segura.
+persona, y es segura. Para reactivarla, entra a **Editar** y márcala como activa.
 
 ---
 
@@ -304,10 +393,15 @@ acumulado.
 2. Se muestra la tabla con una fila por movimiento, **en orden cronológico** (del más
    antiguo al más reciente).
 
-Cada fila muestra: fecha, tipo, entrada, salida, **saldo** (acumulado después de ese
-movimiento), persona, usuario, referencia y observaciones.
+Cada fila muestra: fecha, tipo, entrada, salida, **costo unitario**, **valor** (cantidad ×
+costo), **saldo** (acumulado después de ese movimiento), persona, usuario, referencia y
+observaciones.
 
 > **El saldo de la última fila es el stock actual del artículo.**
+
+Arriba de la tabla se muestra la ficha del artículo, que incluye el costo promedio y el
+valor del stock cuando hay costos cargados. El botón **Descargar PDF** genera el kardex con
+esas mismas columnas.
 
 Si no seleccionas ningún artículo, la página solo muestra el selector.
 
@@ -319,10 +413,17 @@ Ruta: `/reportes`. Son lecturas: **no modifican datos**.
 
 ### Reporte de stock actual
 
-Lista todos los artículos **activos** con su stock calculado, stock mínimo y estado.
+Lista todos los artículos **activos** con su stock calculado, stock mínimo y estado. Si el
+artículo tiene costo cargado, también muestra el **costo promedio** y el **valor del
+stock**; si además tiene precio de venta, muestra el **margen**. Al pie aparece el **valor
+total del inventario**.
 
 Casilla **"Mostrar solo artículos bajo mínimo"**: filtra en vivo los que estén en o bajo
 el mínimo. Es el reporte para responder "¿qué debo reponer?".
+
+Botón **"Inventario valorizado (contabilidad)"**: descarga un CSV con los artículos que
+tienen existencias y costo, con cantidad, costo unitario, valor y el **total general**. Es
+el detalle que se entrega al contador para respaldar el inventario a fin de período.
 
 ### Reporte de movimientos por período
 
@@ -418,6 +519,7 @@ Muestra cuatro indicadores:
 | **Personas activas** | Personas no desactivadas |
 | **Movimientos este mes** | Movimientos del mes en curso |
 | **Stock bajo** | Artículos en o bajo su mínimo (en **rojo** si hay alguno) |
+| **Valor del inventario** | Valor total del stock valorizado; un guion (—) si ningún artículo tiene costo |
 
 Debajo: la lista de artículos con stock bajo y los **8 movimientos más recientes** de todo
 el sistema.
@@ -498,25 +600,29 @@ Tres secciones:
 Conviene conocerlos para evitar sorpresas durante su uso:
 
 1. **El stock nunca se edita.** Solo cambia mediante movimientos.
-2. **Los movimientos son inmutables.** No hay edición ni borrado; se corrigen con ajustes.
+2. **Los movimientos son inmutables.** No hay edición ni borrado; se corrigen anulando el
+   movimiento o con un ajuste.
 3. **Nada se borra físicamente.** Artículos, personas, categorías, unidades y usuarios se
    **desactivan**. El historial asociado se conserva siempre.
-4. **Un movimiento puede dejar el stock en negativo solo vía ajuste manual.** El sistema
-   bloquea salidas y ajustes negativos que superen el stock disponible.
-5. **Las salidas y los ajustes negativos no pueden dejar el stock en negativo.** El
+4. **Las salidas y los ajustes negativos no pueden dejar el stock en negativo.** El
    sistema lo bloquea.
-6. **No se puede crear un artículo sin categoría y unidad de medida activas.**
-7. **Un usuario desactivado no puede iniciar sesión.**
-8. **No puedes desactivar tu propia cuenta de usuario.**
-9. **El estado "bajo mínimo" es stock ≤ mínimo** (menor o igual).
-10. **El sistema no genera Excel ni PDF.** Los reportes se leen en pantalla y se pueden
-    imprimir con el navegador (por ahora).
-11. **El historial de movimientos no tiene filtros.** Con muchos registros, usa el reporte
-    por período. La tabla está paginada (50 por página).
-12. **Las categorías y las unidades de medida exigen rol administrador.** Un usuario
+5. **No se puede crear un artículo sin categoría y unidad de medida activas.**
+6. **Un usuario desactivado no puede iniciar sesión.**
+7. **No puedes desactivar tu propia cuenta de usuario.**
+8. **El estado "bajo mínimo" es stock ≤ mínimo** (menor o igual).
+9. **Los reportes se pueden descargar** en CSV (Excel en español) y el Kardex en PDF.
+10. **El historial de movimientos tiene filtros** (artículo, tipo, persona y fechas) y está
+    paginado (50 por página).
+11. **Las categorías y las unidades de medida exigen rol administrador.** Un usuario
     normal recibe un error 403 si entra por URL directa.
-13. **El registro público de usuarios está deshabilitado** (la ruta `/register` no existe).
+12. **El registro público de usuarios está deshabilitado** (la ruta `/register` no existe).
     Las cuentas las crea un administrador desde **Administración → Usuarios**.
+13. **Los costos solo los modifica el administrador.** Un operador registra entradas sin
+    costo; si intenta cambiar un costo, el sistema se lo rechaza.
+14. **Un doble clic no duplica movimientos.** Cada formulario viaja con una clave única: si
+    la misma clave llega dos veces, la segunda se reconoce y no repite el movimiento.
+15. **La importación de artículos no destruye datos.** Solo cambia las columnas que el
+    archivo trae con valor, y se aplica completa o no se aplica.
 
 ---
 
@@ -527,8 +633,15 @@ Porque el stock se calcula solo con movimientos. Si recién lo creaste, parte en
 registrar una entrada.
 
 **Registré una salida de más. ¿Cómo la corrijo?**
-No se puede borrar. Registra un **ajuste positivo** con la cantidad que te pasaste. El
-stock volverá a la normalidad y quedará documentado.
+Vuelve a **Movimientos → Historial** y pulsa **Anular** en esa salida: el sistema marca el
+movimiento como anulado, genera una entrada compensatoria y deja el stock como estaba. Si la
+salida fue correcta y lo que cambió fue el conteo físico, registra en cambio un **ajuste
+positivo** con la diferencia.
+
+**¿Se puede deshacer una salida?**
+Sí, de dos formas: **anulando** la salida desde el historial (si el movimiento estaba mal
+registrado) o registrando un **ajuste positivo** por la misma cantidad (si la diferencia es
+real).
 
 **¿Puedo cambiar el stock mínimo de un artículo?**
 Sí, edita el artículo y cambia el stock mínimo. El stock actual no se ve afectado.
@@ -548,7 +661,13 @@ Cada movimiento guarda el usuario que lo registró, y puedes verlo en el listado
 ficha del artículo y en el reporte de movimientos.
 
 **¿Se puede deshacer una salida?**
-No directamente. Registra un ajuste positivo por la misma cantidad.
+Sí, de dos formas: **anulando** la salida desde el historial (si el movimiento estaba mal
+registrado) o registrando un **ajuste positivo** por la misma cantidad (si la diferencia es
+real).
+
+**¿Por qué no me aparece el campo de costo unitario?**
+Porque tu rol no puede modificar los costos. Un operador puede registrar entradas **sin**
+costo; el costo unitario y el precio de venta los carga el administrador.
 
 **¿Los datos se borran si desinstalo la aplicación?**
 Depende de dónde estén los datos. Si usaste **MySQL**, los datos están en la base de datos

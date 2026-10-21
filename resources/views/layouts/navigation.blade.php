@@ -278,6 +278,64 @@
                         style="display: none;"
                         class="md-menu right-0 w-60 origin-top-right"
                     >
+                        @php
+                            $organizacionActualNav = null;
+                            $organizacionesUsuarioNav = collect();
+
+                            if (Auth::check()) {
+                                try {
+                                    $organizacionesUsuarioNav = \App\Models\Organizacion::query()
+                                        ->join('organizacion_usuario', 'organizaciones.id', '=', 'organizacion_usuario.organizacion_id')
+                                        ->where('organizacion_usuario.user_id', Auth::id())
+                                        ->select('organizaciones.*')
+                                        ->orderByDesc('organizacion_usuario.predeterminada')
+                                        ->orderBy('organizaciones.nombre')
+                                        ->get();
+
+                                    $organizacionActualIdNav = \App\Support\OrganizacionActual::id();
+                                    if ($organizacionActualIdNav) {
+                                        $organizacionActualNav = $organizacionesUsuarioNav->firstWhere('id', $organizacionActualIdNav) ?? $organizacionesUsuarioNav->first();
+                                    } else {
+                                        $organizacionActualNav = $organizacionesUsuarioNav->first();
+                                    }
+                                } catch (\Throwable $e) {
+                                    $organizacionActualNav = null;
+                                    $organizacionesUsuarioNav = collect();
+                                }
+                            }
+                        @endphp
+
+                        @if ($organizacionesUsuarioNav->isNotEmpty())
+                            <div class="border-b border-gray-100 px-4 py-3 dark:border-gray-700/70">
+                                <p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                                    Mi empresa
+                                </p>
+                                <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                    {{ $organizacionActualNav->nombre ?? 'Sin empresa' }}
+                                </p>
+                                @if ($organizacionesUsuarioNav->count() > 1)
+                                    <div class="mt-2 space-y-1">
+                                        @foreach ($organizacionesUsuarioNav as $orgNav)
+                                            @if ($organizacionActualNav && $orgNav->id === $organizacionActualNav->id)
+                                                @continue
+                                            @endif
+                                            <a href="{{ route('organizaciones.seleccionar', $orgNav->id) }}" class="block truncate text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                                Cambiar a {{ $orgNav->nombre }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @endif
+                                <div class="mt-2 flex flex-col gap-1">
+                                    <a href="{{ route('organizaciones.editar') }}" class="text-xs text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
+                                        Datos de mi empresa
+                                    </a>
+                                    <a href="{{ route('organizaciones.crear') }}" class="text-xs text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
+                                        Agregar otra empresa
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="border-b border-gray-100 px-4 py-3 dark:border-gray-700/70">
                             <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
                                 {{ Auth::user()->name }}
@@ -444,6 +502,14 @@
 
                 <x-responsive-nav-link :href="route('contacto.index')" :active="request()->routeIs('contacto.*')">
                     Contacto
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('auditoria.index')" :active="request()->routeIs('auditoria.*')">
+                    Auditoría
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('diagnostico')" :active="request()->routeIs('diagnostico')">
+                    Diagnóstico
                 </x-responsive-nav-link>
             @endif
 

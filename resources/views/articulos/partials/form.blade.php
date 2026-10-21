@@ -118,6 +118,7 @@
             :value="old('stock_minimo', $esEdicion ? $articulo->stock_minimo : 0)"
             min="0"
             step="0.01"
+            max="{{ \App\Support\Limites::STOCK_MINIMO_MAX }}"
             required
         />
 
@@ -127,6 +128,67 @@
 
         <x-input-error :messages="$errors->get('stock_minimo')" class="mt-2" />
     </div>
+
+    {{-- Precio de venta --}}
+    <div>
+        <x-input-label for="precio_venta" value="Precio de venta" />
+
+        @can('costos.editar')
+            <x-text-input
+                id="precio_venta"
+                name="precio_venta"
+                type="number"
+                class="mt-1"
+                :value="old('precio_venta', $esEdicion ? $articulo->precio_venta : '')"
+                min="0"
+                step="0.01"
+                max="{{ \App\Support\Limites::PRECIO_MAX }}"
+                placeholder="Opcional"
+            />
+
+            <p class="md-hint">
+                Precio unitario de venta. Opcional: se usa para calcular el margen
+                sobre el costo promedio.
+            </p>
+        @else
+            {{-- El campo no se envía: el backend lo rechaza igual si llega. --}}
+            <p class="md-field !bg-gray-50 !text-gray-400 dark:!bg-gray-800/60 dark:!text-gray-500">
+                @if ($esEdicion && $articulo->precio_venta !== null)
+                    {{ number_format((float) $articulo->precio_venta, 2, ',', '.') }}
+                @else
+                    Sin precio
+                @endif
+            </p>
+
+            <p class="md-hint">
+                Puedes mantener el artículo, pero no modificar su precio de venta.
+            </p>
+        @endcan
+
+        <x-input-error :messages="$errors->get('precio_venta')" class="mt-2" />
+    </div>
+
+    {{-- Costo promedio (solo lectura, calculado por el sistema) --}}
+    @if ($esEdicion)
+        <div>
+            <x-input-label for="costo_promedio" value="Costo promedio" />
+
+            <x-text-input
+                id="costo_promedio"
+                name="costo_promedio"
+                type="text"
+                class="mt-1 bg-gray-50 dark:bg-gray-800/50"
+                :value="$articulo->costo_promedio !== null ? number_format((float) $articulo->costo_promedio, 2, ',', '.') : ''"
+                disabled
+            />
+
+            <p class="md-hint">
+                Calculado automáticamente con el promedio ponderado de las
+                entradas y ajustes positivos. No se puede editar: para
+                corregirlo, registra una entrada con el costo correcto.
+            </p>
+        </div>
+    @endif
 
     {{-- Opciones --}}
     <div class="flex flex-col justify-center gap-3">

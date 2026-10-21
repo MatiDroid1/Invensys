@@ -2,22 +2,21 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PerteneceAOrganizacion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Mensaje extends Model
 {
-    use HasFactory;
+    use HasFactory, PerteneceAOrganizacion;
 
     protected $table = 'mensajes';
 
-    protected $fillable = [
-        'conversacion_id',
-        'usuario_id',
-        'cuerpo',
-        'leido_en',
-    ];
+    /**
+     * Los IDs de organización no deben asignarse desde formularios o requests.
+     */
+    protected $guarded = ['id', 'organizacion_id'];
 
     protected $casts = [
         'leido_en' => 'datetime',

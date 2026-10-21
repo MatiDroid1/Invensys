@@ -10,6 +10,7 @@
             :articulos="$articulos"
             :articulo-preseleccionado="$articuloPreseleccionado"
             :mostrar-stock="false"
+            :mostrar-costo="true"
             placeholder-referencia="Ej: Envío Casa Matriz #123"
         />
 

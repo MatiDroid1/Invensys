@@ -15,6 +15,7 @@
         <x-movimiento-campos
             :articulos="$articulos"
             :articulo-preseleccionado="$articuloPreseleccionado"
+            :mostrar-costo="true"
             placeholder-referencia="Ej: Conteo físico mensual"
         >
             <x-slot:extra>

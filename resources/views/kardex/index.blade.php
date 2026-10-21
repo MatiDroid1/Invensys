@@ -55,7 +55,7 @@
         @if ($articulo)
 
             <section class="md-card p-5 sm:p-6">
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-6">
 
                     <div>
                         <div class="md-subtitle">
@@ -94,6 +94,26 @@
 
                         <div class="md-section-title text-lg">
                             {{ number_format($articulo->stock_actual, 2, ',', '.') }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="md-subtitle">
+                            Costo promedio
+                        </div>
+
+                        <div class="md-section-title text-lg">
+                            <x-dinero :monto="$articulo->costo_promedio !== null ? (float) $articulo->costo_promedio : null" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="md-subtitle">
+                            Valor del stock
+                        </div>
+
+                        <div class="md-section-title text-lg">
+                            <x-dinero :monto="$articulo->valor_inventario" />
                         </div>
                     </div>
 
@@ -156,6 +176,14 @@
                                 </th>
 
                                 <th scope="col" class="md-th md-th-sticky md-th-num">
+                                    Costo unit.
+                                </th>
+
+                                <th scope="col" class="md-th md-th-sticky md-th-num">
+                                    Valor
+                                </th>
+
+                                <th scope="col" class="md-th md-th-sticky md-th-num">
                                     Saldo
                                 </th>
                             </tr>
@@ -171,7 +199,7 @@
 
                                     <td class="md-td">
                                         <span class="md-chip">
-                                            {{ $movimiento->tipo }}
+                                            {{ $movimiento->tipo_etiqueta }}
                                         </span>
                                     </td>
 
@@ -197,6 +225,14 @@
                                         @else
                                             -
                                         @endif
+                                    </td>
+
+                                    <td class="md-td md-td-num">
+                                        <x-dinero :monto="$movimiento->costo_unitario !== null ? (float) $movimiento->costo_unitario : null" :decimales="2" />
+                                    </td>
+
+                                    <td class="md-td md-td-num">
+                                        <x-dinero :monto="$movimiento->valor" />
                                     </td>
 
                                     <td class="md-td md-td-num md-td-strong">
